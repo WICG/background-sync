@@ -72,6 +72,7 @@ self.onsync = function(event) {
 ```
 
 ## Notes
+
   * Since Service Workers are a requirement for Background Synchronization, and since Service Workers are limited to HTTPS origins, sites served without encryption will always fail to register for synchronization.
   * Background Synchronization is not likely to be available to all web applications, not even all apps served over SSL. Browsers may chose to limit the set of applications which can register for synchronization based on quality signals that aren't a part of the visible API.
   * `onsync` event handlers aren't allowed to run forever. Service workers cap the total runtime of handlers, so it pays to try to batch work and count on needing to resume from failure. Also, test.
