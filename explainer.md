@@ -44,7 +44,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
                function() { // Failure
                  // If no SW registration
                  // User/UA denied permission
-                 // If once is true and interval is set
+                 // If repeating is false and interval is set
                });
       });
     </script>
