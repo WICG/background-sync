@@ -53,7 +53,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
 </html>
 ```
 
-'suggestedInterval' is, as its name implies, a suggestion. The UA makes no guarantee as to when the sync event may be called.  If an event is non-`repeating`, then `suggestedInterval` is meant to suggest when the sync event should run.  `urgent` requests are higher priority than non-urgent requests.  Use an `urgent` request to send an email or tweet, while non-urgent requests are useful for occassional synchronization.
+`suggestedInterval` is, as its name implies, a suggestion. The UA makes no guarantee as to when the sync event may be called.  If an event is non-`repeating`, then `suggestedInterval` is meant to suggest when the sync event should run.  `urgent` requests are higher priority than non-urgent requests.  Use an `urgent` request to send an email or tweet, while non-urgent requests are useful for occassional synchronization.
 
 Because `urgent` requests might be less resource-friendly, they cannot be `repeating`.
 
