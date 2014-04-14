@@ -52,10 +52,14 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
   <body> ... </body>
 </html>
 ```
-
-`suggestedInterval` is, as its name implies, a suggestion. The UA makes no guarantee as to when the sync event may be called.  If an event is non-`repeating`, then `suggestedInterval` is meant to suggest when the sync event should run.  `urgent` requests are higher priority than non-urgent requests.  Use an `urgent` request to send an email or tweet, while non-urgent requests are useful for occassional synchronization.
-
-Because `urgent` requests might be less resource-friendly, they cannot be `repeating`.
+* `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
+* `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
+* `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
+* `suggestedInterval`: A suggestion of the interval between sync events.  The UA makes no guarantee as to when the event will be fired, but takes note of the suggested interval.  If `repeating` is false then the value should represent the suggested time delta before the event should fire.
+* `repeating`: If true the event will continue to fire until unregisterSync is called, otherwise it is only fired once.
+* `urgent`: 
+* `lang`:
+* `dir`:
 
 ## Handling Synchronization Events
 
