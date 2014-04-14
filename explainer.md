@@ -22,7 +22,10 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
     <script>
       navigator.serviceWorker.register("/sw.js");
 
+      // Requesting to sync will fail unless a viable SW is available, so wait
+      // for that to happen.
       navigator.serviceWorker.whenReady().then(function(sw) {
+        // Returns a Promise
         navigator.requestSync(
           "string id of sync action",
           {
@@ -34,14 +37,15 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
             lang: '',                       // default: document lang
             dir: ''                         // default: document dir
           }
-        ).then(function() {
-          // No resolved value
-          // Success, sync is now registered
-        }, function() {
-          // If no SW registration
-          // User/UA denied permission
-          // If once is true and interval is set
-        });
+        ).then(function() { // Success
+                 // No resolved value
+                 // Success, sync is now registered
+               },
+               function() { // Failure
+                 // If no SW registration
+                 // User/UA denied permission
+                 // If once is true and interval is set
+               });
       });
     </script>
   </head>
@@ -49,9 +53,13 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
 </html>
 ```
 
-The 'interval' is merely a suggestion of how often relevant content will be ready for synchronizing.  The UA makes no guarantee as to when the sync event may be called.  If an event is non-'repeating', then 'interval' is meant to suggest when the sync event should run.  'urgent' requests are higher priority than non-urgent requests.  Use an 'urgent' request to send an email or tweet, while non-urgent requests are useful for occassional synchronization.  Because 'urgent' requests might be less resource-friendly, they cannot be 'repeating'.
+The 'interval' is a suggestion. The UA makes no guarantee as to when the sync event may be called.  If an event is non-`repeating`, then `interval` is meant to suggest when the sync event should run.  `urgent` requests are higher priority than non-urgent requests.  Use an `urgent` request to send an email or tweet, while non-urgent requests are useful for occassional synchronization.
+
+Because `urgent` requests might be less resource-friendly, they cannot be `repeating`.
 
 ## Handling Synchronization Events
+
+Synchronization happens from the Service Worker context via the new `sync` event. It is passed the `data` string and the id from the invoking request.
 
 ```js
 // sw.js
