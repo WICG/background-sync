@@ -29,13 +29,13 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
         navigator.requestSync(
           "string id of sync action",
           {
-            description: '',                // default: empty string
-            data: '',                       // default: empty string
-            interval: 1000 * 60 * 60 * 24,  // ms, default: heuristic
-            repeating: true,                // default: true
-            urgent: false,                  // default: false
-            lang: '',                       // default: document lang
-            dir: ''                         // default: document dir
+            description: '',                 // default: empty string
+            data: '',                        // default: empty string
+            suggestedInterval: 86400 * 1000, // ms, default: heuristic
+            repeating: true,                 // default: true
+            urgent: false,                   // default: false
+            lang: '',                        // default: document lang
+            dir: ''                          // default: document dir
           }
         ).then(function() { // Success
                  // No resolved value
@@ -44,7 +44,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
                function() { // Failure
                  // If no SW registration
                  // User/UA denied permission
-                 // If repeating is false and interval is set
+                 // If repeating is false and suggestedInterval is set
                });
       });
     </script>
@@ -53,7 +53,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
 </html>
 ```
 
-The 'interval' is a suggestion. The UA makes no guarantee as to when the sync event may be called.  If an event is non-`repeating`, then `interval` is meant to suggest when the sync event should run.  `urgent` requests are higher priority than non-urgent requests.  Use an `urgent` request to send an email or tweet, while non-urgent requests are useful for occassional synchronization.
+'suggestedInterval' is, as its name implies, a suggestion. The UA makes no guarantee as to when the sync event may be called.  If an event is non-`repeating`, then `suggestedInterval` is meant to suggest when the sync event should run.  `urgent` requests are higher priority than non-urgent requests.  Use an `urgent` request to send an email or tweet, while non-urgent requests are useful for occassional synchronization.
 
 Because `urgent` requests might be less resource-friendly, they cannot be `repeating`.
 
