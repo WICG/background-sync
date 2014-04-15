@@ -45,7 +45,6 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
                  // If no SW registration
                  // User/UA denied permission
                  // If repeating is false and suggestedInterval is set
-                 // TODO: Needs error parameter so developer can know whether to try again or not.
                });
       });
     </script>
