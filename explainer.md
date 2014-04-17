@@ -44,7 +44,6 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
                function() { // Failure
                  // If no SW registration
                  // User/UA denied permission
-                 // If repeating is false and suggestedInterval is set
                });
       });
     </script>
@@ -56,8 +55,8 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
 * `suggestedInterval`: A suggestion of the interval between sync events.  The UA makes no guarantee as to when the event will be fired, but takes note of the suggested interval.  If `repeating` is false then the value should represent the suggested time delta before the event should fire.
-* `repeating`: If true the event will continue to fire until unregisterSync is called, otherwise it is only fired once.
-* `urgent`: 
+* `repeating`: If true the event will continue to fire until unregisterSync is called, otherwise it is only fired once and suggestedInterval is interpreted as the suggested time before firing.
+* `urgent`: Non-urgent (urgent: false) requests will fire when the UA feels it is best, taking the suggestedInterval, battery, and radio state into consideration.  The UA will be less conservative about resource usage for urgent requests and attempt to fire the event closer to the suggestedInterval.  The default value is false.
 * `lang`:
 * `dir`:
 
