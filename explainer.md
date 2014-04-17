@@ -82,6 +82,11 @@ self.onsync = function(event) {
 };
 ```
 
+## Removing Sync Events
+```js
+navigator.unregisterSync("string id of sync action to remove");
+```
+
 ## Notes
 
   * Since Service Workers are a requirement for Background Synchronization, and since Service Workers are limited to HTTPS origins, sites served without encryption will always fail to register for synchronization.
