@@ -51,6 +51,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
   <body> ... </body>
 </html>
 ```
+* `requestSync` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
