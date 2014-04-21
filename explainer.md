@@ -10,7 +10,7 @@ The web currently lacks any ability to provide this sort of functionality in a p
 
 Native application platforms do not suffer these indignities, instead providing [APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing](http://developer.android.com/reference/android/app/AlarmManager.html#setInexactRepeating(int, long, long, android.app.PendingIntent)).
 
-We propose a new API which extends [Service Workers](https://github.com/slightlyoff/ServiceWorker) with the ability to handle synchronization requests. This is coupled with a new document-side API for requesting (and canceling) synchronization. Together, these APIs form the basis of a powerful new capability for rich web apps.
+We propose a new API which extends [Service Workers](https://github.com/slightlyoff/ServiceWorker) with a new `onsync` event. This is coupled with a new document-side API for registering (and unregistering) interest in `onsync`. Together, these APIs form the basis of a powerful new capability for rich web apps.
 
 ## Requesting A Synchronization Opportunity
 
@@ -22,11 +22,11 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
     <script>
       navigator.serviceWorker.register("/sw.js");
 
-      // Requesting to sync will fail unless a viable SW is available, so wait
+      // Registering for sync will fail unless a viable SW is available, so wait
       // for that to happen.
       navigator.serviceWorker.whenReady().then(function(sw) {
         // Returns a Promise
-        navigator.requestSync(
+        navigator.registerSync(
           "string id of sync action",
           {
             description: '',                 // default: empty string
@@ -51,7 +51,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
   <body> ... </body>
 </html>
 ```
-* `requestSync` registers sync events for whichever SW matches the current document, even if it's not yet active.
+* `registerSync` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
