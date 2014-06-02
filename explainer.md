@@ -31,7 +31,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
           {
             description: '',                 // default: empty string
             data: '',                        // default: empty string
-            suggestedInterval: 86400 * 1000, // ms, default: heuristic
+            minInterval: 86400 * 1000, // ms, default: heuristic
             repeating: true,                 // default: true
             urgent: false,                   // default: false
             lang: '',                        // default: document lang
@@ -55,9 +55,9 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
-* `suggestedInterval`: A suggestion of the interval between sync events.  The UA makes no guarantee as to when the event will be fired, but takes note of the suggested interval.  If `repeating` is false then the value should represent the suggested time delta before the event should fire.
+* `minInterval`: A suggestion of the minimum time between sync events.  This is just a suggestion, the UA may fire before this point.  If `repeating` is false then the value should represent the suggested time delta before the event should fire.
 * `repeating`: If true the event will continue to fire until unregisterSync is called, otherwise it is only fired once and suggestedInterval is interpreted as the suggested time before firing.
-* `urgent`: Non-urgent (urgent: false) requests will fire when the UA feels it is best, taking the suggestedInterval, battery, and radio state into consideration.  The UA will be less conservative about resource usage for urgent requests and attempt to fire the event closer to the suggestedInterval.  The default value is false.
+* `urgent`: Non-urgent (urgent: false) requests will fire when the UA feels it is best, taking the suggestedInterval, battery, and radio state into consideration.  The UA may be less conservative about resource usage for urgent requests and attempt to fire the event closer to the suggestedInterval.  The UA may throttle urgent requests if they become too frequent.  The default value is false.
 * `lang`:
 * `dir`:
 
