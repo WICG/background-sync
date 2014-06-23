@@ -26,7 +26,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
       // for that to happen.
       navigator.serviceWorker.whenReady().then(function(sw) {
         // Returns a Promise
-        navigator.registerSync(
+        navigator.sync.register(
           "string id of sync action",
           {
             minInterval: 86400 * 1000,       // ms, default: heuristic
@@ -50,7 +50,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
   <body> ... </body>
 </html>
 ```
-* `registerSync` registers sync events for whichever SW matches the current document, even if it's not yet active.
+* `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
 * `minInterval`: A suggestion of the minimum time between sync events.  This is just a suggestion, the UA may fire before this point.  Only meaningful for repeating requests.  For non-repeating requests the event is fired when the UA expects that a network transmission would succeed.
 * `repeating`: If true the event will continue to fire until unregisterSync is called.  Otherwise the event is fired once (see minInterval for when it is fired when false).
@@ -76,18 +76,18 @@ self.onsync = function(event) {
     }
   } else {
     // Garbage collect unknown syncs (perhaps from older pages).
-    navigator.unregisterSync(event.id);
+    navigator.sync.unregister(event.id);
   }
 };
 ```
 
 ## Removing Sync Events
 ```js
-navigator.unregisterSync("string id of sync action to remove");
+navigator.sync.unregister("string id of sync action to remove");
 ```
 
 ## Notes
 
   * Since Service Workers are a requirement for Background Synchronization, and since Service Workers are limited to HTTPS origins, sites served without encryption will always fail to register for synchronization.
   * Background Synchronization is not likely to be available to all web applications, not even all apps served over SSL. Browsers may choose to limit the set of applications which can register for synchronization based on quality signals that aren't a part of the visible API.
-  * `onsync` event handlers aren't allowed to run forever. Service workers cap the total runtime of handlers, so it pays to try to batch work and count on needing to resume from failure. Also, test.
+  * `onsync` event handlers aren't allowed to run forever. Service workers may cap the total runtime of handlers, so it pays to try to batch work and count on needing to resume from failure. Also, test.
