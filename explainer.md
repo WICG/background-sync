@@ -96,9 +96,9 @@ Available both in window and serviceworker.
 
 ```js
 // doc.html
-navigator.sync.registrations().then(function(registrations) {
-  for(registration in registrations)
-    navigator.sync.unregister(registration.id);
+navigator.sync.registrations().then(function(ids) {
+  for(id in ids)
+    navigator.sync.unregister(id);
 });
 ```
 
