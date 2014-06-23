@@ -30,7 +30,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
           "string id of sync action",
           {
             minInterval: 86400 * 1000,       // ms, default: heuristic
-            repeating: true,                 // default: true
+            repeating: true,                 // default: false
             data: '',                        // default: empty string
             description: '',                 // default: empty string
             lang: '',                        // default: document lang
@@ -52,8 +52,8 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
 ```
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
-* `minInterval`: A suggestion of the minimum time between sync events.  This is just a suggestion, the UA may fire before this point.  Only meaningful for repeating requests.  For non-repeating requests the event is fired when the UA expects that a network transmission would succeed.
-* `repeating`: If true the event will continue to fire until unregisterSync is called.  Otherwise the event is fired once (see minInterval for when it is fired when false).
+* `minInterval`: A suggestion of the minimum time between sync events.  If not provided the UA will heuristically determine an interval.  This value is a suggestion, the UA may fire before or after this point.  It is ignored for non-repeating events.
+* `repeating`: If true the event will continue to fire until unregisterSync is called.  Otherwise the event is fired once at the soonest (UA-determined) time to sync.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `lang`:
@@ -80,6 +80,11 @@ self.onsync = function(event) {
   }
 };
 ```
+
+If a sync event fails (the event.waitUntil rejects or the browser crashes) then the UA will repeat the event in the future when the browser is next available.  The UA may apply a backoff algorithm to prevent failing events from running too frequently. 
+
+## Platform Considerations
+On mobile platforms sync events will start the UA if it is not running.  On desktop platforms sync events will only run while the browser is open.  This is in line with the Push API.  The reason for this is that mobile devices regularly close UAs due to memory constraints and the user can't reasonalby be expected to keep the UA alive, whereas on the desktop the UA can be left open for synchronization.
 
 ## Removing Sync Events
 ```js
