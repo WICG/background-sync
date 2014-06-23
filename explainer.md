@@ -43,6 +43,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
                function() { // Failure
                  // If no SW registration
                  // User/UA denied permission
+                 // Sync id already registered
                });
       });
     </script>
@@ -83,15 +84,29 @@ self.onsync = function(event) {
 
 If a sync event fails (the event.waitUntil rejects or the browser crashes) then the UA will reschedule the event to fire again in the future. The UA may apply a backoff algorithm to prevent failing events from running too frequently. 
 
-## Platform Considerations
-On mobile platforms sync events will start the UA if it is not running.  On desktop platforms sync events will only run while the browser is open.  This is in line with the Push API.  The reason for this is that mobile devices regularly close UAs due to memory constraints and the user can't reasonalby be expected to keep the UA alive, whereas on the desktop the UA can be left open for synchronization.
-
 ## Removing Sync Events
+
 ```js
 navigator.sync.unregister("string id of sync action to remove");
 ```
 
 Available both in window and serviceworker.
+
+## Looking up Sync Events
+
+```js
+// doc.html
+navigator.sync.registrations().then(function(registrations) {
+  for(registration in registrations)
+    navigator.sync.unregister(registration.id);
+});
+```
+
+
+
+## Platform Considerations
+
+On mobile platforms sync events will start the UA if it is not running.  On desktop platforms sync events will only run while the browser is open.  This is in line with the Push API.  The reason for this is that mobile devices regularly close UAs due to memory constraints and the user can't reasonalby be expected to keep the UA alive, whereas on the desktop the UA can be left open for synchronization.
 
 ## Notes
 
