@@ -24,7 +24,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
 
       // Registering for sync will fail unless a viable SW is available, so wait
       // for that to happen.
-      navigator.serviceWorker.whenReady().then(function(sw) {
+      navigator.serviceWorker.ready.then(function(sw) {
         // Returns a Promise
         navigator.sync.register(
           "string id of sync action",
@@ -82,7 +82,7 @@ self.onsync = function(event) {
 };
 ```
 
-If a sync event fails (the event.waitUntil rejects or the browser crashes) then the UA will reschedule the event to fire again in the future. The UA may apply a backoff algorithm to prevent failing events from running too frequently. 
+If a sync event fails (the event.waitUntil rejects or the browser crashes) then the UA will reschedule the event to fire again in the future. The UA may apply a backoff algorithm to prevent failing events from running too frequently.
 
 ## Removing Sync Events
 
