@@ -103,11 +103,6 @@ navigator.sync.registrations().then(function(ids) {
 ```
 
 
-
-## Platform Behavior
-
-On mobile platforms sync events will start the UA if it is not running.  On desktop platforms sync events will only run while the browser is open.  This is in line with the Push API.  The reason for this is that mobile devices regularly close UAs due to memory constraints and the user can't reasonalby be expected to keep the UA alive, whereas on the desktop the UA can be left open for synchronization.
-
 ## Notes
 
   * Since Service Workers are a requirement for Background Synchronization, and since Service Workers are limited to HTTPS origins, sites served without encryption will always fail to register for synchronization.
