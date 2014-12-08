@@ -4,9 +4,7 @@
 
 Modern web applications often find themselves in need of the ability to synchronize data with the server. This need is exacerbated by new [offline capabilities](https://github.com/slightlyoff/ServiceWorker) that enable applications to run while disconnected entirely from the server.
 
-Consider the case of a news site. Wouldn't it be great if the latest articles loaded overnight while you slept so that they were already available when you got on the morning train with terrible connectivity? The web currently lacks the ability to provide this sort of functionality in a power-efficient way. Current approaches require an application (or tab) to be running and rely on slow, battery-intensive pings. Modern web sites need to synchronize data in the background, even when the tab, or even the browser, is closed.
-
-Native application platforms provide [APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing](http://developer.android.com/reference/android/app/AlarmManager.html#setInexactRepeating(int, long, long, android.app.PendingIntent)).
+Consider the case of a news site. Wouldn't it be great if the latest articles loaded overnight so that they were already available when you stepped on the morning train (which has terrible connectivity)? The web currently lacks the ability to provide this sort of functionality in a power-efficient or consistent way. Current approaches require an application (or tab) to be running and rely on slow, battery-intensive pings. Modern web sites need to be able to synchronize data in the background, even when the tab, or even the browser, is closed.
 
 We propose a new API which extends [Service Workers](https://github.com/slightlyoff/ServiceWorker) with a new `onsync` event. This is coupled with a new document-side API for registering (and unregistering) interest in `onsync`. Together, these APIs form the basis of a powerful new capability for rich web apps.
 
