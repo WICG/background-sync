@@ -2,11 +2,13 @@
 
 ## What's All This About?
 
-Modern web applications often find themselves in need of the ability to synchronize data with the server. This need is exacerbated by new [offline capabilities](https://github.com/slightlyoff/ServiceWorker) that enable applications to run while disconnected entirely from the server.
+Modern web applications with heavy client-side logic often find themselves in need of the ability to synchronize data with the server. This need is exacerbated by new [offline capabilities](https://github.com/slightlyoff/ServiceWorker) that enable applications to run while disconnected entirely from the server.
 
-Consider the case of a news site. Wouldn't it be great if the latest articles loaded overnight while you slept so that they were already available when you got on the morning train with terrible connectivity? The web currently lacks the ability to provide this sort of functionality in a power-efficient way. Current approaches require an application (or tab) to be running and rely on slow, battery-intensive pings. Modern web sites need to synchronize data in the background, even when the tab, or even the browser, is closed.
+Consider the case of a Twitter application. Who can say when 140 characters of genius will strike? In that moment it's _clearly_ preferable for a Twitter client to provide a "send later" button in cases where sending doesn't initially succeed (e.g., while offline). Similar work-saving is natural in document editing applications and even in consumption, e.g.,Kindle applications synchronizing on furthest-read page.
 
-Native application platforms provide [APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing](http://developer.android.com/reference/android/app/AlarmManager.html#setInexactRepeating(int, long, long, android.app.PendingIntent)).
+The web currently lacks any ability to provide this sort of functionality in a power-efficient way. Current approaches require an application (or tab) to be running and rely on slow, battery-intensive pings.
+
+Native application platforms do not suffer these indignities, instead providing [APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing](http://developer.android.com/reference/android/app/AlarmManager.html#setInexactRepeating(int, long, long, android.app.PendingIntent)).
 
 We propose a new API which extends [Service Workers](https://github.com/slightlyoff/ServiceWorker) with a new `onsync` event. This is coupled with a new document-side API for registering (and unregistering) interest in `onsync`. Together, these APIs form the basis of a powerful new capability for rich web apps.
 
@@ -51,8 +53,8 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
 ```
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
-* `minInterval`: A suggestion of the minimum time before the first sync event is fired and between subsequent events. If not provided the UA will heuristically determine an interval.  This value is a suggestion, the UA may fire before or after this point.
-* `repeating`: If true the event will continue to fire until unregisterSync is called.  Otherwise the event is fired once.
+* `minInterval`: A suggestion of the minimum time between sync events.  If not provided the UA will heuristically determine an interval.  This value is a suggestion, the UA may fire before or after this point.  It is ignored for non-repeating events.
+* `repeating`: If true the event will continue to fire until unregisterSync is called.  Otherwise the event is fired once at the soonest (UA-determined) time to sync.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `lang`:
