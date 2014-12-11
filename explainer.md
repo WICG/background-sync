@@ -54,7 +54,7 @@ We propose a new API which extends [Service Workers](https://github.com/slightly
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
 * `minInterval`: A suggestion of the minimum time between sync events.  If not provided the UA will heuristically determine an interval.  This value is a suggestion, the UA may fire before or after this point.  It is ignored for non-repeating events.
-* `repeating`: If true the event will continue to fire until unregisterSync is called.  Otherwise the event is fired once at the soonest (UA-determined) time to sync.
+* `repeating`: If true the event will continue to fire until unregisterSync is called.  Otherwise the event is fired once. The first sync event (in either repeating or non-repeating cases) occurs at the soonest (UA-determined) time to sync.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `lang`:
