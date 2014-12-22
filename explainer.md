@@ -19,7 +19,7 @@ There are two general use cases that the `onsync` event is designed to address:
 1. Notification when next online to push and pull urgent content (email, docs, tweets, saved state)
 2. Periodic synchronization opportunities (static resources, content updates, logging)
 
-In both cases the event will fire _even if the browser is currently closed_.
+In both cases the event will fire _even if the browser is currently closed_, though it may be delayed, see the description of the register function below.
 
 ## What Background Sync is not
 Background Sync is specifically not an alarm API. The scheduling granularity is in minutes but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). To run sync events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
