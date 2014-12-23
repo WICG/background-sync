@@ -70,7 +70,7 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
 * `triggerInMins`: The number of minutes to wait before triggering the first sync event. This is inexact and may be delayed for several hours in resource constrained environments. Subsequent intervals will be based from the requested initial trigger time.
 * `minIntervalMins`: A suggestion of the minimum time between sync events.  If not provided the UA will heuristically determine an interval.  This value is a suggestion and may be delayed for several hours in resource constrained environments (e.g., when on battery). This value is ignored for non-repeating events.
 * `repeating`: If true the event will continue to fire until unregisterSync is called.  Otherwise the event is fired once. 
-* `urgent`: Urgent sync events will be fired when the device is next online. Urgent registrations cannot be repeating. Please use urgent requests with care as they are resource intensive.
+* `urgent`: Urgent sync events will be fired when the device is next online. Urgent registrations cannot be repeating and the triggerInMins parameter is ignored. Please use urgent requests with care as they are resource intensive.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `lang`: The language used in the description string.
