@@ -22,7 +22,7 @@ There are two general use cases that the `onsync` event is designed to address:
 In both cases the event will fire _even if the browser is currently closed_, though it may be delayed, see the description of the register function below.
 
 ## What Background Sync is not
-Background Sync is specifically not an alarm API. The scheduling granularity is in minutes but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). To run sync events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
+Background Sync is specifically not an alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). To run background events events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
 
 BackgroundSync also is not purposefully intended as a means to synchronize large files in the background (e.g., media), though it may be possible to use it to do so.
 
@@ -43,8 +43,8 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
         sw.syncManager.register(
           "string id of sync action",
           {
-            triggerInMins: 0,                // default: 0
-            minIntervalMins: 12 * 60,        // default: heuristic
+            triggerInMs: 0,                  // default: 0
+            minIntervalMs: 12 * 60,          // default: heuristic
             repeating: true,                 // default: false
             urgent: false,                   // default: false
             data: '',                        // default: empty string
@@ -67,8 +67,8 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
 ```
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
-* `triggerInMins`: The number of minutes to wait before triggering the first sync event. This is inexact and may be delayed for several hours in resource constrained environments. Subsequent intervals will be based from the requested initial trigger time.
-* `minIntervalMins`: A suggestion of the minimum time between sync events.  If not provided the UA will heuristically determine an interval.  This value is a suggestion and may be delayed for several hours in resource constrained environments (e.g., when on battery). This value is ignored for non-repeating events.
+* `triggerInMs`: The number of milliseconds to wait before triggering the first sync event. This is inexact and may be delayed for several hours in resource constrained environments. Subsequent intervals will be based from the requested initial trigger time.
+* `minIntervalMs`: A suggestion of the minimum time between sync events.  If not provided the UA will heuristically determine an interval.  This value is a suggestion and may be delayed for several hours in resource constrained environments (e.g., when on battery). This value is ignored for non-repeating events.
 * `repeating`: If true the event will continue to fire until unregisterSync is called.  Otherwise the event is fired once. 
 * `urgent`: Urgent sync events will be fired when the device is next online. Urgent registrations cannot be repeating and the triggerInMins parameter is ignored. Please use urgent requests with care as they are resource intensive.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
