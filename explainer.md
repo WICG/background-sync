@@ -16,7 +16,7 @@ We propose a new API that extends [Service Workers](https://github.com/slightlyo
 
 There are two general use cases that the `onsync` event is designed to address:
 
-1. Notification when next online to push and pull urgent content (email, docs, tweets, saved state)
+1. Notification when next online to upload new content (email, docs, tweets, saved state)
 2. Periodic synchronization opportunities (static resources, content updates, logging)
 
 In both cases the event will fire _even if the browser is currently closed_, though it may be delayed, see the description of the register function below.
@@ -45,12 +45,11 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
         sw.syncManager.register(
           "string id of sync action",
           {
-            urgent: false,                            // default: false
             minDelayMs: 0,                            // default: 0
+            maxDelayMs: 0,                            // default: 0
             minPeriodMs: 12 * 60 * 60 * 1000,         // default: 0
             minRequiredNetwork: "network_not_mobile"  // default: "network_any"
-            requiredCharging: true                    // default: false
-            requiredIdle: false                       // default: false
+            minRequiredState: "state_charging"        // default: "state_charging"
             data: '',                                 // default: empty string
             description: '',                          // default: empty string
             lang: '',                                 // default: document lang
@@ -71,12 +70,11 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
 ```
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
-* `urgent`: Urgent sync events will be fired when the device is next online. Urgent registrations cannot be periodic and the other requirements (delay, network type, charging required) are ignored. Please use urgent requests with care as they are resource intensive.
 * `minDelayMs`: The number of milliseconds to wait before triggering the first sync event. This may be delayed for several hours in resource constrained environments. Subsequent intervals will be based from the requested initial trigger time.
+* `maxDelayMs`: The maximum number of milliseconds to wait before firing the event. The event will be fired by this deadline even if the other conditions are not met. Does not apply to periodic events. The default value is 0, which means no max.
 * `minPeriodMs`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for several hours in resource constrained environments (e.g., when on battery). 
 * `minRequiredNetwork`: One of "network_none", "network_any", or "network_not_mobile". "network_none" means there is no restriction on the network status, no connection is necessary. "network_any" means that any network connection will do, as long as there is something. And "network_not_mobile" means any network type that's not a mobile network, such as 2G, 3G, or 4G. The default value is "network_any".
-* `requiredCharging`: True means that the device must be plugged in (charging) for it to run. Default false.
-* `requiredIdle`: True means that the device should be idle (UA determined) when the event is run in order to not interfere with the user.
+* `minRequiredState`: One of "state_any", "state_charging", or "state_charging_idle". The default is "state_any".
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `lang`: The language used in the description string.
