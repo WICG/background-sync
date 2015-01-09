@@ -48,6 +48,7 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
             minPeriodMs: 12 * 60 * 60 * 1000,         // default: 0
             minRequiredNetwork: "network_not_mobile"  // default: "network_any"
             requiredCharging: true                    // default: false
+            requiredIdle: false                       // default: false
             data: '',                                 // default: empty string
             description: '',                          // default: empty string
             lang: '',                                 // default: document lang
