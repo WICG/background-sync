@@ -24,7 +24,7 @@ In both cases the event will fire _even if the browser is currently closed_, tho
 For specific use case examples, see the [use cases document](https://slightlyoff.github.io/BackgroundSync/use_cases.html).
 
 ## What Background Sync is not
-Background Sync is specifically not an alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). To run background events events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
+Background Sync is specifically not an exact alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). To run background events events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
 
 BackgroundSync also is not purposefully intended as a means to synchronize large files in the background (e.g., media), though it may be possible to use it to do so.
 
@@ -49,7 +49,8 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
             maxDelayMs: 0,                            // default: 0
             minPeriodMs: 12 * 60 * 60 * 1000,         // default: 0
             minRequiredNetwork: "network_not_mobile"  // default: "network_any"
-            minRequiredState: "state_charging"        // default: "state_charging"
+            chargingRequired: true                    // default: false
+            idleRequired: false                       // default: false
             data: '',                                 // default: empty string
             description: '',                          // default: empty string
             lang: '',                                 // default: document lang
@@ -70,11 +71,12 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
 ```
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
-* `minDelayMs`: The number of milliseconds to wait before triggering the first sync event. This may be delayed for several hours in resource constrained environments. Subsequent intervals will be based from the requested initial trigger time.
-* `maxDelayMs`: The maximum number of milliseconds to wait before firing the event. The event will be fired by this deadline even if the other conditions are not met. Does not apply to periodic events. The default value is 0, which means no max.
-* `minPeriodMs`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for several hours in resource constrained environments (e.g., when on battery). 
+* `minDelayMs`: The suggested number of milliseconds to wait before triggering the first sync event. This may be delayed further (for coalescing purposes or to reserve resources) by a UA-determined amount of time. Subsequent intervals will be based from the requested initial trigger time.
+* `maxDelayMs`: The suggested maximum number of milliseconds to wait before firing the event. Typically, the event will be fired by this deadline even if the other conditions are not met. In some resource constrained settings the maxDelayMs may be delayed further. Does not apply to periodic events. The default value is 0, which means no max.
+* `minPeriodMs`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for a UA-specific period of time in resource constrained environments (e.g., when on battery). 
 * `minRequiredNetwork`: One of "network_none", "network_any", or "network_not_mobile". "network_none" means there is no restriction on the network status, no connection is necessary. "network_any" means that any network connection will do, as long as there is something. And "network_not_mobile" means any network type that's not a mobile network, such as 2G, 3G, or 4G. The default value is "network_any".
-* `minRequiredState`: One of "state_any", "state_charging", or "state_charging_idle". The default is "state_any".
+* `chargingRequired`: True if the device must be on AC power when the event is fired.
+* `idleRequired`: True if the device must be in an idle state (UA determined) when the event is fired.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `lang`: The language used in the description string.
