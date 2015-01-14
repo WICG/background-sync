@@ -1,6 +1,6 @@
 <h2>Background Synchronization Explained</h2>
 
-Modern web applications with heavy client-side logic often need to synchronize data with a server. This need is exacerbated by new [offline capabilities](https://github.com/slightlyoff/ServiceWorker) that enable applications to run while disconnected entirely from the server.
+Modern web applications with heavy client-side logic often need to synchronize data with a server. This need is exacerbated by new offline capabilities via [Service Workers](https://github.com/slightlyoff/ServiceWorker) that enable applications to run while disconnected entirely from the server.
 
 Consider the case of a Twitter application. Who can say when 140 characters of genius will strike? In that moment it's _clearly_ preferable for a Twitter client to provide a "send later" button in cases where sending doesn't initially succeed (e.g., while offline). Similar work-saving is natural in document editing applications and even in consumption, e.g., Kindle applications synchronizing on furthest-read page.
 
@@ -84,12 +84,12 @@ partial interface ServiceWorkerGlobalScope {
 
       // Registering for sync will fail unless a viable SW is available, so wait
       // for that to happen.
-      navigator.serviceWorker.ready.then(function(sw) {
+      navigator.serviceWorker.ready.then(function(swRegistration) {
         // Returns a Promise
-        sw.syncManager.register(
-          "string id of sync action",
+        swRegistration.syncManager.register(
+          "periodicSync",
           {
-            minDelayMs: 0,                            // default: 0
+            minDelayMs: 60 * 60 * 1000,               // default: 0
             maxDelayMs: 0,                            // default: 0
             minPeriodMs: 12 * 60 * 60 * 1000,         // default: 0
             minRequiredNetwork: "network_non_mobile"  // default: "network_online"
@@ -131,14 +131,14 @@ Synchronization happens from the Service Worker context via the new `sync` event
 self.onsync = function(event) {
   var data = JSON.parse(event.data);
 
-  if (event.id === "string id of sync action") {
+  if (event.id === "periodicSync") {
     if (data.whatever === 'foo') {
       // rejection is indication that the UA should try
-      // later (especially when network is ok)
+      // later
       event.waitUntil(doAsyncStuff());
     }
   } else {
-    // Garbage collect unknown syncs (perhaps from older pages).
+    // Delete unknown syncs (perhaps from older pages).
     syncManager.unregister(event.id);
   }
 };
@@ -146,15 +146,15 @@ self.onsync = function(event) {
 The `waitUntil` is a signal to the UA that the sync event is ongoing and that it should keep the SW alive if possible. Rejection of the event signals to the UA that the sync failed. Upon rejection the UA should reschedule (likely with a UA-determined backoff).
 
 ## Removing Sync Events
-
+If the id is not registered the function will reject.
 ```js
 swRegistration.syncManager.unregister("string id of sync action to remove");
 ```
 
 ## Looking up Sync Events
-
 ```js
-// doc.html
+Returned in order of registration.
+
 swRegistration.syncManager.getRegistrationIds().then(function(ids) {
   for(id in ids)
     swRegistration.syncManager.unregister(id);
@@ -162,6 +162,8 @@ swRegistration.syncManager.getRegistrationIds().then(function(ids) {
 ```
 
 ## Checking for Permission
+If the origin doesn't have permission to use background sync then registration will fail. A prompt for permission can only occur from the page and not the service worker (which runs in the background). So call registration from the page first to invoke the permission request before using it in the service worker.
+
 ```js
 swRegistration.syncManager.hasPermission().then(function(status) {
   alert("Permission status: " + status);
