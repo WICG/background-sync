@@ -8,7 +8,7 @@ Periodic content updates are also important to improve performance and responsiv
 
 The web currently lacks any ability to provide this sort of functionality in a user-friendly or power-efficient way. Current approaches require an application (or tab) to be running and rely on slow, battery-intensive pings.
 
-Native application platforms provide  [sync](https://developer.android.com/training/sync-adapters/running-sync-adapter.html) APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing. The web platform needs capabilities like this too.
+Native application platforms provide  [job scheduling](https://developer.android.com/reference/android/app/job/JobScheduler.html) APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing. The web platform needs capabilities like this too.
 
 We propose a new API that extends [Service Workers](https://github.com/slightlyoff/ServiceWorker) with a new `onsync` event and a new API for registering (and unregistering) interest in `onsync`. Together, these APIs form the basis of a powerful new capability for rich web apps.
 
@@ -17,7 +17,7 @@ We propose a new API that extends [Service Workers](https://github.com/slightlyo
 There are two general use cases that the `onsync` event is designed to address:
 
 1. Notification when next online to upload new content (email, docs, tweets, saved state)
-2. Periodic synchronization opportunities (static resources, content updates, logging)
+2. Periodic synchronization opportunities (static resources, content updates (e.g., docs, articles email), logging)
 
 In both cases the event will fire _even if the browser is currently closed_, though it may be delayed, see the description of the register function below.
 
@@ -27,6 +27,50 @@ For specific use case examples, see the [use cases document](https://slightlyoff
 Background Sync is specifically not an exact alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). To run background events events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
 
 BackgroundSync also is not purposefully intended as a means to synchronize large files in the background (e.g., media), though it may be possible to use it to do so.
+
+## IDL
+```javascript
+partial interface ServiceWorkerRegistration {
+  readonly attribute SyncManager syncManager;
+};
+
+interface SyncManager {
+  Promise<boolean> register(string id, optional SyncRegistrationOptions);
+  Promise<boolean> unregister(string id);
+  Promise<sequence<DOMString>> getRegistrationIds();
+  Promise<SyncPermissionStatus> hasPermission();
+  readonly attribute unsigned long minAllowablePeriodMillis;
+};
+
+dictionary SyncRegistrationOptions {
+  unsigned long minDelayMillis = 0;
+  unsigned long maxDelayMillis = 0;
+  unsigned long minPeriodMillis = 0;
+  SyncNetworkType minRequiredNetwork = "network_online";
+  boolean chargingRequired = false;
+  boolean idleRequired = false;
+  DOMString data = "";
+  DOMString description = "";
+  DOMString lang = "";
+};
+
+enum SyncNetworkType = {
+  "network_any",
+  "network_offline",
+  "network_online",
+  "network_non_mobile",
+};
+
+enum SyncPermissionStatus {
+  "default",
+  "denied",
+  "granted"
+};
+
+partial interface ServiceWorkerGlobalScope {
+  attribute EventHandler onsync;
+};
+```
 
 ## Requesting A Synchronization Opportunity
 
@@ -48,18 +92,16 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
             minDelayMs: 0,                            // default: 0
             maxDelayMs: 0,                            // default: 0
             minPeriodMs: 12 * 60 * 60 * 1000,         // default: 0
-            minRequiredNetwork: "network_not_mobile"  // default: "network_any"
-            chargingRequired: true                    // default: false
+            minRequiredNetwork: "network_non_mobile"  // default: "network_online"
+            chargingRequired: true                   // default: false
             idleRequired: false                       // default: false
             data: '',                                 // default: empty string
             description: '',                          // default: empty string
             lang: '',                                 // default: document lang
-            dir: ''                                   // default: document dir
           })
         .then(function() { // Success 
                },
                function() { // Failure
-                 // If no SW registration
                  // User/UA denied permission
                  // Sync id already registered
                });
@@ -70,17 +112,15 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
 </html>
 ```
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
-* `id`: The name given to the sync request.  This name is required to later unregister the request.  A new request will override an old request with the same id.
-* `minDelayMs`: The suggested number of milliseconds to wait before triggering the first sync event. This may be delayed further (for coalescing purposes or to reserve resources) by a UA-determined amount of time. Subsequent intervals will be based from the requested initial trigger time.
-* `maxDelayMs`: The suggested maximum number of milliseconds to wait before firing the event. Typically, the event will be fired by this deadline even if the other conditions are not met. In some resource constrained settings the maxDelayMs may be delayed further. Does not apply to periodic events. The default value is 0, which means no max.
-* `minPeriodMs`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for a UA-specific period of time in resource constrained environments (e.g., when on battery). 
-* `minRequiredNetwork`: One of "network_none", "network_any", or "network_not_mobile". "network_none" means there is no restriction on the network status, no connection is necessary. "network_any" means that any network connection will do, as long as there is something. And "network_not_mobile" means any network type that's not a mobile network, such as 2G, 3G, or 4G. The default value is "network_any".
-* `chargingRequired`: True if the device must be on AC power when the event is fired.
+* `id`: The name given to the sync request.  This name is required to later unregister the request.  If the id already exists the promise rejects.
+* `minDelayMs`: The suggested number of milliseconds to wait before triggering the first sync event. This may be delayed further (for coalescing purposes or to reserve resources) by a UA-determined amount of time. Subsequent intervals will be based from the requested initial trigger time. 
+* `maxDelayMs`: The suggested maximum number of milliseconds to wait before firing the event even if the conditions aren't met. In some resource constrained settings the maxDelayMs may be delayed further. Does not apply to periodic events. The default value is 0, which means no max.
+* `minPeriodMs`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for a UA-specific period of time in resource constrained environments (e.g., when on battery). If the value is less than SyncManager.minAllowablePeriodMillis (which is UA and platform dependent) then the promise will reject.
+* `minRequiredNetwork`: One of "network_any", "network_offline", "network_online", and  or "network_non_mobile". * `chargingRequired`: True if the device must be on AC power when the event is fired.
 * `idleRequired`: True if the device must be in an idle state (UA determined) when the event is fired.
 * `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 * `lang`: The language used in the description string.
-* `dir`: The direction of text for displaying the description string.
 
 ## Handling Synchronization Events
 
@@ -103,30 +143,30 @@ self.onsync = function(event) {
   }
 };
 ```
-The `waitUntil` is a signal to the UA that the sync event is ongoing and the rejection of the event signals to the UA that the sync failed. Whether or not the UA reschedules the sync is out of scope of the spec.
+The `waitUntil` is a signal to the UA that the sync event is ongoing and that it should keep the SW alive if possible. Rejection of the event signals to the UA that the sync failed. Upon rejection the UA should reschedule (likely with a UA-determined backoff).
 
 ## Removing Sync Events
 
-### From a Window
 ```js
-ServiceWorkerRegistration.syncManager.unregister("string id of sync action to remove");
-```
-
-### From a ServiceWorker
-```js
-syncManager.unregister("string id of sync action to remove");
+swRegistration.syncManager.unregister("string id of sync action to remove");
 ```
 
 ## Looking up Sync Events
 
 ```js
 // doc.html
-ServiceWorkerRegistration.syncManager.getRegistrations().then(function(ids) {
+swRegistration.syncManager.getRegistrationIds().then(function(ids) {
   for(id in ids)
-    ServiceWorkerRegistration.syncManager.unregister(id);
+    swRegistration.syncManager.unregister(id);
 });
 ```
 
+## Checking for Permission
+```js
+swRegistration.syncManager.hasPermission().then(function(status) {
+  alert("Permission status: " + status);
+});
+```
 
 ## Notes
 
