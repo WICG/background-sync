@@ -24,7 +24,7 @@ In both cases the event will fire _even if the browser is currently closed_, tho
 For specific use case examples, see the [use cases document](https://slightlyoff.github.io/BackgroundSync/use_cases.html).
 
 ## What Background Sync is not
-Background Sync is specifically not an exact alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). To run background events events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
+Background Sync is specifically not an exact alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). To run background events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
 
 BackgroundSync also is not purposefully intended as a means to synchronize large files in the background (e.g., media), though it may be possible to use it to do so.
 
