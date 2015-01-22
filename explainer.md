@@ -89,11 +89,11 @@ partial interface ServiceWorkerGlobalScope {
         swRegistration.syncManager.register(
           "periodicSync", // Sync id
           {
-            minDelayMillis: 60 * 60 * 1000,               // default: 0
-            maxDelayMillis: 0,                            // default: 0
-            minPeriodMillis: 12 * 60 * 60 * 1000,         // default: 0
+            minDelayMillis: 60 * 60 * 1000,           // default: 0
+            maxDelayMillis: 0,                        // default: 0
+            minPeriodMillis: 12 * 60 * 60 * 1000,     // default: 0
             minRequiredNetwork: "network_non_mobile"  // default: "network_online"
-            chargingRequired: true                   // default: false
+            chargingRequired: true                    // default: false
             idleRequired: false                       // default: false
             data: '',                                 // default: empty string
             description: '',                          // default: empty string
