@@ -35,8 +35,8 @@ partial interface ServiceWorkerRegistration {
 };
 
 interface SyncManager {
-  Promise<boolean> register(string id, optional SyncRegistrationOptions);
-  Promise<boolean> unregister(string id);
+  Promise<boolean> register(USVString id, optional SyncRegistrationOptions options);
+  Promise<boolean> unregister(USVString id);
   Promise<sequence<DOMString>> getRegistrationIds();
   Promise<SyncPermissionStatus> hasPermission();
   readonly attribute unsigned long minAllowablePeriodMillis;
@@ -54,7 +54,7 @@ dictionary SyncRegistrationOptions {
   DOMString lang = "";
 };
 
-enum SyncNetworkType = {
+enum SyncNetworkType {
   "network_any",
   "network_offline",
   "network_online",
