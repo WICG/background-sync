@@ -35,8 +35,8 @@ partial interface ServiceWorkerRegistration {
 };
 
 interface SyncManager {
-  Promise<boolean> register(USVString id, optional SyncRegistrationOptions options);
-  Promise<boolean> unregister(USVString id);
+  Promise<boolean> register(DOMString id, optional SyncRegistrationOptions options);
+  Promise<boolean> unregister(DOMString id);
   Promise<sequence<DOMString>> getRegistrationIds();
   Promise<SyncPermissionStatus> hasPermission();
   readonly attribute unsigned long minAllowablePeriodMillis;
