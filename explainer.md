@@ -70,6 +70,17 @@ enum SyncPermissionStatus {
 partial interface ServiceWorkerGlobalScope {
   attribute EventHandler onsync;
 };
+
+dictionary SyncEventInit : EventInit {
+  DOMString id;
+  DOMString data;
+};
+
+[Constructor(DOMString type, SyncEventInit eventInitDict), Exposed=ServiceWorker]
+interface SyncEvent : ExtendableEvent {
+  readonly attribute DOMString id;
+  readonly attribute DOMString data;
+};
 ```
 
 ## Requesting A Synchronization Opportunity
