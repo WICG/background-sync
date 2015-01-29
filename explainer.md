@@ -49,9 +49,7 @@ dictionary SyncRegistrationOptions {
   SyncNetworkType minRequiredNetwork = "network_online";
   boolean chargingRequired = false;
   boolean idleRequired = false;
-  DOMString data = "";
   DOMString description = "";
-  DOMString lang = "";
 };
 
 enum SyncNetworkType {
@@ -73,13 +71,11 @@ partial interface ServiceWorkerGlobalScope {
 
 dictionary SyncEventInit : EventInit {
   DOMString id;
-  DOMString data;
 };
 
 [Constructor(DOMString type, SyncEventInit eventInitDict), Exposed=ServiceWorker]
 interface SyncEvent : ExtendableEvent {
   readonly attribute DOMString id;
-  readonly attribute DOMString data;
 };
 ```
 
@@ -106,9 +102,7 @@ interface SyncEvent : ExtendableEvent {
             minRequiredNetwork: "network_non_mobile"  // default: "network_online"
             chargingRequired: true                    // default: false
             idleRequired: false                       // default: false
-            data: '',                                 // default: empty string
             description: '',                          // default: empty string
-            lang: '',                                 // default: document lang
           })
         .then(function() { // Success 
                },
@@ -130,25 +124,18 @@ interface SyncEvent : ExtendableEvent {
 * `minRequiredNetwork`: One of "network_any", "network_offline", "network_online", and  or "network_non_mobile".
 * `chargingRequired`: True if the device must be on AC power when the event is fired.
 * `idleRequired`: True if the device must be in an idle state (UA determined) when the event is fired.
-* `data`: Any additional data that may be needed by the event.  The size of the data may be limited by the UA.
 * `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
-* `lang`: The language used in the description string.
 
 ## Handling Synchronization Events
 
-Synchronization happens from the Service Worker context via the new `sync` event. It is passed the `data` string and the id from the invoking request.
+Synchronization happens from the Service Worker context via the new `sync` event. It is passed the id from the invoking request.
 
 ```js
 // sw.js
 self.onsync = function(event) {
-  var data = JSON.parse(event.data);
 
   if (event.id === "periodicSync") {
-    if (data.whatever === 'foo') {
-      // rejection is indication that the UA should try
-      // later
-      event.waitUntil(doAsyncStuff());
-    }
+    event.waitUntil(doAsyncStuffWithIndexedDBData());
   } else {
     // Delete unknown syncs (perhaps from older pages).
     syncManager.unregister(event.id);
