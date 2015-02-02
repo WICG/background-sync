@@ -39,13 +39,13 @@ interface SyncManager {
   Promise<boolean> unregister(DOMString id);
   Promise<sequence<DOMString>> getRegistrationIds();
   Promise<SyncPermissionStatus> hasPermission();
-  readonly attribute unsigned long minAllowablePeriodMillis;
+  readonly attribute unsigned long minAllowablePeriod;
 };
 
 dictionary SyncRegistrationOptions {
-  unsigned long minDelayMillis = 0;
-  unsigned long maxDelayMillis = 0;
-  unsigned long minPeriodMillis = 0;
+  unsigned long minDelay = 0;
+  unsigned long maxDelay = 0;
+  unsigned long minPeriod = 0;
   SyncNetworkType minRequiredNetwork = "network_online";
   boolean chargingRequired = false;
   boolean idleRequired = false;
@@ -96,9 +96,9 @@ interface SyncEvent : ExtendableEvent {
         swRegistration.syncManager.register(
           "periodicSync", // Sync id
           {
-            minDelayMillis: 60 * 60 * 1000,           // default: 0
-            maxDelayMillis: 0,                        // default: 0
-            minPeriodMillis: 12 * 60 * 60 * 1000,     // default: 0
+            minDelay: 60 * 60 * 1000,           // default: 0
+            maxDelay: 0,                        // default: 0
+            minPeriod: 12 * 60 * 60 * 1000,     // default: 0
             minRequiredNetwork: "network_non_mobile"  // default: "network_online"
             chargingRequired: true                    // default: false
             idleRequired: false                       // default: false
@@ -118,9 +118,9 @@ interface SyncEvent : ExtendableEvent {
 ```
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `Sync id`: The name given to the sync request.  This name is required to later unregister the request.  If the id already exists the promise rejects.
-* `minDelayMillis`: The suggested number of milliseconds to wait before triggering the first sync event. This may be delayed further (for coalescing purposes or to reserve resources) by a UA-determined amount of time. Subsequent intervals will be based from the requested initial trigger time. 
-* `maxDelayMillis`: The suggested maximum number of milliseconds to wait before firing the event even if the conditions aren't met. In some resource constrained settings the maxDelayMs may be delayed further. Does not apply to periodic events. The default value is 0, which means no max.
-* `minPeriodMillis`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for a UA-specific period of time in resource constrained environments (e.g., when on battery). If the value is less than SyncManager.minAllowablePeriodMillis (which is UA and platform dependent) then the promise will reject. Periodic sync registrations will repeat until the UA determines that they shouldn't anymore (e.g., the user doesn't visit the site frequently enough to merit the periodic sync). Because of this unpredictability, put critical functionality into non-periodic syncs or use push messaging.
+* `minDelay`: The suggested number of milliseconds to wait before triggering the first sync event. This may be delayed further (for coalescing purposes or to reserve resources) by a UA-determined amount of time. Subsequent intervals will be based from the requested initial trigger time. 
+* `maxDelay`: The suggested maximum number of milliseconds to wait before firing the event even if the conditions aren't met. In some resource constrained settings the maxDelayMs may be delayed further. Does not apply to periodic events. The default value is 0, which means no max.
+* `minPeriod`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for a UA-specific period of time in resource constrained environments (e.g., when on battery). If the value is less than SyncManager.minAllowablePeriod (which is UA and platform dependent) then the promise will reject. Periodic sync registrations will repeat until the UA determines that they shouldn't anymore (e.g., the user doesn't visit the site frequently enough to merit the periodic sync). Because of this unpredictability, put critical functionality into non-periodic syncs or use push messaging.
 * `minRequiredNetwork`: One of "network_any", "network_offline", "network_online", and  or "network_non_mobile".
 * `chargingRequired`: True if the device must be on AC power when the event is fired.
 * `idleRequired`: True if the device must be in an idle state (UA determined) when the event is fired.
