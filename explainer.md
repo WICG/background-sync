@@ -47,7 +47,7 @@ dictionary SyncRegistrationOptions {
   unsigned long maxDelay = 0;
   unsigned long minPeriod = 0;
   SyncNetworkType minRequiredNetwork = "network-online";
-  boolean allowOnBattery = false;
+  boolean allowOnBattery = true;
   boolean idleRequired = false;
   DOMString description = "";
 };
@@ -100,7 +100,7 @@ interface SyncEvent : ExtendableEvent {
             maxDelay: 0,                              // default: 0
             minPeriod: 12 * 60 * 60 * 1000,           // default: 0
             minRequiredNetwork: "network-non-mobile"  // default: "network-online"
-            allowOnBattery: true                      // default: false
+            allowOnBattery: true                      // default: true
             idleRequired: false                       // default: false
             description: '',                          // default: empty string
           })
