@@ -49,7 +49,6 @@ dictionary SyncRegistrationOptions {
   SyncNetworkType minRequiredNetwork = "network-online";
   boolean allowOnBattery = true;
   boolean idleRequired = false;
-  DOMString description = "";
 };
 
 enum SyncNetworkType {
@@ -102,7 +101,6 @@ interface SyncEvent : ExtendableEvent {
             minRequiredNetwork: "network-non-mobile"  // default: "network-online"
             allowOnBattery: true                      // default: true
             idleRequired: false                       // default: false
-            description: '',                          // default: empty string
           })
         .then(function() { // Success 
                },
@@ -124,7 +122,6 @@ interface SyncEvent : ExtendableEvent {
 * `minRequiredNetwork`: One of "network-any", "network-offline", "network-online", and  or "network-non-mobile".
 * `allowOnBattery`: False if the device must be on AC power when the event is fired.
 * `idleRequired`: True if the device must be in an idle state (UA determined) when the event is fired.
-* `description`: A description string justifying the need of the sync event to be presented to the user if permissions to use background sync is required by the UA.
 
 ## Handling Synchronization Events
 
