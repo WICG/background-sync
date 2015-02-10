@@ -35,11 +35,22 @@ partial interface ServiceWorkerRegistration {
 };
 
 interface SyncManager {
-  Promise<boolean> register(DOMString id, optional SyncRegistrationOptions options);
-  Promise<boolean> unregister(DOMString id);
-  Promise<sequence<DOMString>> getRegistrationIds();
+  Promise<SyncRegistration> register(optional SyncRegistrationOptions options);
+  Promise<sequence<SyncRegistration>> getRegistrations();
   Promise<SyncPermissionStatus> hasPermission();
   readonly attribute unsigned long minAllowablePeriod;
+};
+
+interface SyncRegistration {
+  readonly attribute DOMString id; // UA-generated uuid for bookkeeping purposes
+  readonly attribute unsigned long minDelay;
+  readonly attribute unsigned long maxDelay;
+  readonly attribute unsigned long minPeriod;
+  readonly attribute SyncNetworkType long minRequiredNetwork;
+  readonly attribute boolean allowOnBattery;
+  readonly attribute boolean idleRequired;
+  
+  unregister();
 };
 
 dictionary SyncRegistrationOptions {
@@ -69,12 +80,12 @@ partial interface ServiceWorkerGlobalScope {
 };
 
 dictionary SyncEventInit : EventInit {
-  DOMString id;
+  required SyncRegistration registration;
 };
 
 [Constructor(DOMString type, SyncEventInit eventInitDict), Exposed=ServiceWorker]
 interface SyncEvent : ExtendableEvent {
-  readonly attribute DOMString id;
+  readonly attribute SyncRegistration registration;
 };
 ```
 
@@ -93,7 +104,6 @@ interface SyncEvent : ExtendableEvent {
       navigator.serviceWorker.ready.then(function(swRegistration) {
         // Returns a Promise
         swRegistration.syncManager.register(
-          "periodicSync", // Sync id
           {
             minDelay: 60 * 60 * 1000,                 // default: 0
             maxDelay: 0,                              // default: 0
@@ -106,7 +116,6 @@ interface SyncEvent : ExtendableEvent {
                },
                function() { // Failure
                  // User/UA denied permission
-                 // Sync id already registered
                });
       });
     </script>
@@ -115,7 +124,6 @@ interface SyncEvent : ExtendableEvent {
 </html>
 ```
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
-* `Sync id`: The name given to the sync request.  This name is required to later unregister the request.  If the id already exists the promise rejects.
 * `minDelay`: The suggested number of milliseconds to wait before triggering the first sync event. This may be delayed further (for coalescing purposes or to reserve resources) by a UA-determined amount of time. Subsequent intervals will be based from the requested initial trigger time. 
 * `maxDelay`: The suggested maximum number of milliseconds to wait before firing the event even if the conditions aren't met. In some resource constrained settings the maxDelayMs may be delayed further. Does not apply to periodic events. The default value is 0, which means no max.
 * `minPeriod`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for a UA-specific period of time in resource constrained environments (e.g., when on battery). If the value is less than SyncManager.minAllowablePeriod (which is UA and platform dependent) then the promise will reject. Periodic sync registrations will repeat until the UA determines that they shouldn't anymore (e.g., the user doesn't visit the site frequently enough to merit the periodic sync). Because of this unpredictability, put critical functionality into non-periodic syncs or use push messaging.
