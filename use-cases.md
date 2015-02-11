@@ -34,8 +34,13 @@ I haven’t heard any use-cases directly from external developers, so these are 
 
 ### Use-cases
 
-* An alarm
-* Calendar reminders
+* **An alarm clock**
+* **Calendar reminders**
+
+### Requirements
+
+* Events fire within a minute (possibly within a few seconds) of their requested time
+* Calendar apps may require a large number of exact events to be registered for the far future. The user agent won't necessarily want to name them all individually, but it is important that they all be registered (i.e., no failures due to accidental ID collisions)
 
 # Concerns
 
