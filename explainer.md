@@ -50,7 +50,7 @@ interface SyncRegistration {
   readonly attribute boolean allowOnBattery;
   readonly attribute boolean idleRequired;
 
-  unregister();
+  Promise <boolean> unregister();
 };
 
 dictionary SyncRegistrationOptions {
@@ -105,8 +105,8 @@ interface SyncEvent : ExtendableEvent {
       navigator.serviceWorker.ready.then(function(swRegistration) {
         // Returns a Promise
         swRegistration.syncManager.register(
-          "periodicSync", // id
           {
+            id: "periodicSync",                       // default: UA-generated uuid
             minDelay: 60 * 60 * 1000,                 // default: 0
             maxDelay: 0,                              // default: 0
             minPeriod: 12 * 60 * 60 * 1000,           // default: 0
