@@ -35,14 +35,14 @@ partial interface ServiceWorkerRegistration {
 };
 
 interface SyncManager {
-  Promise<SyncRegistration> register(optional DOMString id, optional SyncRegistrationOptions options);
+  Promise<SyncRegistration> register(optional SyncRegistrationOptions options);
   Promise<sequence<SyncRegistration>> getRegistrations();
   Promise<SyncPermissionStatus> hasPermission();
   readonly attribute unsigned long minAllowablePeriod;
 };
 
 interface SyncRegistration {
-  readonly attribute DOMString id; // UA-generated uuid if not given
+  readonly attribute DOMString id;
   readonly attribute unsigned long minDelay;
   readonly attribute unsigned long maxDelay;
   readonly attribute unsigned long minPeriod;
@@ -54,6 +54,7 @@ interface SyncRegistration {
 };
 
 dictionary SyncRegistrationOptions {
+  DOMString id; // defaults to UA-generated uuid
   unsigned long minDelay = 0;
   unsigned long maxDelay = 0;
   unsigned long minPeriod = 0;
