@@ -37,7 +37,6 @@ partial interface ServiceWorkerRegistration {
 interface SyncManager {
   Promise<SyncRegistration> register(optional SyncRegistrationOptions options);
   Promise<sequence<SyncRegistration>> getRegistrations();
-  Promise<SyncPermissionStatus> hasPermission();
   readonly attribute unsigned long minAllowablePeriod;
 };
 
@@ -174,12 +173,17 @@ swRegistration.syncManager.getRegistrations().then(function(regs) {
 ```
 
 ## Checking for Permission
-If the origin doesn't have permission to use background sync then registration will fail. A prompt for permission can only occur from the page and not the service worker (which runs in the background). So call registration from the page first to invoke the permission request before using it in the service worker.
+If the origin doesn't have permission to use background sync then registration will fail. A prompt for permission can only occur from the page and not the service worker (which runs in the background). So call registration from the page first to invoke the permission request before using it in the service worker. Checking for permission status will be achieved through the [Permissions API](https://w3c.github.io/permissions/)
 
 ```js
-swRegistration.syncManager.hasPermission().then(function(status) {
-  alert("Permission status: " + status);
-});
+Permissions.get('backgroundsync').then(function(result) {
+    if (result.status == 'granted') {
+      // ... can assume that "send later" will work
+    } else if (result.status == 'prompt') {
+      // ... find a WindowClient, postMessage a request to register for bg sync in order to trigger the prompt
+    }
+    // Don't do anything if the permission was denied.
+  });
 ```
 
 ## Notes
