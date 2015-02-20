@@ -8,7 +8,7 @@ Periodic content updates are also important to improve performance and responsiv
 
 The web currently lacks any ability to provide this sort of functionality in a user-friendly or power-efficient way. Current approaches require an application (or tab) to be running and rely on slow, battery-intensive pings.
 
-Native application platforms provide  [job scheduling](https://developer.android.com/reference/android/app/job/JobScheduler.html) APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing. The web platform needs capabilities like this too.
+Native application platforms provide [job scheduling](https://developer.android.com/reference/android/app/job/JobScheduler.html) APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing. The web platform needs capabilities like this too.
 
 We propose a new API that extends [Service Workers](https://github.com/slightlyoff/ServiceWorker) with a new `onsync` event and a new API for registering (and unregistering) interest in `onsync`. Together, these APIs form the basis of a powerful new capability for rich web apps.
 
@@ -24,11 +24,13 @@ In both cases the event will fire _even if the browser is currently closed_, tho
 For specific use case examples, see the [use cases document](https://slightlyoff.github.io/BackgroundSync/use_cases.html).
 
 ## What Background Sync is not
+
 Background Sync is specifically not an exact alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). Similarly, the user agent may ignore pending synchronization requests to accommodate for user expected behaviors on a given platform (e.g. Android's power saving mode does not allow background sync). To run background events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
 
 BackgroundSync also is not purposefully intended as a means to synchronize large files in the background (e.g., media), though it may be possible to use it to do so.
 
 ## IDL
+
 ```javascript
 partial interface ServiceWorkerRegistration {
   readonly attribute SyncManager syncManager;
@@ -103,28 +105,28 @@ interface SyncEvent : ExtendableEvent {
       // for that to happen.
       navigator.serviceWorker.ready.then(function(swRegistration) {
         // Returns a Promise
-        swRegistration.syncManager.register(
-          {
-            id: "periodicSync",                       // default: UA-generated uuid
-            minDelay: 60 * 60 * 1000,                 // default: 0
-            maxDelay: 0,                              // default: 0
-            minPeriod: 12 * 60 * 60 * 1000,           // default: 0
-            minRequiredNetwork: "network-non-mobile"  // default: "network-online"
-            allowOnBattery: true                      // default: true
-            idleRequired: false                       // default: false
-          })
-        .then(function() { // Success
-               },
-               function() { // Failure
-                 // User/UA denied permission
-               });
+        swRegistration.syncManager.register({
+          id: "periodicSync",                       // default: UA-generated uuid
+          minDelay: 60 * 60 * 1000,                 // default: 0
+          maxDelay: 0,                              // default: 0
+          minPeriod: 12 * 60 * 60 * 1000,           // default: 0
+          minRequiredNetwork: "network-non-mobile"  // default: "network-online"
+          allowOnBattery: true                      // default: true
+          idleRequired: false                       // default: false
+        }).then(function() {
+          // Success
+        }, function() {
+          // Failure
+          // User/UA denied permission
+        });
       });
     </script>
   </head>
   <body> ... </body>
 </html>
 ```
-* `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
+
+* `register`: registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: Useful for recognizing distinct synchronization events.
 * `minDelay`: The suggested number of milliseconds to wait before triggering the first sync event. This may be delayed further (for coalescing purposes or to reserve resources) by a UA-determined amount of time. Subsequent intervals will be based from the requested initial trigger time.
 * `maxDelay`: The suggested maximum number of milliseconds to wait before firing the event even if the conditions aren't met. In some resource constrained settings the maxDelayMs may be delayed further. Does not apply to periodic events. The default value is 0, which means no max.
@@ -149,41 +151,47 @@ self.onsync = function(event) {
   }
 };
 ```
+
 The `waitUntil` is a signal to the UA that the sync event is ongoing and that it should keep the SW alive if possible. Rejection of the event signals to the UA that the sync failed. Upon rejection the UA should reschedule (likely with a UA-determined backoff).
 
 ## Removing Sync Events
+
 If the id is not registered the function will reject.
+
 ```js
 swRegistration.syncManager.getRegistrations().then((regs) => {
   for(reg in regs) {
-    if(reg.id == "string id of sync action to remove")
-      reg.unregister()
+    if(reg.id == "string id of sync action to remove") {
+      reg.unregister();
+    }
   }
 })
 ```
 
 ## Looking up Sync Events
+
 ```js
 // Returned in order of registration.
-
-swRegistration.syncManager.getRegistrations().then(function(regs) {
-  for(reg in regs)
+swRegistration.syncManager.getRegistrations().then((regs) => {
+  for(reg in regs) {
     reg.unregister();
+  }
 });
 ```
 
 ## Checking for Permission
+
 If the origin doesn't have permission to use background sync then registration will fail. A prompt for permission can only occur from the page and not the service worker (which runs in the background). So call registration from the page first to invoke the permission request before using it in the service worker. Checking for permission status will be achieved through the [Permissions API](https://w3c.github.io/permissions/)
 
 ```js
 Permissions.get('backgroundsync').then(function(result) {
-    if (result.status == 'granted') {
-      // ... can assume that "send later" will work
-    } else if (result.status == 'prompt') {
-      // ... find a WindowClient, postMessage a request to register for bg sync in order to trigger the prompt
-    }
-    // Don't do anything if the permission was denied.
-  });
+  if (result.status == 'granted') {
+    // ... can assume that "send later" will work
+  } else if (result.status == 'prompt') {
+    // ... find a WindowClient, postMessage a request to register for bg sync in order to trigger the prompt
+  }
+  // Don't do anything if the permission was denied.
+});
 ```
 
 ## Notes
