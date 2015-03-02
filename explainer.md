@@ -55,7 +55,7 @@ interface SyncRegistration {
 };
 
 dictionary SyncRegistrationOptions {
-  DOMString id; // defaults to UA-generated uuid
+  DOMString id; // defaults to empty string
   unsigned long minDelay = 0;
   unsigned long maxDelay = 0;
   unsigned long minPeriod = 0;
@@ -107,7 +107,7 @@ interface SyncEvent : ExtendableEvent {
         // Returns a Promise
         swRegistration.syncManager.register(
           {
-            id: "periodicSync",                       // default: UA-generated uuid
+            id: "periodicSync",                       // default: empty string
             minDelay: 60 * 60 * 1000,                 // default: 0
             maxDelay: 0,                              // default: 0
             minPeriod: 12 * 60 * 60 * 1000,           // default: 0
