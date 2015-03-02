@@ -36,6 +36,7 @@ partial interface ServiceWorkerRegistration {
 
 interface SyncManager {
   Promise<SyncRegistration> register(optional SyncRegistrationOptions options);
+  Promise<SyncRegistration> getRegistration(DOMString id);
   Promise<sequence<SyncRegistration>> getRegistrations();
   readonly attribute unsigned long minAllowablePeriod;
 };
@@ -165,10 +166,15 @@ swRegistration.syncManager.getRegistrations().then((regs) => {
 ## Looking up Sync Events
 ```js
 // Returned in order of registration.
-
 swRegistration.syncManager.getRegistrations().then(function(regs) {
   for(reg in regs)
     reg.unregister();
+});
+```
+
+```js
+swRegistration.syncManager.getRegistration('weeklySync').then(function(reg) {
+  reg.unregister();
 });
 ```
 
