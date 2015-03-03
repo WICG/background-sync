@@ -47,7 +47,7 @@ interface SyncRegistration {
   readonly attribute unsigned long minDelay;
   readonly attribute unsigned long maxDelay;
   readonly attribute unsigned long minPeriod;
-  readonly attribute SyncNetworkType long minRequiredNetwork;
+  readonly attribute SyncNetworkType minRequiredNetwork;
   readonly attribute boolean allowOnBattery;
   readonly attribute boolean idleRequired;
 
