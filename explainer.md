@@ -55,7 +55,7 @@ interface SyncRegistration {
 };
 
 dictionary SyncRegistrationOptions {
-  DOMString id; // defaults to empty string
+  DOMString id = "";
   unsigned long minDelay = 0;
   unsigned long maxDelay = 0;
   unsigned long minPeriod = 0;
