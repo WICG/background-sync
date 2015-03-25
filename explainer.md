@@ -68,7 +68,7 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
 * `minDelay`: The suggested number of milliseconds to wait before triggering the first sync event. This may be delayed further (for coalescing purposes or to reserve resources) by a UA-determined amount of time. Subsequent intervals will be based from the requested initial trigger time.
 * `maxDelay`: The suggested maximum number of milliseconds to wait before firing the event even if the conditions aren't met. In some resource constrained settings the maxDelayMs may be delayed further. Does not apply to periodic events. The default value is 0, which means no max.
 * `minPeriod`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for a UA-specific period of time in resource constrained environments (e.g., when on battery). If the value is less than SyncManager.minAllowablePeriod (which is UA and platform dependent) then the promise will reject. Periodic sync registrations will repeat until the UA determines that they shouldn't anymore (e.g., the user doesn't visit the site frequently enough to merit the periodic sync). Because of this unpredictability, put critical functionality into non-periodic syncs or use push messaging.
-* `minRequiredNetwork`: One of "network-any", "network-offline", "network-online", and  or "network-non-mobile".
+* `minRequiredNetwork`: One of "network-offline", "network-online", or "network-non-mobile".
 * `allowOnBattery`: False if the device must be on AC power when the event is fired.
 * `idleRequired`: True if the device must be in an idle state (UA determined) when the event is fired.
 

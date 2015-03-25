@@ -35,7 +35,6 @@ dictionary SyncRegistrationOptions {
 };
 
 enum SyncNetworkType {
-  "network-any",
   "network-offline",
   "network-online",
   "network-non-mobile",
