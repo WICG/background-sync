@@ -21,7 +21,7 @@ There are two general use cases that the `onsync` event is designed to address:
 
 In both cases the event will fire _even if the browser is currently closed_, though it may be delayed, see the description of the register function below.
 
-For specific use case examples, see the [use cases document](https://slightlyoff.github.io/BackgroundSync/use_cases.html).
+For specific use case examples, see the [use cases document](https://github.com/slightlyoff/BackgroundSync/blob/master/use-cases.md).
 
 ## What Background Sync is not
 Background Sync is specifically not an exact alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). Similarly, the user agent may ignore pending synchronization requests to accommodate for user expected behaviors on a given platform (e.g. Android's power saving mode does not allow background sync). To run background events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
@@ -30,38 +30,27 @@ BackgroundSync also is not purposefully intended as a means to synchronize large
 
 ## Requesting A Synchronization Opportunity
 
-```html
-<!DOCTYPE html>
-<!-- https://tweet.example.com/index.html -->
-<html>
-  <head>
-    <script>
-      navigator.serviceWorker.register("/sw.js");
+```js
+navigator.serviceWorker.register("/sw.js");
 
-      // Registering for sync will fail unless a viable SW is available, so wait
-      // for that to happen.
-      navigator.serviceWorker.ready.then(function(swRegistration) {
-        // Returns a Promise
-        swRegistration.syncManager.register(
-          {
-            id: "periodicSync",                       // default: empty string
-            minDelay: 60 * 60 * 1000,                 // default: 0
-            maxDelay: 0,                              // default: 0
-            minPeriod: 12 * 60 * 60 * 1000,           // default: 0
-            minRequiredNetwork: "network-non-mobile"  // default: "network-online"
-            allowOnBattery: true                      // default: true
-            idleRequired: false                       // default: false
-          })
-        .then(function() { // Success
-               },
-               function() { // Failure
-                 // User/UA denied permission
-               });
-      });
-    </script>
-  </head>
-  <body> ... </body>
-</html>
+// Registering for sync will fail unless a viable SW is available, so wait
+// for that to happen.
+navigator.serviceWorker.ready.then(function(swRegistration) {
+  // Returns a Promise
+  swRegistration.syncManager.register({
+    id: "periodicSync",                       // default: empty string
+    minDelay: 60 * 60 * 1000,                 // default: 0
+    maxDelay: 0,                              // default: 0
+    minPeriod: 12 * 60 * 60 * 1000,           // default: 0
+    minRequiredNetwork: "network-non-mobile"  // default: "network-online"
+    allowOnBattery: true                      // default: true
+    idleRequired: false                       // default: false
+  }).then(function() {
+    // Success
+  }, function() {
+    // Failure - user/UA denied permission
+  });
+});
 ```
 * `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
 * `id`: Useful for recognizing distinct synchronization events. If the id is already registered, the old registration is replaced by the new one.
@@ -79,7 +68,6 @@ Synchronization happens from the Service Worker context via the new `sync` event
 ```js
 // sw.js
 self.onsync = function(event) {
-
   if (event.registration.id === "periodicSync") {
     event.waitUntil(doAsyncStuffWithIndexedDBData());
   } else {
@@ -94,19 +82,19 @@ The `waitUntil` is a signal to the UA that the sync event is ongoing and that it
 If the id is not registered the function will reject.
 ```js
 swRegistration.syncManager.getRegistrations().then((regs) => {
-  for(reg in regs) {
-    if(reg.id == "string id of sync action to remove")
-      reg.unregister()
+  for (reg of regs) {
+    if (reg.id == "string id of sync action to remove") {
+      reg.unregister();
+    }
   }
-})
+});
 ```
 
 ## Looking up Sync Events
 ```js
 // Returned in order of registration.
 swRegistration.syncManager.getRegistrations().then(function(regs) {
-  for(reg in regs)
-    reg.unregister();
+  for (reg of regs) reg.unregister();
 });
 ```
 
