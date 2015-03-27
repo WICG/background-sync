@@ -94,7 +94,7 @@ The `waitUntil` is a signal to the UA that the sync event is ongoing and that it
 If the id is not registered the function will reject.
 ```js
 swRegistration.syncManager.getRegistrations().then((regs) => {
-  for(reg in regs) {
+  for(reg of regs) {
     if(reg.id == "string id of sync action to remove")
       reg.unregister()
   }
@@ -105,7 +105,7 @@ swRegistration.syncManager.getRegistrations().then((regs) => {
 ```js
 // Returned in order of registration.
 swRegistration.syncManager.getRegistrations().then(function(regs) {
-  for(reg in regs)
+  for(reg of regs)
     reg.unregister();
 });
 ```
