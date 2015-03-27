@@ -30,6 +30,8 @@ These are either "I don't want to / can't set up push" or "updates are so freque
 
 ## Exact sync (alarm)
 
+There is no intention for BackgroundSync to support exact syncs. BackgroundSync aggressively coalesces its sync events in an attempt to minimize resource usage (radio and battery) and exact syncs can't be effectively coalesced. This section is left as a motivation for a future API.
+
 I haven’t heard any use-cases directly from external developers, so these are just guesses:
 
 ### Use-cases
