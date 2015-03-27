@@ -28,19 +28,7 @@ I haven’t heard any use-cases directly from external developers, so these are 
 
 These are either "I don't want to / can't set up push" or "updates are so frequent push doesn't make sense".
 
-## Exact sync (alarm)
-
-I haven’t heard any use-cases directly from external developers, so these are just guesses:
-
-### Use-cases
-
-* **An alarm clock**
-* **Calendar reminders**
-
-### Requirements
-
-* Events fire within a minute (possibly within a few seconds) of their requested time
-* Calendar apps may require a large number of exact events to be registered for the far future. The user agent won't necessarily want to name them all individually, but it is important that they all be registered (i.e., no failures due to accidental ID collisions)
+Exact-time syncs are out-of scope for now, but may in future form some kind of alarms API.
 
 # Concerns
 
