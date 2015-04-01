@@ -154,3 +154,4 @@ navigator.serviceWorker.ready(function(registration) {
 * Since Service Workers are a requirement for sync, and since Service Workers are limited to HTTPS origins, that restriction applies here too.
 * All fetches during sync events must be HTTPS. HTTP fetches will be rejected.
 * Sync may not be available to all web applications, not even all apps served over SSL. Browsers may choose to limit the set of applications which can register for synchronization based on quality signals that aren't a part of the visible API. This is especially true of periodic sync.
+* Like all ServiceWorker events, 'sync' and 'periodicsync' may be terminated if they're taking an unreasonable amount of time or CPU. This is not a tool for distributed bitcoin mining :)
