@@ -28,7 +28,7 @@ I haven’t heard any use-cases directly from external developers, so these are 
 
 These are either "I don't want to / can't set up push" or "updates are so frequent push doesn't make sense".
 
-Exact-time syncs are out-of scope for now, but may in future form some kind of alarms API.
+Exact-time syncs are out-of scope, but may be investigated in the context of an alarms API in the future.
 
 # Concerns
 
