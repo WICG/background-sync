@@ -45,6 +45,8 @@ interface PeriodicSyncManager {
   Promise<PeriodicSyncRegistration> getRegistration(DOMString tag);
   Promise<sequence<PeriodicSyncRegistration>> getRegistrations();
   Promise<SyncPermissionState> permissionState();
+
+  readonly attribute unsigned long minPossiblePeriod;
 };
 
 interface PeriodicSyncRegistration {
