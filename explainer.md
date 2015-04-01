@@ -17,7 +17,7 @@ We propose a new API that extends [Service Workers](https://github.com/slightlyo
 **To request a sync:**
 
 ```js
-navigator.serviceWorker.ready(function(registration) {
+navigator.serviceWorker.ready.then(function(registration) {
   registration.sync.register({
     tag: 'outbox' // default: ''
   }).then(function(syncReg) {
@@ -30,7 +30,9 @@ navigator.serviceWorker.ready(function(registration) {
 
 * `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration. If further options are added to `.register`, the existing registration will be updated.
 
-The above is how a *page* would register for a one-off sync, although this can also be done within a service worker, as `self.registration` gives access to the service worker registration.
+`navigator.serviceWorker.ready` resolves when the in-scope registration gains an active worker, if you try to register for sync before this, registration will reject.
+
+The above is how a *page* would register for a one-off sync, although this can also be done within a service worker, as `self.registration` gives access to the service worker registration. Since the registration requires an active worker, this should only be attempted after your service worker has activated.
 
 **To respond to a sync:**
 
@@ -63,7 +65,7 @@ Periodic syncs are simple to set up, don't require any server configuration, and
 **To request a periodic sync:**
 
 ```js
-navigator.serviceWorker.ready(function(registration) {
+navigator.serviceWorker.ready.then(function(registration) {
   registration.periodicSync.register({
     tag: 'get-latest-news',         // default: ''
     minPeriod: 12 * 60 * 60 * 1000, // default: 0
@@ -116,7 +118,7 @@ As seen in the previous code examples, `sync.register()` and `syncEvent.registra
 For example, to unregister a single one-off sync:
 
 ```js
-navigator.serviceWorker.ready(function(registration) {
+navigator.serviceWorker.ready.then(function(registration) {
   registration.sync.getRegistration('outbox').then(function(syncReg) {
     syncReg.unregister();
   });
@@ -126,7 +128,7 @@ navigator.serviceWorker.ready(function(registration) {
 To unregister all periodic syncs, except "get-latest-news":
 
 ```js
-navigator.serviceWorker.ready(function(registration) {
+navigator.serviceWorker.ready.then(function(registration) {
   registration.periodicSync.getRegistrations().then(function(syncRegs) {
     syncRegs.filter(function(reg) {
       return reg.tag != 'get-latest-news';
@@ -142,7 +144,7 @@ navigator.serviceWorker.ready(function(registration) {
 Permissions for `sync` and `periodicSync` are entirely separate, and `periodicSync` is expected to be more difficult to obtain permission for.
 
 ```js
-navigator.serviceWorker.ready(function(registration) {
+navigator.serviceWorker.ready.then(function(registration) {
   registration.periodicSync.permissionState().then(function(state) {
     if (state == 'prompt') showSyncRegisterUI();
   });
