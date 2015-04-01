@@ -58,7 +58,7 @@ interface PeriodicSyncRegistration {
   Promise<boolean> unregister();
 };
 
-dictionary SyncRegistrationOptions {
+dictionary PeriodicSyncRegistrationOptions {
   DOMString tag = "";
   unsigned long minPeriod = 0;
   SyncNetworkType networkState = "online";

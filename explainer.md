@@ -77,10 +77,10 @@ navigator.serviceWorker.ready(function(registration) {
 });
 ```
 
-* `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration. If further options are added to `.register`, the existing registration will be updated. **Note:** this tag is independent of one-off sync tags.
-* `minPeriod`: The minimum time between successful sync events. A value of 0 (the default) means the UI may fire the event has frequently as it wishes. This value is a suggestion to prevent over-syncing. Syncing may be less frequent depending on heuristics such as visit frequency & device status. If timing is critical, use push messaging.
+* `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration. If further options are added to `.register`, the existing registration will be updated. **Note:** one-off and periodic sync tags have separate namespaces.
+* `minPeriod`: The minimum time between successful sync events. A value of 0 (the default) means the UI may fire the event as frequently as it wishes. This value is a suggestion to prevent over-syncing. Syncing may be less frequent depending on heuristics such as visit frequency & device status. If timing is critical, [the push API](https://w3c.github.io/push-api/) may better suit your requirements.
 * `powerState`: Either "auto" (default) or "avoid-draining". "avoid-draining" will delay syncs on battery-powered devices while that battery isn't charging. "auto" allows syncs to occur during battery-drain, although the UA may choose to avoid this depending on global device status (such as battery-saving mode) or user preferences.
-* `networkState`: One of "online" (default), "avoid-cellular", or "any". "avoid-cellular" will delay syncs if the device is on a [cellular connection](https://w3c.github.io/netinfo/#idl-def-ConnectionType.cellular). "online" will delay syncs if the device is online, although the UA may choose to avoid particular connection types depending on global device status (such as roaming) or user preferences. "any" is similar to "online", except syncs may happen while the device is offline.
+* `networkState`: One of "online" (default), "avoid-cellular", or "any". "avoid-cellular" will delay syncs if the device is on a [cellular connection](https://w3c.github.io/netinfo/#idl-def-ConnectionType.cellular) - but be aware that some users may never use another connection type. "online" will delay syncs if the device is online, although the UA may choose to avoid particular connection types depending on global device status (such as roaming) or user preferences. "any" is similar to "online", except syncs may happen while the device is offline.
 
 **To respond to a periodic sync:**
 
@@ -92,7 +92,7 @@ self.addEventListener('periodicsync', function(event) {
     event.waitUntil(fetchAndCacheLatestNews());
   }
   else {
-    // known sync, may be old, best to unregister
+    // unknown sync, may be old, best to unregister
     event.registration.unregister();
   }
 });
