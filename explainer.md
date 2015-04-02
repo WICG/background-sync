@@ -30,7 +30,7 @@ navigator.serviceWorker.ready.then(function(registration) {
 
 * `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration. If further options are added to `.register`, the existing registration will be updated.
 
-`navigator.serviceWorker.ready` resolves when the in-scope registration gains an active worker, if you try to register for sync before this, registration will reject.
+`navigator.serviceWorker.ready` resolves when the in-scope service worker registration gains an active worker, if you try to register for sync before this, `sync.register` will reject.
 
 The above is how a *page* would register for a one-off sync, although this can also be done within a service worker, as `self.registration` gives access to the service worker registration. Since the registration requires an active worker, this should only be attempted after your service worker has activated.
 
@@ -50,15 +50,15 @@ self.addEventListener('sync', function(event) {
 
 The promise passed to `waitUntil` is a signal to the UA that the sync event is ongoing and that it should keep the SW alive if possible. Rejection of the event signals to the UA that the sync failed. Upon rejection the UA should reschedule (likely with a UA-determined backoff).
 
-The UA may coalesce syncronizations to reduce the number of times the device, radio and browser need to wake up. The coalescing can be across origins, or even OS. Although the event timings are coalesced, you still get an event per pending sync registration.
+The UA may coalesce synchronizations to reduce the number of times the device, radio and browser need to wake up. The coalescing can be across origins, and even coalesced across the OS with native synchronizations. Although the event timings are coalesced, you still get an event per pending sync registration.
 
-## Periodic syncronization
+## Periodic synchronization
 
 Opening a news or social media app to find content you hadn't seen before - without going to the network, is a user experience currently limited to native apps.
 
 [The push API](https://w3c.github.io/push-api/) allows the server to dictate when the service worker should wake up and seek updates, but these are not sensitive to connection and charging state. Also, some sites update too frequently to warrant a push message per update (think Twitter, or a news site).
 
-Periodic syncs are simple to set up, don't require any server configuration, and allow the UA to optimize when they fire to be most-helpful and least-disruptive to the user. E.g. if the UA knows the user has a morning alarm set, it may run syncronizations shortly beforehand, giving the user quick and up-to-date information from their favourite sites.
+Periodic syncs are simple to set up, don't require any server configuration, and allow the UA to optimize when they fire to be most-helpful and least-disruptive to the user. E.g. if the UA knows the user has a morning alarm set, it may run synchronizations shortly beforehand, giving the user quick and up-to-date information from their favourite sites.
 
 ### The API
 
@@ -102,7 +102,7 @@ self.addEventListener('periodicsync', function(event) {
 
 Like one-off syncs, the promise passed to `waitUntil` is a signal to the UA that the sync event is ongoing and that it should keep the SW alive if possible. Rejection of the event signals to the UA that the sync failed. Upon rejection the UA should reschedule (likely with a UA-determined backoff). `minPeriod` may be ignored for rescheduling.
 
-Also like one-off syncs, the UA may coalesce syncronizations to reduce the number of times the device, radio and browser need to wake up. In fact, the coalescing is more extreme for periodic syncs, as the result is perceived to be "beneficial" as opposed to "critical".
+Also like one-off syncs, the UA may coalesce synchronizations to reduce the number of times the device, radio and browser need to wake up. In fact, the coalescing is more extreme for periodic syncs, as the result is perceived to be "beneficial" as opposed to "critical".
 
 
 ### What periodic sync is not
