@@ -32,7 +32,7 @@ navigator.serviceWorker.ready.then(function(registration) {
 
 `navigator.serviceWorker.ready` resolves when the in-scope service worker registration gains an active worker, if you try to register for sync before this, `sync.register` will reject.
 
-The above is how a *page* would register for a one-off sync, although this can also be done within a service worker, as `self.registration` gives access to the service worker registration. Since the registration requires an active worker, this should only be attempted after your service worker has activated.
+The above is how a *page* would register for a one-off sync, although this can also be done within a service worker, as `self.registration` gives access to the service worker registration. Since the registration requires an active worker, this should only be attempted after your service worker has activated. Although you can register for sync from a service worker, if there's no active window open for the origin, registration will fail.
 
 **To respond to a sync:**
 
