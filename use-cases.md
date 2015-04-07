@@ -18,15 +18,17 @@ The above are from actual customers, but not naming names until they agree to be
 
 ## Approximately regular sync
 
-I haven’t heard any use-cases directly from external developers, so these are just guesses:
+### Use-cases (from actual customers)
+* **Social media** - periodic upload of photos, periodic preload of content for performance and offline
+* **Media Gallery** - process local photos from memory cards in the background
 
-### Use-cases
-
+### Expected use-cases (guesses as to what customers would want)
 * **News site** - fetching daily news for quick display in the morning
 * **Social media** - periodic updates so initial display is content user hasn't seen, even if offline
 * **Blog updates** - Updated blog content without having to set up a push server
+* **Media Player** - Synchronize content with the cloud (e.g., download pinned media)
 
-These are either "I don't want to / can't set up push" or "updates are so frequent push doesn't make sense".
+These are either "I don't want to / can't set up push" or "updates are so frequent push doesn't make sense" or the content is generated on the client and push doesn't help.
 
 ## Exact sync (alarm)
 
