@@ -6,7 +6,7 @@ This is a specification that brings both one-off and periodic synchronization to
 
 If you write an email, instant message, or simply favourite a tweet, the application needs to communicate that data to the server. If that fails, either due to user connectivity, service availability or anything in-between, the app can store that action in some kind of 'outbox' for retry later.
 
-Unfortunately, on the web, that outbox can only be processed while a page on the site is running. This is particularly problematic on mobile, where browsing contexts are frequently shut down to free memory.
+Unfortunately, on the web, that outbox can only be processed while the site is displayed in a browsing context. This is particularly problematic on mobile, where browsing contexts are frequently shut down to free memory.
 
 Native application platforms provide [job scheduling](https://developer.android.com/reference/android/app/job/JobScheduler.html) APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing. The web platform needs capabilities like this too.
 
@@ -28,7 +28,7 @@ navigator.serviceWorker.ready.then(function(registration) {
 });
 ```
 
-* `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration. If further options are added to `.register`, the existing registration will be updated.
+* `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration.
 
 `navigator.serviceWorker.ready` resolves when the in-scope service worker registration gains an active worker, if you try to register for sync before this, `sync.register` will reject.
 
@@ -79,7 +79,7 @@ navigator.serviceWorker.ready.then(function(registration) {
 });
 ```
 
-* `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration. If further options are added to `.register`, the existing registration will be updated. **Note:** one-off and periodic sync tags have separate namespaces.
+* `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration and updates it with the options provided. **Note:** one-off and periodic sync tags have separate namespaces.p
 * `minPeriod`: The minimum time between successful sync events. A value of 0 (the default) means the UI may fire the event as frequently as it wishes. This value is a suggestion to prevent over-syncing. Syncing may be less frequent depending on heuristics such as visit frequency & device status. If timing is critical, [the push API](https://w3c.github.io/push-api/) may better suit your requirements.
 * `powerState`: Either "auto" (default) or "avoid-draining". "avoid-draining" will delay syncs on battery-powered devices while that battery isn't charging. "auto" allows syncs to occur during battery-drain, although the UA may choose to avoid this depending on global device status (such as battery-saving mode) or user preferences.
 * `networkState`: One of "online" (default), "avoid-cellular", or "any". "avoid-cellular" will delay syncs if the device is on a [cellular connection](https://w3c.github.io/netinfo/#idl-def-ConnectionType.cellular) - but be aware that some users may never use another connection type. "online" will delay syncs if the device is online, although the UA may choose to avoid particular connection types depending on global device status (such as roaming) or user preferences. "any" is similar to "online", except syncs may happen while the device is offline.

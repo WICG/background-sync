@@ -85,6 +85,6 @@ interface PeriodicSyncEvent : ExtendableEvent {
 };
 
 dictionary PeriodicSyncEventInit : EventInit {
-  required SyncRegistration registration;
+  required PeriodicSyncRegistration registration;
 };
 ```
