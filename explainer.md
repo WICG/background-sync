@@ -1,121 +1,159 @@
-<h2>Background Synchronization Explained</h2>
+# Background synchronization explained
 
-Modern web applications with heavy client-side logic often need to synchronize data with a server. This need is exacerbated by new offline capabilities via [Service Workers](https://github.com/slightlyoff/ServiceWorker) that enable applications to run while disconnected entirely from the server.
+This is a specification that brings both one-off and periodic synchronization to the web, in the form of [Service Workers](https://github.com/slightlyoff/ServiceWorker) events.
 
-Consider the case of a Twitter application. Who can say when 140 characters of genius will strike? In that moment it's _clearly_ preferable for a Twitter client to provide a "send later" button in cases where sending doesn't initially succeed (e.g., while offline). Similar work-saving is natural in document editing applications and even in consumption, e.g., Kindle applications synchronizing on furthest-read page.
+## One-off synchronization
 
-Periodic content updates are also important to improve performance and responsiveness of a web app. Consider a news site that wants to sync the latest articles at night while it's charging so that they're ready for the reader in the morning for use offline.
+If you write an email, instant message, or simply favourite a tweet, the application needs to communicate that data to the server. If that fails, either due to user connectivity, service availability or anything in-between, the app can store that action in some kind of 'outbox' for retry later.
 
-The web currently lacks any ability to provide this sort of functionality in a user-friendly or power-efficient way. Current approaches require an application (or tab) to be running and rely on slow, battery-intensive pings.
+Unfortunately, on the web, that outbox can only be processed while the site is displayed in a browsing context. This is particularly problematic on mobile, where browsing contexts are frequently shut down to free memory.
 
-Native application platforms provide  [job scheduling](https://developer.android.com/reference/android/app/job/JobScheduler.html) APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing. The web platform needs capabilities like this too.
+Native application platforms provide [job scheduling](https://developer.android.com/reference/android/app/job/JobScheduler.html) APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing. The web platform needs capabilities like this too.
 
-We propose a new API that extends [Service Workers](https://github.com/slightlyoff/ServiceWorker) with a new `onsync` event and a new API for registering (and unregistering) interest in `onsync`. Together, these APIs form the basis of a powerful new capability for rich web apps.
+We propose a new API that extends [Service Workers](https://github.com/slightlyoff/ServiceWorker) with a `sync` event and an API for signalling the desire for this event to fire.
 
-## Use Cases
+### The API
 
-There are two general use cases that the `onsync` event is designed to address:
-
-1. Notification when next online to upload new content (email, docs, tweets, saved state)
-2. Periodic synchronization opportunities (static resources, content updates (e.g., docs, articles email), logging)
-
-In both cases the event will fire _even if the browser is currently closed_, though it may be delayed, see the description of the register function below.
-
-For specific use case examples, see the [use cases document](https://github.com/slightlyoff/BackgroundSync/blob/master/use-cases.md).
-
-## What Background Sync is not
-Background Sync is specifically not an exact alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours if the device is resource constrained (e.g., low on battery). Similarly, the user agent may ignore pending synchronization requests to accommodate for user expected behaviors on a given platform (e.g. Android's power saving mode does not allow background sync). To run background events at exact times, consider using the [Push API](https://w3c.github.io/push-api/).
-
-BackgroundSync also is not purposefully intended as a means to synchronize large files in the background (e.g., media), though it may be possible to use it to do so.
-
-## Requesting A Synchronization Opportunity
+**To request a sync:**
 
 ```js
-navigator.serviceWorker.register("/sw.js");
-
-// Registering for sync will fail unless a viable SW is available, so wait
-// for that to happen.
-navigator.serviceWorker.ready.then(function(swRegistration) {
-  // Returns a Promise
-  swRegistration.syncManager.register({
-    id: "periodicSync",                       // default: empty string
-    minDelay: 60 * 60 * 1000,                 // default: 0
-    maxDelay: 0,                              // default: 0
-    minPeriod: 12 * 60 * 60 * 1000,           // default: 0
-    minRequiredNetwork: "network-non-mobile"  // default: "network-online"
-    allowOnBattery: true                      // default: true
-    idleRequired: false                       // default: false
-  }).then(function() {
-    // Success
+navigator.serviceWorker.ready.then(function(registration) {
+  registration.sync.register({
+    tag: 'outbox' // default: ''
+  }).then(function(syncReg) {
+    // success
   }, function() {
-    // Failure - user/UA denied permission
+    // failure
+  })
+});
+```
+
+* `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration.
+
+`navigator.serviceWorker.ready` resolves when the in-scope service worker registration gains an active worker, if you try to register for sync before this, `sync.register` will reject.
+
+The above is how a *page* would register for a one-off sync, although this can also be done within a service worker, as `self.registration` gives access to the service worker registration. Since the registration requires an active worker, this should only be attempted after your service worker has activated. Although you can register for sync from a service worker, if there's no active window open for the origin, registration will fail.
+
+**To respond to a sync:**
+
+Over in the service worker:
+
+```js
+self.addEventListener('sync', function(event) {
+  if (event.registration.tag == 'outbox') {
+    event.waitUntil(sendEverythingInTheOutbox());
+  }
+});
+```
+
+`sync` will fire when the UA believes the user has connectivity.
+
+The promise passed to `waitUntil` is a signal to the UA that the sync event is ongoing and that it should keep the SW alive if possible. Rejection of the event signals to the UA that the sync failed. Upon rejection the UA should reschedule (likely with a UA-determined backoff).
+
+The UA may coalesce synchronizations to reduce the number of times the device, radio and browser need to wake up. The coalescing can be across origins, and even coalesced across the OS with native synchronizations. Although the event timings are coalesced, you still get an event per pending sync registration.
+
+## Periodic synchronization
+
+Opening a news or social media app to find content you hadn't seen before - without going to the network, is a user experience currently limited to native apps.
+
+[The push API](https://w3c.github.io/push-api/) allows the server to dictate when the service worker should wake up and seek updates, but these are not sensitive to connection and charging state. Also, some sites update too frequently to warrant a push message per update (think Twitter, or a news site).
+
+Periodic syncs are simple to set up, don't require any server configuration, and allow the UA to optimize when they fire to be most-helpful and least-disruptive to the user. E.g. if the UA knows the user has a morning alarm set, it may run synchronizations shortly beforehand, giving the user quick and up-to-date information from their favourite sites.
+
+### The API
+
+**To request a periodic sync:**
+
+```js
+navigator.serviceWorker.ready.then(function(registration) {
+  registration.periodicSync.register({
+    tag: 'get-latest-news',         // default: ''
+    minPeriod: 12 * 60 * 60 * 1000, // default: 0
+    powerState: 'avoid-draining',   // default: 'auto'
+    networkState: 'avoid-cellular'  // default: 'online'
+  }).then(function(periodicSyncReg) {
+    // success
+  }, function() {
+    // failure
+  })
+});
+```
+
+* `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration and updates it with the options provided. **Note:** one-off and periodic sync tags have separate namespaces.p
+* `minPeriod`: The minimum time between successful sync events. A value of 0 (the default) means the UI may fire the event as frequently as it wishes. This value is a suggestion to prevent over-syncing. Syncing may be less frequent depending on heuristics such as visit frequency & device status. If timing is critical, [the push API](https://w3c.github.io/push-api/) may better suit your requirements.
+* `powerState`: Either "auto" (default) or "avoid-draining". "avoid-draining" will delay syncs on battery-powered devices while that battery isn't charging. "auto" allows syncs to occur during battery-drain, although the UA may choose to avoid this depending on global device status (such as battery-saving mode) or user preferences.
+* `networkState`: One of "online" (default), "avoid-cellular", or "any". "avoid-cellular" will delay syncs if the device is on a [cellular connection](https://w3c.github.io/netinfo/#idl-def-ConnectionType.cellular) - but be aware that some users may never use another connection type. "online" will delay syncs if the device is online, although the UA may choose to avoid particular connection types depending on global device status (such as roaming) or user preferences. "any" is similar to "online", except syncs may happen while the device is offline.
+
+**To respond to a periodic sync:**
+
+Over in the service worker:
+
+```js
+self.addEventListener('periodicsync', function(event) {
+  if (event.registration.tag == 'get-latest-news') {
+    event.waitUntil(fetchAndCacheLatestNews());
+  }
+  else {
+    // unknown sync, may be old, best to unregister
+    event.registration.unregister();
+  }
+});
+```
+
+Like one-off syncs, the promise passed to `waitUntil` is a signal to the UA that the sync event is ongoing and that it should keep the SW alive if possible. Rejection of the event signals to the UA that the sync failed. Upon rejection the UA should reschedule (likely with a UA-determined backoff). `minPeriod` may be ignored for rescheduling.
+
+Also like one-off syncs, the UA may coalesce synchronizations to reduce the number of times the device, radio and browser need to wake up. In fact, the coalescing is more extreme for periodic syncs, as the result is perceived to be "beneficial" as opposed to "critical".
+
+
+### What periodic sync is not
+
+Periodic sync is specifically not an exact alarm API. The scheduling granularity is in milliseconds but events may be delayed from firing for several hours depending on usage frequency and device state (battery, connection, location).
+
+The results of a sync running should be "beneficial" not "critical". If your use-case is critical, one-off syncs or [the push API](https://w3c.github.io/push-api/) may serve your requirements.
+
+## Getting pending sync details
+
+As seen in the previous code examples, `sync.register()` and `syncEvent.registration` expose a sync registration object. You can also fetch them using `sync.getRegistration`, `sync.getRegistrations`, and `periodicSync.getRegistration`, `periodicSync.getRegistrations`.
+
+For example, to unregister a single one-off sync:
+
+```js
+navigator.serviceWorker.ready.then(function(registration) {
+  registration.sync.getRegistration('outbox').then(function(syncReg) {
+    syncReg.unregister();
   });
 });
 ```
-* `register` registers sync events for whichever SW matches the current document, even if it's not yet active.
-* `id`: Useful for recognizing distinct synchronization events. If the id is already registered, the old registration is replaced by the new one.
-* `minDelay`: The suggested number of milliseconds to wait before triggering the first sync event. This may be delayed further (for coalescing purposes or to reserve resources) by a UA-determined amount of time. Subsequent intervals will be based from the requested initial trigger time.
-* `maxDelay`: The suggested maximum number of milliseconds to wait before firing the event even if the conditions aren't met. In some resource constrained settings the maxDelayMs may be delayed further. Does not apply to periodic events. The default value is 0, which means no max.
-* `minPeriod`: A suggestion of the minimum time between sync events. A value of 0 (the default) means the event does not repeat. This value is a suggestion and may be delayed for a UA-specific period of time in resource constrained environments (e.g., when on battery). If the value is less than SyncManager.minAllowablePeriod (which is UA and platform dependent) then the promise will reject. Periodic sync registrations will repeat until the UA determines that they shouldn't anymore (e.g., the user doesn't visit the site frequently enough to merit the periodic sync). Because of this unpredictability, put critical functionality into non-periodic syncs or use push messaging.
-* `minRequiredNetwork`: One of "network-offline", "network-online", or "network-non-mobile".
-* `allowOnBattery`: False if the device must be on AC power when the event is fired.
-* `idleRequired`: True if the device must be in an idle state (UA determined) when the event is fired.
 
-## Handling Synchronization Events
-
-Synchronization happens from the Service Worker context via the new `sync` event. It is passed the id from the invoking request.
+To unregister all periodic syncs, except "get-latest-news":
 
 ```js
-// sw.js
-self.onsync = function(event) {
-  if (event.registration.id === "periodicSync") {
-    event.waitUntil(doAsyncStuffWithIndexedDBData());
-  } else {
-    // Delete unknown syncs (perhaps from older pages).
-    event.registration.unregister();
-  }
-};
-```
-The `waitUntil` is a signal to the UA that the sync event is ongoing and that it should keep the SW alive if possible. Rejection of the event signals to the UA that the sync failed. Upon rejection the UA should reschedule (likely with a UA-determined backoff).
-
-## Removing Sync Events
-If the id is not registered the function will reject.
-```js
-swRegistration.syncManager.getRegistrations().then((regs) => {
-  for (reg of regs) {
-    if (reg.id == "string id of sync action to remove") {
+navigator.serviceWorker.ready.then(function(registration) {
+  registration.periodicSync.getRegistrations().then(function(syncRegs) {
+    syncRegs.filter(function(reg) {
+      return reg.tag != 'get-latest-news';
+    }).forEach(function(reg) {
       reg.unregister();
-    }
-  }
-});
-```
-
-## Looking up Sync Events
-```js
-// Returned in order of registration.
-swRegistration.syncManager.getRegistrations().then(function(regs) {
-  for (reg of regs) reg.unregister();
-});
-```
-
-```js
-swRegistration.syncManager.getRegistration('weeklySync').then(function(reg) {
-  reg.unregister();
+    });
+  });
 });
 ```
 
 ## Checking for Permission
-If the origin doesn't have permission to use background sync then registration will fail. A prompt for permission can only occur from the page and not the service worker (which runs in the background). So call registration from the page first to invoke the permission request before using it in the service worker.
+
+Permissions for `sync` and `periodicSync` are entirely separate, and `periodicSync` is expected to be more difficult to obtain permission for.
 
 ```js
-swRegistration.syncManager.hasPermission().then(function(status) {
-  alert("Permission status: " + status);
+navigator.serviceWorker.ready.then(function(registration) {
+  registration.periodicSync.permissionState().then(function(state) {
+    if (state == 'prompt') showSyncRegisterUI();
+  });
 });
 ```
 
 ## Notes
 
-  * Since Service Workers are a requirement for Background Synchronization, and since Service Workers are limited to HTTPS origins, sites served without encryption will always fail to register for synchronization.
-  * All fetches during onsync events must be HTTPS. HTTP fetches will be rejected.
-  * Background Synchronization is not likely to be available to all web applications, not even all apps served over SSL. Browsers may choose to limit the set of applications which can register for synchronization based on quality signals that aren't a part of the visible API.
-  * `onsync` event handlers aren't allowed to run forever. Service workers may cap the total runtime of handlers, so it pays to try to batch work and count on needing to resume from failure. Also, test.
+* Since Service Workers are a requirement for sync, and since Service Workers are limited to HTTPS origins, that restriction applies here too.
+* All fetches during sync events must be HTTPS. HTTP fetches will be rejected.
+* Sync may not be available to all web applications, not even all apps served over SSL. Browsers may choose to limit the set of applications which can register for synchronization based on quality signals that aren't a part of the visible API. This is especially true of periodic sync.
+* Like all ServiceWorker events, 'sync' and 'periodicsync' may be terminated if they're taking an unreasonable amount of time or CPU. This is not a tool for distributed bitcoin mining :)

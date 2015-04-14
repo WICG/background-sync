@@ -18,29 +18,16 @@ The above are from actual customers, but not naming names until they agree to be
 
 ## Approximately regular sync
 
-I haven’t heard any use-cases directly from external developers, so these are just guesses:
-
 ### Use-cases
 
 * **News site** - fetching daily news for quick display in the morning
 * **Social media** - periodic updates so initial display is content user hasn't seen, even if offline
 * **Blog updates** - Updated blog content without having to set up a push server
+* **RSS reader** - Check for updates across multiple origins
 
 These are either "I don't want to / can't set up push" or "updates are so frequent push doesn't make sense".
 
-## Exact sync (alarm)
-
-I haven’t heard any use-cases directly from external developers, so these are just guesses:
-
-### Use-cases
-
-* **An alarm clock**
-* **Calendar reminders**
-
-### Requirements
-
-* Events fire within a minute (possibly within a few seconds) of their requested time
-* Calendar apps may require a large number of exact events to be registered for the far future. The user agent won't necessarily want to name them all individually, but it is important that they all be registered (i.e., no failures due to accidental ID collisions)
+Exact-time syncs are out-of scope, but may be investigated in the context of an alarms API in the future.
 
 # Concerns
 
