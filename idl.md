@@ -15,7 +15,8 @@ interface SyncManager {
 
 interface SyncRegistration {
   readonly attribute DOMString tag;
-
+  readonly attribute Promise<ServiceWorkerRegistration> done;
+  
   Promise<boolean> unregister();
 };
 
