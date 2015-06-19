@@ -3,7 +3,7 @@
 ```js
 partial interface ServiceWorkerRegistration {
   readonly attribute SyncManager sync;
-  readonly attribute PeriodicSyncManager periodicSync;
+  readonly attribute PeriodicSyncManager periodicSync;b
 };
 
 interface SyncManager {
@@ -15,7 +15,7 @@ interface SyncManager {
 
 interface SyncRegistration {
   readonly attribute DOMString tag;
-  readonly attribute Promise<ServiceWorkerRegistration> done;
+  readonly attribute Promise<boolean> done;
   
   Promise<boolean> unregister();
 };
