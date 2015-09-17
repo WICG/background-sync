@@ -34,19 +34,18 @@
     <dd>Discuss on <a href="http://lists.w3.org/Archives/Public/public-webapps/">public-webapps@w3.org</a> (<a href="http://www.w3.org/2008/webapps/">Web Applications Working Group</a>)</dd>
     <dd><a href="https://github.com/slightlyoff/BackgroundSync/issues">File bugs</a></dd>
   <dt>Editors</dt>
-    <dd class="vcard"><span class="fn">Alex Russell</span>, <span class="org">Google</span>, &lt;<a class="email" href="mailto:slightlyoff@chromium.org">slightlyoff@chromium.org</a>&gt;</dd>
     <dd class="vcard"><span class="fn">Josh Karlin</span>, <span class="org">Google</span>, &lt;<a class="email" href="mailto:jkarlin@chromium.org">jkarlin@chromium.org</a>&gt;</dd>
   </dl>
 
   <p class="copyright">
-    <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> &copy; 2014 <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>&copy;</sup> (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>, <a href="http://www.ercim.eu/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. <abbr title="World Wide Web Consortium">W3C</abbr> <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.
+    <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> &copy; 2015 <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>&copy;</sup> (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>, <a href="http://www.ercim.eu/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. <abbr title="World Wide Web Consortium">W3C</abbr> <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.
   </p>
 
   <hr>
 
   <h2 id="abstract">Abstract</h2>
 
-  <p>This specification describes a method that enables web applications to synchronize data when next online.</p>
+  <p>This specification describes a method that enables web applications to synchronize data in the background.</p>
 
   <h2 id="status">Status of This Document</h2>
 
@@ -78,7 +77,7 @@
     <p>This document relies on the following specifications:</p>
 
     <ul>
-      <li><a href="http://github.com/slightlyoff/ServiceWorker/">Service Workers</a></li>
+      <li><a href="http://www.w3.org/TR/service-workers/">Service Workers</a></li>
       <li><a href="http://fetch.spec.whatwg.org/">Fetch Living Standard</a></li>
       <li><a href="http://dom.spec.whatwg.org/">DOM Living Standard</a></li>
       <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/">HTML Living Standard</a></li>
@@ -90,42 +89,275 @@
   </spec-section>
 
   <spec-section class="informative" id="motivations">
-    <h1>Motivations</h1>
+    <h1>Motivation</h1>
 
-    <p>Web Applications traditionally assume that the network is reachable. The <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html">HTML5 Application Cache</a> and <a href="http://github.com/slightlyoff/ServiceWorker">Service Workers</a> are beginning to challenge these assumptions and applications which are written to take advantage of them now face the challenge of attempting to synchronize client state to servers when clients .</p>
+    <p>Web Applications often run in environments with unreliable networks (e.g., mobile phones) and unknown lifetimes (the browser might be killed or the user might navigate away). This makes it difficult to  synchronize client data from web apps (such as photo uploads, document changes, or composed emails) with servers. If the browser closes or the user navigates away before synchronization can complete, the app must wait until the user revisits the page to try again. This specification provides a new onsync <a href="http://github.com/slightlyoff/ServiceWorker/">service worker</a> event which can fire <a href="#dfn-in-the-background">in the background</a> so that synchronization attempts can continue despite adverse conditions when initially requested. This API is intended to reduce the time between content creation and content synchronization with the server.</p>
   </spec-section>
 
 </spec-clause>
 
-<spec-clause id="concepts">
+<spec-clause id="background-sync-concepts">
   <h1>Concepts</h1>
+    <spec-section id="webapp">
+      <h1>Webapp</h1>
+      <p>The term <dfn id="dfn-webapp">webapp</dfn> refers to a Web application, i.e. an application implemented using Web technologies, and executing within the context of a Web <a href="#dfn-user-agent">user agent</a>, e.g. a Web browser or other Web runtime environment.</p>
 
-  <p>TODO</p>
+      <p>The term application server refers to server-side components of a webapp.</p>
+    </spec-section>
 
+  <spec-section id="background">
+    <h1>Background</h1>
+    <p>The sync event is considered to run <dfn id="dfn-in-the-background"> in the background</dfn> if the <a href="#dfn-user-agent">user agent</a> is either closed or no service worker clients (controlled or uncontrolled) exist for the corresponding service worker registration.</p>
+  </spec-section>
+
+  <spec-section id="registration-state">
+    <h1>Registration state</h1>
+    <p>A value of either pending, firing, unregisteredWhileFiring, unregistered, success, or failed.</p>
+  </spec-section>
+
+  <spec-section id="final-registration-state">
+    <h1>Final registration state</h1>
+    <p>A <a href="#def-registration-state">registration state</a> that is one of unregistered, success, or failed.</p>
+  </spec-section>
+
+  <spec-section id="firing">
+    <h1>Firing registration state</h1>
+    <p>A <a href="#def-firing-registration-state">registration state</a> that is one of firing or unregisteredWhileFiring.</p>
+  </spec-section>
 </spec-clause>
 
-<spec-clause id="security-considerations">
-  <h1>Security Considerations</h1>
+<spec-clause id="privacy-considerations">
+  <h1>Privacy Considerations</h1>
+  <spec-section id="location-tracking">
+    <h1>Location Tracking</h1>
+    <p>Fetch requests within the onsync event while <a href="#dfn-in-the-background"> in the background</a> may reveal the client's IP address to the server after the user left the page. The <a href="#dfn-user-agent">user agent</a> should limit tracking by capping the number of retries and duration of sync events.</p>
+  </spec-section>
 
-  <p>TODO</p>
+  <spec-section id="history-leaking">
+    <h1>History Leaking</h1>
+    <p>Fetch requests within the onsync event while <a href="#dfn-in-the-background"> in the background</a> may reveal something about the client's navigation history to passive eavesdroppers. For instance, the client might visit site https://example.com, which registers a sync event, but doesn't fire until after the user has navigated away from the page and changed networks. Passive eavesdroppers on the new network may see the fetch requests that the onsync event makes. The fetch requests are HTTPS so the request contents will not be leaked but the domain may be (via DNS lookups and IP address of the request).</p>
+  </spec-section>
 </spec-clause>
 
-<spec-clause id="storage-considerations">
-  <h1>Storage Considerations</h1>
+<spec-clause id="constructs">
+<h1>Constructs</h1>
+<p>A <a href="#sync-registration-interface">SyncRegistration</a> has an associated <a href="#dfn-registration-state">registration state</a>, <dfn id="dfn-state">state</dfn>.</p>
+<p>A <a href="#sync-registration-interface">SyncRegistration</a> has an associated unique identifier <dfn id="dfn-id">id</dfn>.</p>
+<p>A <a href="#sync-registration-interface">SyncRegistration</a> has an associated <a href="http://www.w3.org/TR/service-workers/#service-worker-registration-interface">ServiceWorkerRegistration</a>, <dfn id="dfn-swregistration">serviceWorkerRegistration</dfn>.</p>
+<p>A <a href="http://www.w3.org/TR/service-workers/#service-worker-registration-interface">ServiceWorkerRegistration</a> has an associated <dfn id="dfn-current-registration-list">currentRegistrationList</dfn> which is a List of <a href="#sync-registration-interface">SyncRegistrations</a>.</p>
 </spec-clause>
 
-<spec-clause id="algorithms">
-  <h1>Appendix A: Algorithms</h1>
+<spec-clause id="service-worker-registration-extensions">
+  <h1>Extensions to the <a href="http://www.w3.org/TR/service-workers/#service-worker-registration-interface">ServiceWorkerRegistration</a> interface</h1>
 
-  <p class="note">Underscored functions and attributes are UA-internal properties.</p>
+  <spec-idl>
+  [Exposed=(Window,ServiceWorker,Worker)]
+  partial interface <a href="http://www.w3.org/TR/service-workers/#service-worker-registration-interface">ServiceWorkerRegistration</a {
+    readonly attribute <a href="#sync-manager-interface">SyncManager</a> <a href="#registration-sync-attribute">sync</a>;
+  };
+  </spec-idl>
 
-  <spec-section id="registration-algorithm">
-    <h1>Registration</h1>
 
-    <p>TODO</p>
+  <spec-section id="registration-sync-attribute">
+    <h1>sync</h1>
+    The <dfn id="dfn-registration-sync-attribute">sync</dfn> attribute exposes a <a href="#sync-manager-interface">SyncManager</a>, which is where one-shot background sync registrations are managed.
+  </spec-section>
+</spec-clause>
+
+<spec-clause id="sync-manager-interface">
+  <h1>SyncManager interface</h1>
+  <p>The <a href="#sync-manager-interface">SyncManager interface</a> defines the operations to register and access sync registrations.</p>
+
+  <spec-idl>
+  [Exposed=(Window,ServiceWorker,Worker)]
+  interface SyncManager {
+    Promise&lt;SyncRegistration&gt; <a href="#sync-manager-register-method">register</a>(optional SyncRegistrationOptions options);
+    Promise&lt;SyncRegistration&gt; <a href="#sync-manager-get-registration-method">getRegistration</a>(DOMString tag);
+    Promise&lt;sequence&lt;SyncRegistration&gt;&gt; <a href="#sync-manager-get-registration-method">getRegistrations</a>();
+  };
+
+  dictionary SyncRegistrationOptions {
+    DOMString tag;
+  };
+  </spec-idl>
+
+
+  <spec-section id="sync-manager-register-method">
+    <h1>register(options)</h1>
+
+    <spec-algorithm>
+    <ol>
+      <li>Let <var>promise</var> be a new <a href="http://www.w3.org/TR/push-api/#dfn-promise">Promise</a>.</li>
+      <li>Return <var>promise</var> and continue the following steps asynchronously.</li>
+      <li>If in a document environment and the scheme of the URL is not https, reject promise with a <a href="http://www.w3.org/TR/push-api/#dfn-domexception">DOMException</a> whose name is "<a href="http://www.w3.org/TR/push-api/#dfn-securityerror">SecurityError</a>" and terminate these steps.</li>
+      <li>Let <var>serviceWorkerRegistration</var> be the <a href="#sync-manager-interface">SyncManager's</a> associated serviceWorkerRegistration.</li>
+      <li>If in a service worker or worker environment and <var>serviceWorkerRegistration</var> has no controlled client, reject promise with a <a href="http://www.w3.org/TR/push-api/#dfn-domexception">DOMException</a> whose name is "ErrorTypeNoPermission" and terminate these steps.</li>
+      <li>Let <var>currentRegistrationList</var> be <var>serviceWorkerRegistration</var>'s <a href="#dfn-current-registration-list">currentRegistrationList</a>.</li>
+      <li>Let <var>currentRegistration</var> be the registration in <var>currentRegistrationList</var> with <var>options</var>'s tag, else null.</li>
+      <li>If currentRegistration is not null and all of its options are the same as <var>options</var> then resolve <var>promise</var> with <var>currentRegistration</var> and terminate these steps.</li>
+      <li>If currentRegistration is not null (but its options differ):</li>
+        <ol>
+          <li>If currentRegistration's state is a <a href="#def-firing-registration-state">firing registration state</a> set its state to unregisteredWhileFiring, else set its state to unregistered.</li>
+          <li>Remove <var>currentRegistration</var> from <var>currentRegistrationList</var>.</li>
+       </ol>
+      <li>Let newRegistration be a new SyncRegistration.</li>
+      <li>Replace the options in <var>newRegistration</var> with the input <var>options</var>.
+      <li>Set <var>newRegistration</var>'s associated id to a new unique id.</li>
+      <li>Set <var>newRegistration</var>'s associated state to pending.</li>
+      <li>Set <var>newRegistration</var>'s associated serviceWorkerRegistration to <var>serviceWorkerRegistration</var>.
+      <li>Add <var>newRegistration</var> to <var>currentRegistrations</var>.
+      <li>Resolve <var>promise</var> with <var>newRegistration</var> and terminate these steps.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+
+
+  <spec-section id="sync-manager-get-registration-method">
+    <h1>getRegistration(tag)</h1>
+
+    <spec-algorithm>
+    <ol>
+      <li>Let <var>promise</var> be a new <a href="http://www.w3.org/TR/push-api/#dfn-promise">Promise</a>.</li>
+      <li>Return <var>promise</var> and continue the following steps asynchronously.</li>
+      <li>If in a document environment and the scheme of the URL is not https, reject promise with a <a href="http://www.w3.org/TR/push-api/#dfn-domexception">DOMException</a> whose name is "<a href="http://www.w3.org/TR/push-api/#dfn-securityerror">SecurityError</a>" and terminate these steps.</li>
+      <li>Let <var>serviceWorkerRegistration</var> be the <a href="#sync-manager-interface">SyncManager's</a> associated service worker registration.</li>
+      <li>Let <var>currentRegistrationList</var> be <var>serviceWorkerRegistration</var>'s <a href="#dfn-active-regisration-list">currentRegistrationList</a>.</li>
+      <li>Let <var>currentRegistration</var> be the registration in <var>currentRegistrationList</var> with the same tag as found in <var>options</var> if it exists, else null.</li>
+      <li>Resolve promise with <var>currentRegistration</var>.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+
+  <spec-section id="sync-manager-get-registrations-method">
+    <h1>getRegistrations()</h1>
+
+    <spec-algorithm>
+    <ol>
+      <li>Let <var>promise</var> be a new <a href="http://www.w3.org/TR/push-api/#dfn-promise">Promise</a>.</li>
+      <li>Return <var>promise</var> and continue the following steps asynchronously.</li>
+      <li>If in a document environment and the scheme of the URL is not https, reject promise with a <a href="http://www.w3.org/TR/push-api/#dfn-domexception">DOMException</a> whose name is "<a href="http://www.w3.org/TR/push-api/#dfn-securityerror">SecurityError</a>" and terminate these steps.</li>
+      <li>Let <var>serviceWorkerRegistration</var> be the <a href="#sync-manager-interface">SyncManager's</a> associated service worker registration.</li>
+      <li>Let <var>currentRegistrationList</var> be <var>serviceWorkerRegistration</var>'s <a href="#dfn-active-regisration-list">currentRegistrationList</a>.</li>
+      <li>Resolve promise with currentRegistrationList.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+</spec-clause>
+
+<spec-clause id="sync-registration-interface">
+  <h1>SyncRegistration interface</h1>
+  <p>The <a href="#sync-registration-interface">SyncRegistration interface</a> defines the operations to unregister and inquire about the status of a sync registration.</p>
+
+  <spec-idl>
+  [Exposed=(Window,ServiceWorker,Worker)]
+  interface SyncRegistration {
+    readonly attribute DOMString tag;
+    readonly attribute Promise&lt;boolean&gt; done;
+    Promise&lt;boolean&gt; unregister();
+  };
+  </spec-idl>
+
+  <spec-section id="sync-registration-tag-attribute">
+    <h1>tag</h1>
+    The <dfn id="dfn-sync-registration-tag-attribute">tag</dfn> attribute exposes the tag provided in options during registration.
+  </spec-section>
+
+  <spec-section id="sync-registration-done-attribute">
+    <h1>done</h1>
+
+    <spec-algorithm>
+    <ol>
+      <li>Let <var>syncRegistration</var> be the registration associated with this method's SyncRegistration.</li>
+      <li>Let <var>promise</var> be a new <a href="http://www.w3.org/TR/push-api/#dfn-promise">Promise</a>.</li>
+      <li>Return <var>promise</var> and continue the following steps asynchronously.</li>
+      <li>If in a document environment and the scheme of the URL is not https, reject promise with a <a href="http://www.w3.org/TR/push-api/#dfn-domexception">DOMException</a> whose name is "<a href="http://www.w3.org/TR/push-api/#dfn-securityerror">SecurityError</a>" and terminate these steps.</li>
+      <li>If <var>syncRegistration</var>'s state is a <a href="#final-registration-state">final registration state</a>, resolve promise with true if <var>syncRegistration</var>'s state is success, otherwise false. Terminate these steps.</li>
+      <li>Once <var>syncRegistration</var>'s state changes to a <a href="#final-registration-state">final registration state</a>, resolve promise with true if the state is success otherwise false.
+    </ol>
+    </spec-algorithm>
+
 
   </spec-section>
 
+    <spec-section id="sync-registration-unregister-method">
+    <h1>unregister()</h1>
+
+    <spec-algorithm>
+    <ol>
+      <li>Let <var>syncRegistration</var> be the registration associated with this method's SyncRegistration.</li>
+      <li>Let <var>promise</var> be a new <a href="http://www.w3.org/TR/push-api/#dfn-promise">Promise</a>.</li>
+      <li>Return <var>promise</var> and continue the following steps asynchronously.</li>
+      <li>If in a document environment and the scheme of the URL is not https, reject promise with a <a href="http://www.w3.org/TR/push-api/#dfn-domexception">DOMException</a> whose name is "<a href="http://www.w3.org/TR/push-api/#dfn-securityerror">SecurityError</a>" and terminate these steps.</li>
+      <li>Let <var>serviceWorkerRegistration</var> be the <a href="#sync-registration-interface">SyncRegistration's</a> associated service worker registration.</li>
+      <li>Let <var>currentRegistrationList</var> be <var>serviceWorkerRegistration</var>'s <a href="#dfn-active-regisration-list">currentRegistrationList</a>.</li>
+      <li>Let <var>currentRegistration</var> be the registration in <var>currentRegistrationList</var> with the same id as associated with <var>syncRegistration</var>, else null.</li>
+      <li>If <var>currentRegistration</var> is null then resolve promise with false and terminate these steps.</li>
+      <li>If currentRegistration's state is <a href="#dfn-firing-registration-state">firing registration state</a> set its state to unregisteredWhileFiring, else set its state to the <a href="#final-registration-state">final registration state</a> unregistered.</li>
+      <li>Remove <var>currentRegistration</var> from <var>currentRegistrationList</var>.</li>
+      <li>Resolve promise with true.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+
+
+</spec-clause>
+
+<spec-clause id="service-worker-sync-event">
+  <h1>SyncEvent</h1>
+
+  <p>The SyncEvent interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent should fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If the user agent decides to retry a failed event, it may retry at a time of its choosing.</p>
+
+  <spec-idl>
+  [Constructor(DOMString type, SyncEventInit init), Exposed=ServiceWorker]
+  interface SyncEvent : ExtendableEvent {
+    readonly attribute SyncRegistration registration;
+  };
+
+  dictionary SyncEventInit : ExtendableEventInit {
+    required SyncRegistration registration;
+  };
+  </spec-idl>
+
+  <p>To fire a background sync registration for SyncRegistration <var>syncRegistration</var> in the pending state, the user agent must run the following steps:</p>
+  <spec-algorithm>
+  <ol>
+    <li>Set syncRegistration's state to firing.</li>
+    <li>If the Service Worker associated with the webapp is not running, start it.</li>
+    <li>Let <var>currentRegistrationList</var> be the Service Worker associated with the webapp's <a href="#dfn-active-regisration-list">currentRegistrationList</a>.</li>
+    <li>Let <var>scope</var> be the ServiceWorkerGlobalScope of the Service Worker associated with the webapp.</li>
+    <li>Let <var>event</var> be a new SyncEvent, whose registration attribute is <var>syncRegistration</var>.</li>
+    <li>Queue a task to fire <var>event</var> as a simple event nmed sync at scope.</li>
+    <li>If the event runs without calling waitUntil or the waitUntil resolves:</li>
+      <ol>
+        <li>Remove any SyncRegistration from <var>currentRegistrationList</var> with syncRegistration's associated id.</li>
+        <li>Set syncRegistration's state to <a href="#final-registration-state">final registration state</a> success.</li>
+      </ol>
+    <li>Else (the waitUntil rejects):</li>
+      <ol>
+        <li>If syncRegistration's state is unregisteredWhileFiring:</li>
+          <ol>
+            <li>If the user agent would have retried the registration if its state were firing set syncRegistration's state to <a href="#final-registration-state">final registration state</a> unregistered else failed</li>
+          </ol>
+        <li>Else (the state is firing):</li>
+          <ol>
+            <li>If the user agent will retry:</li>
+              <ol>
+                <li>Set syncRegistration's state to pending.</li>
+              </ol>
+          <li>Else:</li>
+              <ol>
+                <li>Remove any SyncRegistration from <var>currentRegistrationList</var> with syncRegistration's associated id.</li>
+                <li>Set syncRegistration's state to <a href="#final-registration-state">final registration state</a> failed.</li>
+              </ol>
+          </ol>
+      </ol>
+  </ol>
+  </spec-algorithm>
+
+  <spec-section id="sync-event-registration-attribute">
+    <h1>event.registration</h1>
+    <p>registration attribute must return the value it was initialized to.</p>
+  </spec-section>
 </spec-clause>
 
 <spec-clause id="acknowledgements">
