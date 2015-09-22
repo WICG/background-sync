@@ -1,0 +1,404 @@
+<pre class='metadata'>
+Title: Web Background Synchronization
+Status: UD
+ED: https://slightlyoff.github.io/BackgroundSync/spec/
+Shortname: foreign-fetch
+Level: 1
+Editor: Josh Karlin, Google, jkarlin@chromium.org
+Editor: Marijn Kruisselbrink, Google, mek@chromium.org
+Abstract: This specification describes a method that enables web applications to synchronize data in the background.
+Group: personal
+Repository: slightlyoff/BackgroundSync
+Link Defaults: html (dfn) allowed to show a popup/event handler idl attribute/global object/in parallel/incumbent settings object/perform a microtask checkpoint/queue a task/script execution environment
+</pre>
+
+<pre class=biblio>
+{
+  "promises-guide": {
+    "href": "https://www.w3.org/2001/tag/doc/promises-guide",
+    "title": "Writing Promise-Using Specifications",
+    "date": "24 July 2015",
+    "status": "Finding of the W3C TAG",
+    "publisher": "W3C TAG"
+  }
+}
+</pre>
+
+<pre class="anchors">
+spec: ecma-262; urlPrefix: http://www.ecma-international.org/ecma-262/6.0/
+    type: dfn
+        text: Assert; url: sec-algorithm-conventions
+
+spec: html; urlPrefix: https://html.spec.whatwg.org/
+    type: dfn
+        text: trusted; url: concept-events-trusted
+
+spec: powerful-features; urlPrefix: https://w3c.github.io/webappsec/specs/powerfulfeatures/#
+    type: dfn
+        text: secure context; url: secure-context
+
+spec: promises-guide; urlPrefix: https://www.w3.org/2001/tag/doc/promises-guide#
+    type: dfn
+        text: A new promise; url: a-new-promise
+        text: A promise rejected with; url: a-promise-rejected-with
+        text: Reject; url: reject-promise
+        text: Resolve; url: resolve-promise
+        text: Transforming; url: transforming-by
+        text: Upon fulfillment; url: upon-fulfillment
+        text: Upon rejection; url: upon-rejection
+        text: Waiting for all; url: waiting-for-all
+
+spec: service-workers; urlPrefix: https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html
+    type: dfn
+        text: active worker; url: dfn-active-worker
+        text: client; url: dfn-service-worker-client
+        text: control; url: dfn-control
+        text: extended lifetime promises; url: dfn-extend-lifetime-promises
+        text: handle functional event; url: handle-functional-event-algorithm
+        text: service worker; url: service-worker-concept
+        text: service worker registration; url: service-worker-registration-concept
+        text: termination; url: terminate-service-worker-algorithm
+    type: interface
+        text: ExtendableEvent; url: extendable-event-interface
+        text: ExtendableEventInit; url: extendable-event-init-dictionary
+        text: ServiceWorkerGlobalScope; url: service-worker-global-scope-interface
+        text: ServiceWorkerRegistration; url: service-worker-registration-interface
+
+spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
+    type: exception
+        text: AbortError; url: aborterror
+        text: InvalidAccessError; url: invalidaccesserror
+        text: InvalidModificationError; url: invalidmodificationerror
+        text: NetworkError; url: networkerror
+        text: NotFoundError; url: notfounderror
+        text: NotSupportedError; url: notsupportederror
+        text: SecurityError; url: securityerror
+        text: SyntaxError; url: syntaxerror
+    type: interface
+        text: DOMString; url: idl-DOMString
+        text: sequence; url: idl-sequence
+</pre>
+
+<section>
+  <h2 id='introduction'>Introduction</h2>
+
+  <em>This section is non-normative.</em>
+
+  Web Applications often run in environments with unreliable networks (e.g., mobile phones) and unknown lifetimes (the browser might be killed or the user might navigate away). This makes it difficult to  synchronize client data from web apps (such as photo uploads, document changes, or composed emails) with servers. If the browser closes or the user navigates away before synchronization can complete, the app must wait until the user revisits the page to try again. This specification provides a new onsync <a>service worker</a> event which can fire <a>in the background</a> so that synchronization attempts can continue despite adverse conditions when initially requested. This API is intended to reduce the time between content creation and content synchronization with the server.
+
+  As this API relies on service workers, functionality provided by this API is only available in a <a>secure context</a>.
+</section>
+
+<section>
+  <h2 id="concepts">Concepts</h2>
+
+  The sync event is considered to run <dfn>in the background</dfn> if the user agent is either closed or no service worker clients (controlled or uncontrolled) exist for the corresponding service worker registration.
+</section>
+
+<section>
+  <h2 id="constructs">Constructs</h2>
+  A <a>service worker registration</a> has an associated <dfn>list of sync registrations</dfn> whose element type is a <a>sync registration</a>.
+
+  A <dfn>sync registration</dfn> is a tuple consisting of a <a>tag</a> and a <a lt="registration state">state</a>.
+
+  A <a>sync registration</a> has an associated <dfn>tag</dfn>, a string.
+
+  A <a>sync registration</a> has an associated <dfn>registration state</dfn>, which is one of <dfn>pending</dfn>, <dfn>firing</dfn>, <dfn>unregisteredWhileFiring</dfn>, <dfn>unregistered</dfn>, <dfn>success</dfn> or <dfn>failed</dfn>. It is initially set to <a>pending</a>.
+
+  A <a>sync registration</a> has an associated <a>service worker registration</a>. It is initially set to null.
+
+  A <a>registration state</a> is a <dfn>final registration state</dfn> if it is one of <a>unregistered</a>, <a>success</a>, or <a>failed</a>.
+
+  A <a>registration state</a> is a <dfn>firing registration state</dfn> if it is one of <a>firing</a> or <a>unregisteredWhileFiring</a>.
+
+  Within one <a>list of sync registrations</a> each <a>sync registration</a> MUST have a unique <a>tag</a>.
+</section>
+
+<section>
+  <h2 id="privacy-considerations">Privacy Considerations</h2>
+
+  <section>
+    <h3 id="location-tracking">Location Tracking</h3>
+    Fetch requests within the onsync event while <a>in the background</a> may reveal the client's IP address to the server after the user left the page. The user agent SHOULD limit tracking by capping the number of retries and duration of sync events.
+  </section>
+
+  <section>
+    <h3 id="history-leaking">History Leaking</h3>
+    Fetch requests within the onsync event while <a>in the background</a> may reveal something about the client's navigation history to passive eavesdroppers. For instance, the client might visit site https://example.com, which registers a sync event, but doesn't fire until after the user has navigated away from the page and changed networks. Passive eavesdroppers on the new network may see the fetch requests that the onsync event makes. The fetch requests are HTTPS so the request contents will not be leaked but the domain may be (via DNS lookups and IP address of the request).
+
+    Issue: Nothing is limiting fetch requests to be HTTPS only.
+  </section>
+</section>
+
+<section>
+  <h2 id="api-description">API Description</h2>
+
+  <section>
+    <h3 id="service-worker-registration-extensions">Extensions to the {{ServiceWorkerRegistration}} interface</h3>
+
+    <pre class="idl">
+      partial interface ServiceWorkerRegistration {
+        readonly attribute SyncManager sync;
+      };
+    </pre>
+
+    The <code><dfn attribute for=SyncManager title=sync>sync</dfn></code> attribute exposes a {{SyncManager}}, which has an associated <a>service worker registration</a> represented by the {{ServiceWorkerRegistration}} on which the attribute is exposed.
+  </section>
+
+  <section>
+    <h3 id="sync-manager-interface">{{SyncManager}} interface</h3>
+
+    <pre class="idl">
+      [Exposed=(Window,Worker)]
+      interface SyncManager {
+        Promise&lt;SyncRegistration&gt; register(optional SyncRegistrationOptions options);
+        Promise&lt;SyncRegistration&gt; getRegistration(DOMString tag);
+        Promise&lt;sequence&lt;SyncRegistration&gt;&gt; getRegistrations();
+      };
+
+      dictionary SyncRegistrationOptions {
+        DOMString tag;
+      };
+    </pre>
+
+    The <code><dfn method for=SyncManager title="register(options)">register(<var>options</var>)</dfn></code> method, when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
+    <ol>
+      <li>
+        Let <var>serviceWorkerRegistration</var> be the {{SyncManager}}'s associated <a>service worker registration</a>.
+      </li>
+      <li>
+        If the <a>global object</a> specified by the <a>incumbent settings object</a> is a {{WorkerGlobalScope}} instance, and the <var>serviceWorkerRegistration</var>'s <a>active worker</a> is not currently <a lt="control">controlling</a> any <a>clients</a>, <a>reject</a> <var>promise</var> with an {{InvalidAccessError}} and abort these steps.
+      </li>
+      <li>
+        Let <var>currentRegistration</var> be the <a lt="sync registration">registration</a> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a> whose <a>tag</a> equals <var>options.tag</var> if it exists, else null.
+      </li>
+      <li>
+        If <var>currentRegistration</var> is not null, <a>resolve</a> <var>promise</var> with a new {{SyncRegistration>> instance associated with <var>currentRegistration</var> and abort these steps.
+      </li>
+      <li>
+        Let <var>newRegistration</var> be a new <a>sync registration</a>.
+      </li>
+      <li>
+        Set <var>newRegistration</var>'s associated <a>tag</a> to <var>options.tag</var>.
+      </li>
+      <li>
+        Set <var>newRegistration</var>'s associated <a>service worker registration</a> to <var>serviceWorkerRegistration</var>.
+      </li>
+      <li>
+        Add <var>newRegistration</var> to <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>.
+      </li>
+      <li>
+        <a>Resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>newRegistration</var>.
+      </li>
+    </ol>
+
+    The <code><dfn method for=SyncManager title="getRegistration(tag)">getRegistration(<var>tag</var>)</dfn></code> method when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
+    <ol>
+      <li>
+        Let <var>serviceWorkerRegistration</var> be the {{SyncManager}}'s associated <a>service worker registration</a>.
+      </li>
+      <li>
+        Let <var>currentRegistration</var> be the <a lt="sync registration">registration</a> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a> whose <a>tag</a> equals <var>options.tag</var> if it exists, else null.
+      </li>
+      <li>
+        If <var>currentRegistration</var> is null, <a>resolve</a> <var>promise</var> with null.
+      </li>
+      <li>
+        <a>Resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>currentRegistration</var>.
+      </li>
+    </ol>
+
+    The <code><dfn method for=SyncManager title="getRegistrations()">getRegistrations()</dfn></code> method when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
+    <ol>
+      <li>
+        Let <var>serviceWorkerRegistration</var> be the {{SyncManager}}'s associated <a>service worker registration</a>.
+      </li>
+      <li>Let <var>currentRegistrations</var> be a new {{sequence}}.</li>
+      <li>
+        For each <var>registration</var> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>, add a new {{SyncRegistration}} instance associated with <var>registration</var> to <var>currentRegistrations</var>.
+      </li>
+      <li>
+        <a>Resolve</a> <var>promise</var> with <var>currentRegistrations</var>.
+      </li>
+    </ol>
+
+    Issue: Should register/getRegistration/getRegistrations return a new SyncRegistration instance each time, or should it attempt to return the same instance if called from a context where it had already returned a particular registration?
+  </section>
+
+  <section>
+    <h3 id="sync-registration-interface">{{SyncRegistration}} interface</h3>
+
+    <pre class="idl">
+      [Exposed=(Window,Worker)]
+      interface SyncRegistration {
+        readonly attribute DOMString tag;
+        readonly attribute Promise&lt;boolean&gt; done;
+        Promise&lt;boolean&gt; unregister();
+      };
+    </pre>
+
+    <div class="note" heading="SyncRegistration members">
+      The {{SyncRegistration/tag}} attribute exposes the tag provided in options during registration.
+
+      The {{SyncRegistration/done}} attribute returns a promise which will resolve as soon as the service worker has finished handling a sync event. It resolves to true if the event was handled succesfully, and resolves to false if something went wrong.
+
+      The {{SyncRegistration/unregister()}} method can be called to unregister the sync registration.
+    </div>
+
+    A {{SyncRegistration}} instance has an associated <a>sync registration</a>.
+
+    A {{SyncRegistration}} instance has an associated <dfn>done promise</dfn>, a promise. It is initially set to null.
+
+    The <code><dfn attribute for=SyncRegistration title=tag>tag</dfn></code> attribute MUST return the <a>tag</a> of the associated <a>sync registration</a>.
+
+    The <code><dfn attribute for=SyncRegistration title=done>done</dfn></code> attribute MUST return the result of running the following steps:
+    <ol>
+      <li>
+        If the {{SyncRegistration}}'s <a>done promise</a> is null, then:
+        <ol>
+          <li>
+            Let <var>promise</var> be <a>a new promise</a>.
+          </li>
+          <li>
+            Set the {{SyncRegistration}}'s <a>done promise</a> to <var>promise</var>.
+          </li>
+          <li>
+            <a>In parallel</a>, when/if the <a>sync registration</a>'s <a>registration state</a> becomes a <a>final registration state</a>, run the following steps:
+            <ol>
+              <li>
+                If the <a>sync registrations</a>'s <a>registration state</a> is <a>success</a>, <a>resolve</a> <var>promise</var> with true, else <a>resolve</a> <var>promise</var> with false.
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>
+        Return {{SyncRegistration}}'s <a>done promise</a>.
+      </li>
+    </ol>
+
+    The <code><dfn method for=SyncRegistration title="unregister()">unregister()</dfn></code> method when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
+    <ol>
+      <li>
+        If this <a>sync registration</a> is not currently in the <a>list of sync registrations</a> associated with this <a>sync registration</a>'s <a>service worker registration</a>, <a>resolve</a> <var>promise</var> with false and abort these steps.
+      </li>
+      <li>
+        If the <a>sync registration</a>'s <a>registration state</a> is a <a>firing registration state</a>, set its <a lt="registration state">state</a> to <a>unregisteredWhileFiring</a>, else set its <a lt="registration state">state</a> to <a>unregistered</a>.
+      </li>
+      <li>
+        Remove this <a>sync registration</a> from the <a>list of sync registrations</a> associated with this <a>sync registration</a>'s <a>service worker registration</a>.
+      </li>
+      <li>
+        <a>Resolve</a> <var>promise</var> with true.
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h3 id="sync-event">The <dfn>sync</dfn> event</h3>
+
+    <pre class="idl">
+      partial interface ServiceWorkerGlobalScope {
+        attribute EventHandler onsync;
+      };
+
+      [Constructor(DOMString type, SyncEventInit init), Exposed=ServiceWorker]
+      interface SyncEvent : ExtendableEvent {
+        readonly attribute SyncRegistration registration;
+      };
+
+      dictionary SyncEventInit : ExtendableEventInit {
+        required SyncRegistration registration;
+      };
+    </pre>
+
+    Note: The {{SyncEvent}} interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent should fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If the user agent decides to retry a failed event, it may retry at a time of its choosing.
+
+    Issue: More formally spec when a sync event should be fired.
+
+    To <dfn>fire a sync event</dfn> for a <a>sync registration</a> <var>registration</var>, the user agent MUST run the following steps:
+    <ol>
+      <li>
+        <a>Assert</a>: <var>registration</var>'s <a>registration state</a> is <a>pending</a>.
+      </li>
+      <li>
+        Let <var>serviceWorkerRegistration</var> be the <a>service worker registration</a> associated with <var>registration</var>.
+      </li>
+      <li>
+        <a>Assert</a>: <var>registration</var> exists in the <a>list of sync registrations</a> associated with <var>serviceWorkerRegistration</var>.
+      </li>
+      <li>
+        Set <var>registration</var>'s <a>registration state</a> to <a>firing</a>.
+      </li>
+      <li>
+        Invoke the <a>Handle Functional Event</a> algorithm with <var>registration</var> and the following substeps as arguments.
+        <ol>
+          <li>
+            Let <var>globalObject</var> be the <a>global object</a> these steps are called with.
+          </li>
+          <li>
+            Create a <a>trusted</a> event <var>e</var> that uses the {{SyncEvent}} interface, with the event type <a>sync</a>, which does not bubble and has no default action.
+          </li>
+          <li>
+            Let the {{SyncEvent/registration}} attribute of <var>e</var> be initialized to a new {{SyncRegistration}} associated with <var>registration</var>.
+          </li>
+          <li>
+            Dispatch <var>e</var> at <var>globalObject</var>.
+          </li>
+          <li>
+            Let <var>waitUntilPromise</var> be the result of <a>waiting for all</a> of <var>e</var>'s <a>extended lifetime promises</a>.
+          </li>
+          <li>
+            <a>Upon fulfillment</a> of <var>waitUntilPromise</var>, perform the following steps <a>in parallel</a>:
+            <ol>
+              <li>
+                Remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registration</a>, if <var>registration</var> is still in that list.
+              </li>
+              <li>
+                Set <var>registration</var>'s <a>registration state</a> to <a>success</a>.
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a>Upon fulfillment</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a>termination</a> of the <a>service worker</a>, perform the following steps <a>in parallel</a>:
+            <ol>
+              <li>
+                If <var>registration</var>'s <a>registration state</a> is <a>unregisteredWhileFiring</a>:
+                <ol>
+                  <li>
+                    If <var>e</var> <a>should be retried</a>, set <var>registration</var>'s <a>registration state</a> to <a>unregistered</a>.
+                  </li>
+                  <li>
+                    Else set <var>registration</var>'s <a>registration state</a> to <a>failed</a>.
+                  </li>
+                </ol>
+              </li>
+              <li>
+                Else:
+                <ol>
+                  <li>
+                    If <var>e</var> <a>should be retried</a>, set <var>registration</var>'s <a>registration state</a> to <a>pending</a>.
+                  </li>
+                  <li>
+                    Else:
+                    <ol>
+                      <li>
+                        Remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registration</a>.
+                      </li>
+                      <li>
+                        Set <var>registration</var>'s <a>registration state</a> to <a>failed</a>.
+                      </li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+    </ol>
+
+    A <a href="#sync-event">sync event</a> <dfn>should be retried</dfn> based on some user agent defined heuristics.
+
+    Issue: retry behavior should probably be specced a bit better.
+</section>
