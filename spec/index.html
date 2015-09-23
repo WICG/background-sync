@@ -51,7 +51,7 @@
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-09-22">22 September 2015</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-09-23">23 September 2015</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -66,7 +66,7 @@
    <div data-fill-with="warning"></div>
    <p class="copyright" data-fill-with="copyright"><a href="http://creativecommons.org/publicdomain/zero/1.0/" rel="license"><img alt="CC0" src="https://licensebuttons.net/p/zero/1.0/80x15.png"></a> To the extent possible under law, the editors have waived all copyright 
 and related or neighboring rights to this work. 
-In addition, as of 22 September 2015, 
+In addition, as of 23 September 2015, 
 the editors have made this specification available under the <a href="http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0" rel="license">Open Web Foundation Agreement Version 1.0</a>,
 which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
 Parts of this work may be from an existing specification document.  If so, those parts are instead covered by the license of the existing specification document. </p>
@@ -285,7 +285,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
           <li> Set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#success">success</a>. 
          </ol>
         <li>
-          <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a> of the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>, perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
+          <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a> of the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>, perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
          <ol>
           <li>
             If <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#unregisteredwhilefiring">unregisteredWhileFiring</a>: 
@@ -418,6 +418,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
      <li><a href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a>
      <li><a href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">resolve</a>
      <li><a href="https://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">upon fulfillment</a>
+     <li><a href="https://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">upon rejection</a>
      <li><a href="https://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all</a>
     </ul>
    <li>
