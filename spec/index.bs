@@ -130,8 +130,6 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
   <section>
     <h3 id="history-leaking">History Leaking</h3>
     Fetch requests within the onsync event while <a>in the background</a> may reveal something about the client's navigation history to passive eavesdroppers. For instance, the client might visit site https://example.com, which registers a sync event, but doesn't fire until after the user has navigated away from the page and changed networks. Passive eavesdroppers on the new network may see the fetch requests that the onsync event makes. The fetch requests are HTTPS so the request contents will not be leaked but the domain may be (via DNS lookups and IP address of the request).
-
-    Issue: Nothing is limiting fetch requests to be HTTPS only.
   </section>
 </section>
 

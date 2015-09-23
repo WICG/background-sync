@@ -148,7 +148,6 @@
     <section>
      <h3 class="heading settled" data-level="4.2" id="history-leaking"><span class="secno">4.2. </span><span class="content">History Leaking</span><a class="self-link" href="#history-leaking"></a></h3>
       Fetch requests within the onsync event while <a data-link-type="dfn" href="#in-the-background">in the background</a> may reveal something about the client’s navigation history to passive eavesdroppers. For instance, the client might visit site https://example.com, which registers a sync event, but doesn’t fire until after the user has navigated away from the page and changed networks. Passive eavesdroppers on the new network may see the fetch requests that the onsync event makes. The fetch requests are HTTPS so the request contents will not be leaked but the domain may be (via DNS lookups and IP address of the request). 
-     <p class="issue" id="issue-9a916108"><a class="self-link" href="#issue-9a916108"></a> Nothing is limiting fetch requests to be HTTPS only.</p>
     </section>
    </section>
    <section>
@@ -491,7 +490,6 @@ dictionary <a href="#dictdef-synceventinit">SyncEventInit</a> : <a data-link-typ
 </pre>
   <h2 class="no-num heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
-   <div class="issue"> Nothing is limiting fetch requests to be HTTPS only.<a href="#issue-9a916108"> ↵ </a></div>
    <div class="issue"> Should register/getRegistration/getRegistrations return a new SyncRegistration instance each time, or should it attempt to return the same instance if called from a context where it had already returned a particular registration?<a href="#issue-06bf2d52"> ↵ </a></div>
    <div class="issue"> More formally spec when a sync event should be fired.<a href="#issue-2b057c9c"> ↵ </a></div>
    <div class="issue"> retry behavior should probably be specced a bit better.<a href="#issue-8272893c"> ↵ </a></div>
