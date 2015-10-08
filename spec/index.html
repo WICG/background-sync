@@ -51,7 +51,7 @@
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-09-23">23 September 2015</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-10-08">8 October 2015</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -127,13 +127,14 @@
    <section>
     <h2 class="heading settled" data-level="2" id="concepts"><span class="secno">2. </span><span class="content">Concepts</span><a class="self-link" href="#concepts"></a></h2>
     <p>The sync event is considered to run <dfn data-dfn-type="dfn" data-noexport="" id="in-the-background">in the background<a class="self-link" href="#in-the-background"></a></dfn> if the user agent is either closed or no service worker clients (controlled or uncontrolled) exist for the corresponding service worker registration.</p>
+    <p>The user agent is considered to be <dfn data-dfn-type="dfn" data-noexport="" id="online">online<a class="self-link" href="#online"></a></dfn> if the user agent has established a network connection. A user agent MAY use a stricter definition of being <a data-link-type="dfn" href="#online">online</a>. Such a stricter definition MAY take into account the particular <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a> or origin a <a data-link-type="dfn" href="#sync-registration">sync registration</a> is associated with.</p>
    </section>
    <section>
     <h2 class="heading settled" data-level="3" id="constructs"><span class="secno">3. </span><span class="content">Constructs</span><a class="self-link" href="#constructs"></a></h2>
      A <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="list-of-sync-registrations">list of sync registrations<a class="self-link" href="#list-of-sync-registrations"></a></dfn> whose element type is a <a data-link-type="dfn" href="#sync-registration">sync registration</a>. 
     <p>A <dfn data-dfn-type="dfn" data-noexport="" id="sync-registration">sync registration<a class="self-link" href="#sync-registration"></a></dfn> is a tuple consisting of a <a data-link-type="dfn" href="#tag">tag</a> and a <a data-link-type="dfn" href="#registration-state">state</a>.</p>
     <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="tag">tag<a class="self-link" href="#tag"></a></dfn>, a string.</p>
-    <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="registration-state">registration state<a class="self-link" href="#registration-state"></a></dfn>, which is one of <dfn data-dfn-type="dfn" data-noexport="" id="pending">pending<a class="self-link" href="#pending"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="firing">firing<a class="self-link" href="#firing"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="unregisteredwhilefiring">unregisteredWhileFiring<a class="self-link" href="#unregisteredwhilefiring"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="unregistered">unregistered<a class="self-link" href="#unregistered"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="success">success<a class="self-link" href="#success"></a></dfn> or <dfn data-dfn-type="dfn" data-noexport="" id="failed">failed<a class="self-link" href="#failed"></a></dfn>. It is initially set to <a data-link-type="dfn" href="#pending">pending</a>.</p>
+    <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="registration-state">registration state<a class="self-link" href="#registration-state"></a></dfn>, which is one of <dfn data-dfn-type="dfn" data-noexport="" id="pending">pending<a class="self-link" href="#pending"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="waiting">waiting<a class="self-link" href="#waiting"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="firing">firing<a class="self-link" href="#firing"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="unregisteredwhilefiring">unregisteredWhileFiring<a class="self-link" href="#unregisteredwhilefiring"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="unregistered">unregistered<a class="self-link" href="#unregistered"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="success">success<a class="self-link" href="#success"></a></dfn> or <dfn data-dfn-type="dfn" data-noexport="" id="failed">failed<a class="self-link" href="#failed"></a></dfn>. It is initially set to <a data-link-type="dfn" href="#pending">pending</a>.</p>
     <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. It is initially set to null.</p>
     <p>A <a data-link-type="dfn" href="#registration-state">registration state</a> is a <dfn data-dfn-type="dfn" data-noexport="" id="final-registration-state">final registration state<a class="self-link" href="#final-registration-state"></a></dfn> if it is one of <a data-link-type="dfn" href="#unregistered">unregistered</a>, <a data-link-type="dfn" href="#success">success</a>, or <a data-link-type="dfn" href="#failed">failed</a>.</p>
     <p>A <a data-link-type="dfn" href="#registration-state">registration state</a> is a <dfn data-dfn-type="dfn" data-noexport="" id="firing-registration-state">firing registration state<a class="self-link" href="#firing-registration-state"></a></dfn> if it is one of <a data-link-type="dfn" href="#firing">firing</a> or <a data-link-type="dfn" href="#unregisteredwhilefiring">unregisteredWhileFiring</a>.</p>
@@ -178,12 +179,13 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
       <li> Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#syncmanager">SyncManager</a></code>'s associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. 
       <li> If the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> specified by the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a></code> instance, and the <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-active-worker">active worker</a> is not currently <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-control">controlling</a> any <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-service-worker-client">clients</a>, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code> and abort these steps. 
       <li> Let <var>currentRegistration</var> be the <a data-link-type="dfn" href="#sync-registration">registration</a> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> whose <a data-link-type="dfn" href="#tag">tag</a> equals <var>options.tag</var> if it exists, else null. 
-      <li> If <var>currentRegistration</var> is not null, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">resolve</a> <var>promise</var> with a new {{SyncRegistration>> instance associated with <var>currentRegistration</var> and abort these steps. 
+      <li> If <var>currentRegistration</var> is not null, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">resolve</a> <var>promise</var> with a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance associated with <var>currentRegistration</var> and abort these steps. 
       <li> Let <var>newRegistration</var> be a new <a data-link-type="dfn" href="#sync-registration">sync registration</a>. 
       <li> Set <var>newRegistration</var>’s associated <a data-link-type="dfn" href="#tag">tag</a> to <var>options.tag</var>. 
       <li> Set <var>newRegistration</var>’s associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a> to <var>serviceWorkerRegistration</var>. 
       <li> Add <var>newRegistration</var> to <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a>. 
       <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var> with a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance associated with <var>newRegistration</var>. 
+      <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>newRegistration</var>. 
      </ol>
      <p>The <code><dfn class="idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" id="dom-syncmanager-getregistration" title="getRegistration(tag)">getRegistration(<var>tag</var>)<a class="self-link" href="#dom-syncmanager-getregistration"></a></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
      <ol>
@@ -257,8 +259,8 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
   required <a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a> <dfn class="idl-code" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="SyncRegistration " id="dom-synceventinit-registration">registration<a class="self-link" href="#dom-synceventinit-registration"></a></dfn>;
 };
 </pre>
-     <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent should fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If the user agent decides to retry a failed event, it may retry at a time of its choosing.</p>
-     <p class="issue" id="issue-2b057c9c"><a class="self-link" href="#issue-2b057c9c"></a> More formally spec when a sync event should be fired.</p>
+     <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing.</p>
+     <p>Whenever the user agent changes to <a data-link-type="dfn" href="#online">online</a>, the user agent SHOULD <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for each <a data-link-type="dfn" href="#sync-registration">sync registration</a> whose <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#pending">pending</a>.</p>
      <p>To <dfn data-dfn-type="dfn" data-noexport="" id="fire-a-sync-event">fire a sync event<a class="self-link" href="#fire-a-sync-event"></a></dfn> for a <a data-link-type="dfn" href="#sync-registration">sync registration</a> <var>registration</var>, the user agent MUST run the following steps:</p>
      <ol>
       <li> <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">Assert</a>: <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#pending">pending</a>. 
@@ -291,7 +293,14 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
           <li>
             Else: 
            <ol>
-            <li> If <var>e</var> <a data-link-type="dfn" href="#should-be-retried">should be retried</a>, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#pending">pending</a>. 
+            <li>
+              If <var>e</var> <a data-link-type="dfn" href="#should-be-retried">should be retried</a>, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
+             <ol>
+              <li>Wait a user agent defined length of time.
+              <li>If <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is not <a data-link-type="dfn" href="#waiting">waiting</a>, abort these substeps.
+              <li>Set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#pending">pending</a>.
+              <li>If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>.
+             </ol>
             <li>
               Else: 
              <ol>
@@ -303,7 +312,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
        </ol>
      </ol>
      <p>A <a href="#sync-event">sync event</a> <dfn data-dfn-type="dfn" data-noexport="" id="should-be-retried">should be retried<a class="self-link" href="#should-be-retried"></a></dfn> based on some user agent defined heuristics.</p>
-     <p class="issue" id="issue-8272893c"><a class="self-link" href="#issue-8272893c"></a> retry behavior should probably be specced a bit better.</p>
+     <p class="issue" id="issue-19a9204f"><a class="self-link" href="#issue-19a9204f"></a> How should a web app be informed when a sync is no longer going to be retried? <a href="https://github.com/slightlyoff/BackgroundSync/issues/83">&lt;https://github.com/slightlyoff/BackgroundSync/issues/83></a></p>
     </section>
    </section>
   </main>
@@ -337,6 +346,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
    <li><a href="#dom-syncevent-syncevent-type-init-init">init</a><span>, in §5.4</span>
    <li><a href="#in-the-background">in the background</a><span>, in §2</span>
    <li><a href="#list-of-sync-registrations">list of sync registrations</a><span>, in §3</span>
+   <li><a href="#online">online</a><span>, in §2</span>
    <li><a href="#dom-serviceworkerglobalscope-onsync">onsync</a><span>, in §5.4</span>
    <li><a href="#dom-syncmanager-register-options-options">options</a><span>, in §5.2</span>
    <li><a href="#pending">pending</a><span>, in §3</span>
@@ -362,8 +372,8 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
    <li><a href="#dictdef-synceventinit">SyncEventInit</a><span>, in §5.4</span>
    <li><a href="#dom-syncevent-syncevent">SyncEvent(type, init)</a><span>, in §5.4</span>
    <li><a href="#syncmanager">SyncManager</a><span>, in §5.2</span>
-   <li><a href="#syncregistration">SyncRegistration</a><span>, in §5.3</span>
    <li><a href="#sync-registration">sync registration</a><span>, in §3</span>
+   <li><a href="#syncregistration">SyncRegistration</a><span>, in §5.3</span>
    <li><a href="#dictdef-syncregistrationoptions">SyncRegistrationOptions</a><span>, in §5.2</span>
    <li>
     tag
@@ -377,6 +387,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
    <li><a href="#dom-syncregistration-unregister">unregister()</a><span>, in §5.3</span>
    <li><a href="#unregistered">unregistered</a><span>, in §3</span>
    <li><a href="#unregisteredwhilefiring">unregisteredWhileFiring</a><span>, in §3</span>
+   <li><a href="#waiting">waiting</a><span>, in §3</span>
   </ul>
   <h3 class="no-num heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="indexlist">
@@ -491,8 +502,7 @@ dictionary <a href="#dictdef-synceventinit">SyncEventInit</a> : <a data-link-typ
   <h2 class="no-num heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
    <div class="issue"> Should register/getRegistration/getRegistrations return a new SyncRegistration instance each time, or should it attempt to return the same instance if called from a context where it had already returned a particular registration?<a href="#issue-06bf2d52"> ↵ </a></div>
-   <div class="issue"> More formally spec when a sync event should be fired.<a href="#issue-2b057c9c"> ↵ </a></div>
-   <div class="issue"> retry behavior should probably be specced a bit better.<a href="#issue-8272893c"> ↵ </a></div>
+   <div class="issue"> How should a web app be informed when a sync is no longer going to be retried? <a href="https://github.com/slightlyoff/BackgroundSync/issues/83">&lt;https://github.com/slightlyoff/BackgroundSync/issues/83></a><a href="#issue-19a9204f"> ↵ </a></div>
   </div>
  </body>
 </html>
