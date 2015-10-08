@@ -1,10 +1,10 @@
 # Background synchronization explained
 
-This is a specification that brings background synchronization to the web, in the form of a [Service Workers](https://github.com/slightlyoff/ServiceWorker) event.
+This is a specification that brings background synchronization to the web, in the form of a [Service Worker](https://github.com/slightlyoff/ServiceWorker) event.
 
 If you write an email, instant message, or simply favourite a tweet, the application needs to communicate that data to the server. If that fails, either due to user connectivity, service availability, or anything in-between, the app can store that action in some kind of 'outbox' for retry later.
 
-Unfortunately, on the web, that outbox can only be processed while the site is displayed in a browsing context. If the user navigates away, closes the tab, or closes the browser the outbox can't be synced until the page is visited again. This is particularly problematic on mobile, where browsing contexts are frequently shut down to free memory.
+Unfortunately, on the web, that outbox can only be processed while the site is displayed in a browsing context. If the user navigates away, closes the tab, or closes the browser, the outbox can't be synced until the page is visited again. This is particularly problematic on mobile, where browsing contexts are frequently shut down to free memory.
 
 Native application platforms provide [job scheduling](https://developer.android.com/reference/android/app/job/JobScheduler.html) APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing. The web platform needs capabilities like this too.
 
@@ -74,6 +74,16 @@ navigator.serviceWorker.ready.then(function(registration) {
     }).forEach(function(reg) {
       reg.unregister();
     });
+  });
+});
+```
+
+## Checking for Permission
+
+```js
+navigator.serviceWorker.ready.then(function(registration) {
+  registration.sync.permissionState().then(function(state) {
+    if (state == 'prompt') showSyncRegisterUI();
   });
 });
 ```
