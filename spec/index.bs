@@ -340,14 +340,16 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
       [Constructor(DOMString type, SyncEventInit init), Exposed=ServiceWorker]
       interface SyncEvent : ExtendableEvent {
         readonly attribute SyncRegistration registration;
+        readonly attribute boolean lastChance;
       };
 
       dictionary SyncEventInit : ExtendableEventInit {
         required SyncRegistration registration;
+        required boolean lastChance;
       };
     </pre>
 
-    Note: The {{SyncEvent}} interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing.
+    Note: The {{SyncEvent}} interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The {{SyncEvent/lastChance}} attribute is true if the user agent will not make further attempts to try this sync after the current attempt.
 
     Whenever the user agent changes to <a>online</a>, the user agent SHOULD <a>fire a sync event</a> for each <a>sync registration</a> whose <a>registration state</a> is <a>pending</a>.
 
@@ -378,6 +380,8 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             Let the {{SyncEvent/registration}} attribute of <var>e</var> be initialized to a new {{SyncRegistration}} associated with <var>registration</var>.
           </li>
           <li>
+            Let the {{SyncEvent/lastChance}} attribute of <var>e</var> be initialized to false if the user agent <a>will retry</a> this sync event if it fails, or true if no further attempts will be made after the current attempt.
+          <li>
             Dispatch <var>e</var> at <var>globalObject</var>.
           </li>
           <li>
@@ -401,7 +405,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
                 If <var>registration</var>'s <a>registration state</a> is <a>unregisteredWhileFiring</a>:
                 <ol>
                   <li>
-                    If <var>e</var> <a>should be retried</a>, set <var>registration</var>'s <a>registration state</a> to <a>unregistered</a>.
+                    If the {{SyncEvent/lastChance}} attribute of <var>e</var> is false, set <var>registration</var>'s <a>registration state</a> to <a>unregistered</a>.
                   </li>
                   <li>
                     Else set <var>registration</var>'s <a>registration state</a> to <a>failed</a>.
@@ -412,7 +416,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
                 Else:
                 <ol>
                   <li>
-                    If <var>e</var> <a>should be retried</a>, set <var>registration</var>'s <a>registration state</a> to <a>waiting</a>, and perform the following steps <a>in parallel</a>:
+                    If the {{SyncEvent/lastChance}} attribute of <var>e</var> is false, set <var>registration</var>'s <a>registration state</a> to <a>waiting</a>, and perform the following steps <a>in parallel</a>:
                     <ol>
                       <li>Wait a user agent defined length of time.</li>
                       <li>If <var>registration</var>'s <a>registration state</a> is not <a>waiting</a>, abort these substeps.</li>
@@ -439,7 +443,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
       </li>
     </ol>
 
-    A <a href="#sync-event">sync event</a> <dfn>should be retried</dfn> based on some user agent defined heuristics.
+    A user agent MAY impose a time limit on the lifetime extension and execution time of a {{SyncEvent}} which is stricter than the time limit imposed for {{ExtendableEvent}}s in general. In particular an event for which {{SyncEvent/lastChance}} is true MAY have a significantly shortened time limit.
 
-    Issue(83): How should a web app be informed when a sync is no longer going to be retried?
+    A user agent <dfn>will retry</dfn> a <a href="#sync-event">sync event</a> based on some user agent defined heuristics.
 </section>

@@ -51,7 +51,7 @@
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-10-12">12 October 2015</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-10-19">19 October 2015</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -114,7 +114,6 @@
       <li><a href="#normative"><span class="secno"></span> <span class="content">Normative References</span></a>
      </ul>
     <li><a href="#idl-index"><span class="secno"></span> <span class="content">IDL Index</span></a>
-    <li><a href="#issues-index"><span class="secno"></span> <span class="content">Issues Index</span></a>
    </ul>
   </div>
   <main>
@@ -270,13 +269,15 @@ interface <dfn class="idl-code" data-dfn-type="interface" data-export="" id="syn
 [<dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="constructor" data-export="" data-lt="SyncEvent(type, init)" id="dom-syncevent-syncevent">Constructor<a class="self-link" href="#dom-syncevent-syncevent"></a></dfn>(DOMString <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export="" id="dom-syncevent-syncevent-type-init-type">type<a class="self-link" href="#dom-syncevent-syncevent-type-init-type"></a></dfn>, <a data-link-type="idl-name" href="#dictdef-synceventinit">SyncEventInit</a> <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export="" id="dom-syncevent-syncevent-type-init-init">init<a class="self-link" href="#dom-syncevent-syncevent-type-init-init"></a></dfn>), Exposed=ServiceWorker]
 interface <dfn class="idl-code" data-dfn-type="interface" data-export="" id="syncevent">SyncEvent<a class="self-link" href="#syncevent"></a></dfn> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a> {
   readonly attribute <a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a> <dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export="" data-readonly="" data-type="SyncRegistration " id="dom-syncevent-registration">registration<a class="self-link" href="#dom-syncevent-registration"></a></dfn>;
+  readonly attribute boolean <dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export="" data-readonly="" data-type="boolean " id="dom-syncevent-lastchance">lastChance<a class="self-link" href="#dom-syncevent-lastchance"></a></dfn>;
 };
 
 dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-synceventinit">SyncEventInit<a class="self-link" href="#dictdef-synceventinit"></a></dfn> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary">ExtendableEventInit</a> {
   required <a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a> <dfn class="idl-code" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="SyncRegistration " id="dom-synceventinit-registration">registration<a class="self-link" href="#dom-synceventinit-registration"></a></dfn>;
+  required boolean <dfn class="idl-code" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="boolean " id="dom-synceventinit-lastchance">lastChance<a class="self-link" href="#dom-synceventinit-lastchance"></a></dfn>;
 };
 </pre>
-     <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing.</p>
+     <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute is true if the user agent will not make further attempts to try this sync after the current attempt.</p>
      <p>Whenever the user agent changes to <a data-link-type="dfn" href="#online">online</a>, the user agent SHOULD <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for each <a data-link-type="dfn" href="#sync-registration">sync registration</a> whose <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#pending">pending</a>.</p>
      <p>To <dfn data-dfn-type="dfn" data-noexport="" id="fire-a-sync-event">fire a sync event<a class="self-link" href="#fire-a-sync-event"></a></dfn> for a <a data-link-type="dfn" href="#sync-registration">sync registration</a> <var>registration</var>, the user agent MUST run the following steps:</p>
      <ol>
@@ -290,6 +291,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
         <li> Let <var>globalObject</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> these steps are called with. 
         <li> Create a <a data-link-type="dfn" href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> interface, with the event type <a data-link-type="dfn" href="#sync">sync</a>, which does not bubble and has no default action. 
         <li> Let the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-registration">registration</a></code> attribute of <var>e</var> be initialized to a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> associated with <var>registration</var>. 
+        <li> Let the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> be initialized to false if the user agent <a data-link-type="dfn" href="#will-retry">will retry</a> this sync event if it fails, or true if no further attempts will be made after the current attempt. 
         <li> Dispatch <var>e</var> at <var>globalObject</var>. 
         <li> Let <var>waitUntilPromise</var> be the result of <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all</a> of <var>e</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-extend-lifetime-promises">extended lifetime promises</a>. 
         <li>
@@ -304,14 +306,14 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
           <li>
             If <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#unregisteredwhilefiring">unregisteredWhileFiring</a>: 
            <ol>
-            <li> If <var>e</var> <a data-link-type="dfn" href="#should-be-retried">should be retried</a>, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#unregistered">unregistered</a>. 
+            <li> If the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> is false, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#unregistered">unregistered</a>. 
             <li> Else set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#failed">failed</a>. 
            </ol>
           <li>
             Else: 
            <ol>
             <li>
-              If <var>e</var> <a data-link-type="dfn" href="#should-be-retried">should be retried</a>, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
+              If the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> is false, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
              <ol>
               <li>Wait a user agent defined length of time.
               <li>If <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is not <a data-link-type="dfn" href="#waiting">waiting</a>, abort these substeps.
@@ -328,8 +330,8 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
          </ol>
        </ol>
      </ol>
-     <p>A <a href="#sync-event">sync event</a> <dfn data-dfn-type="dfn" data-noexport="" id="should-be-retried">should be retried<a class="self-link" href="#should-be-retried"></a></dfn> based on some user agent defined heuristics.</p>
-     <p class="issue" id="issue-19a9204f"><a class="self-link" href="#issue-19a9204f"></a> How should a web app be informed when a sync is no longer going to be retried? <a href="https://github.com/slightlyoff/BackgroundSync/issues/83">&lt;https://github.com/slightlyoff/BackgroundSync/issues/83></a></p>
+     <p>A user agent MAY impose a time limit on the lifetime extension and execution time of a <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> which is stricter than the time limit imposed for <code class="idl"><a data-link-type="idl" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a></code>s in general. In particular an event for which <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> is true MAY have a significantly shortened time limit.</p>
+     <p>A user agent <dfn data-dfn-type="dfn" data-noexport="" id="will-retry">will retry<a class="self-link" href="#will-retry"></a></dfn> a <a href="#sync-event">sync event</a> based on some user agent defined heuristics.</p>
     </section>
    </section>
   </main>
@@ -362,6 +364,12 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
    <li><a href="#dom-syncmanager-getregistration">getRegistration(tag)</a><span>, in §5.2</span>
    <li><a href="#dom-syncevent-syncevent-type-init-init">init</a><span>, in §5.4</span>
    <li><a href="#in-the-background">in the background</a><span>, in §2</span>
+   <li>
+    lastChance
+    <ul>
+     <li><a href="#dom-syncevent-lastchance">attribute for SyncEvent</a><span>, in §5.4</span>
+     <li><a href="#dom-synceventinit-lastchance">dict-member for SyncEventInit</a><span>, in §5.4</span>
+    </ul>
    <li><a href="#list-of-sync-registrations">list of sync registrations</a><span>, in §3</span>
    <li><a href="#online">online</a><span>, in §2</span>
    <li><a href="#dom-serviceworkerglobalscope-onsync">onsync</a><span>, in §5.4</span>
@@ -376,7 +384,6 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
      <li><a href="#dom-synceventinit-registration">dict-member for SyncEventInit</a><span>, in §5.4</span>
     </ul>
    <li><a href="#registration-state">registration state</a><span>, in §3</span>
-   <li><a href="#should-be-retried">should be retried</a><span>, in §5.4</span>
    <li><a href="#success">success</a><span>, in §3</span>
    <li>
     sync
@@ -405,6 +412,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
    <li><a href="#unregistered">unregistered</a><span>, in §3</span>
    <li><a href="#unregisteredwhilefiring">unregisteredWhileFiring</a><span>, in §3</span>
    <li><a href="#waiting">waiting</a><span>, in §3</span>
+   <li><a href="#will-retry">will retry</a><span>, in §5.4</span>
   </ul>
   <h3 class="no-num heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="indexlist">
@@ -513,16 +521,14 @@ partial interface <a class="idl-code" data-link-type="interface" href="https://s
 [<a href="#dom-syncevent-syncevent">Constructor</a>(DOMString <a href="#dom-syncevent-syncevent-type-init-type">type</a>, <a data-link-type="idl-name" href="#dictdef-synceventinit">SyncEventInit</a> <a href="#dom-syncevent-syncevent-type-init-init">init</a>), Exposed=ServiceWorker]
 interface <a href="#syncevent">SyncEvent</a> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a> {
   readonly attribute <a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a> <a data-readonly="" data-type="SyncRegistration " href="#dom-syncevent-registration">registration</a>;
+  readonly attribute boolean <a data-readonly="" data-type="boolean " href="#dom-syncevent-lastchance">lastChance</a>;
 };
 
 dictionary <a href="#dictdef-synceventinit">SyncEventInit</a> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary">ExtendableEventInit</a> {
   required <a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a> <a data-type="SyncRegistration " href="#dom-synceventinit-registration">registration</a>;
+  required boolean <a data-type="boolean " href="#dom-synceventinit-lastchance">lastChance</a>;
 };
 
 </pre>
-  <h2 class="no-num heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
-  <div style="counter-reset:issue">
-   <div class="issue"> How should a web app be informed when a sync is no longer going to be retried? <a href="https://github.com/slightlyoff/BackgroundSync/issues/83">&lt;https://github.com/slightlyoff/BackgroundSync/issues/83></a><a href="#issue-19a9204f"> ↵ </a></div>
-  </div>
  </body>
 </html>
