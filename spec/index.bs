@@ -178,25 +178,41 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
         Let <var>currentRegistration</var> be the <a lt="sync registration">registration</a> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a> whose <a>tag</a> equals <var>options.tag</var> if it exists, else null.
       </li>
       <li>
-        If <var>currentRegistration</var> is not null, <a>resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>currentRegistration</var> and abort these steps.
+        If <var>currentRegistration</var> is not null:
+        <ol>
+          <li>
+            If <var>currentRegistration</var>'s <a>registration state</a> is <a>waiting</a>, set <var>currentRegistration</var>'s <a>registration state</a> to <a>pending</a>.
+          </li>
+          <li>
+            <a>Resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>currentRegistration</var>.
+          </li>
+          <li>
+            If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>currentRegistration</var>.
+          </li>
+        </ol>
       </li>
       <li>
-        Let <var>newRegistration</var> be a new <a>sync registration</a>.
-      </li>
-      <li>
-        Set <var>newRegistration</var>'s associated <a>tag</a> to <var>options.tag</var>.
-      </li>
-      <li>
-        Set <var>newRegistration</var>'s associated <a>service worker registration</a> to <var>serviceWorkerRegistration</var>.
-      </li>
-      <li>
-        Add <var>newRegistration</var> to <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>.
-      </li>
-      <li>
-        <a>Resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>newRegistration</var>.
-      </li>
-      <li>
-        If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>newRegistration</var>.
+        Else:
+        <ol>
+          <li>
+            Let <var>newRegistration</var> be a new <a>sync registration</a>.
+          </li>
+          <li>
+            Set <var>newRegistration</var>'s associated <a>tag</a> to <var>options.tag</var>.
+          </li>
+          <li>
+            Set <var>newRegistration</var>'s associated <a>service worker registration</a> to <var>serviceWorkerRegistration</var>.
+          </li>
+          <li>
+            Add <var>newRegistration</var> to <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>.
+          </li>
+          <li>
+            <a>Resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>newRegistration</var>.
+          </li>
+          <li>
+            If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>newRegistration</var>.
+          </li>
+        </ol>
       </li>
     </ol>
 
