@@ -108,7 +108,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
 
   A <dfn>sync registration</dfn> is a tuple consisting of a <a>tag</a> and a <a lt="registration state">state</a>.
 
-  A <a>sync registration</a> has an associated <dfn>tag</dfn>, a string.
+  A <a>sync registration</a> has an associated <dfn>tag</dfn>, a DOMString.
 
   A <a>sync registration</a> has an associated <dfn>registration state</dfn>, which is one of <dfn>pending</dfn>, <dfn>waiting</dfn>, <dfn>firing</dfn>, <dfn>unregisteredWhileFiring</dfn>, <dfn>unregistered</dfn>, <dfn>success</dfn> or <dfn>failed</dfn>. It is initially set to <a>pending</a>.
 
