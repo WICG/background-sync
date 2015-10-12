@@ -256,7 +256,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
       [Exposed=(Window,Worker)]
       interface SyncRegistration {
         readonly attribute DOMString tag;
-        readonly attribute Promise&lt;boolean&gt; done;
+        readonly attribute Promise&lt;void&gt; done;
         Promise&lt;boolean&gt; unregister();
       };
     </pre>
@@ -290,7 +290,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             <a>In parallel</a>, when/if the <a>sync registration</a>'s <a>registration state</a> becomes a <a>final registration state</a>, run the following steps:
             <ol>
               <li>
-                If the <a>sync registrations</a>'s <a>registration state</a> is <a>success</a>, <a>resolve</a> <var>promise</var> with true, else <a>resolve</a> <var>promise</var> with false.
+                If the <a>sync registrations</a>'s <a>registration state</a> is <a>success</a>, <a>resolve</a> <var>promise</var> with undefined, else <a>reject</a> <var>promise</var> with an {{AbortError}}.
               </li>
             </ol>
           </li>
