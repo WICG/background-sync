@@ -37,6 +37,7 @@ spec: ecma-262; urlPrefix: http://www.ecma-international.org/ecma-262/6.0/
 spec: html; urlPrefix: https://html.spec.whatwg.org/
     type: dfn
         text: trusted; url: concept-events-trusted
+        text: navigator.onLine; url: dom-navigator-online
 
 spec: powerful-features; urlPrefix: https://w3c.github.io/webappsec/specs/powerfulfeatures/#
     type: dfn
@@ -99,7 +100,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
 
   The sync event is considered to run <dfn>in the background</dfn> if the user agent is either closed or no service worker clients (controlled or uncontrolled) exist for the corresponding service worker registration.
 
-  The user agent is considered to be <dfn>online</dfn> if the user agent has established a network connection. A user agent MAY use a stricter definition of being <a>online</a>. Such a stricter definition MAY take into account the particular <a>service worker</a> or origin a <a>sync registration</a> is associated with.
+  The user agent is considered to be <dfn>online</dfn> if <a>navigator.onLine</a> is true. A user agent MAY use a stricter definition of being <a>online</a>. Such a stricter definition MAY take into account connectivity to the particular <a>service worker</a> or origin the <a>sync registration</a> is associated with.
 </section>
 
 <section>
