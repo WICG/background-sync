@@ -267,7 +267,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
       [Exposed=(Window,Worker)]
       interface SyncRegistration {
         readonly attribute DOMString tag;
-        readonly attribute Promise&lt;void&gt; done;
+        readonly attribute Promise&lt;void&gt; finished;
         Promise&lt;boolean&gt; unregister();
       };
     </pre>
@@ -275,27 +275,27 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     <div class="note" heading="SyncRegistration members">
       The {{SyncRegistration/tag}} attribute exposes the tag provided in options during registration.
 
-      The {{SyncRegistration/done}} attribute returns a promise which will resolve as soon as the service worker has finished handling a sync event. It resolves to true if the event was handled succesfully, and resolves to false if something went wrong.
+      The {{SyncRegistration/finished}} attribute returns a promise which will fulfill as soon as the service worker has finished handling a sync event. It resolves if the event was handled succesfully, and rejects if something went wrong.
 
       The {{SyncRegistration/unregister()}} method can be called to unregister the sync registration.
     </div>
 
     A {{SyncRegistration}} instance has an associated <a>sync registration</a>.
 
-    A {{SyncRegistration}} instance has an associated <dfn>done promise</dfn>, a promise. It is initially set to null.
+    A {{SyncRegistration}} instance has an associated <dfn>finished promise</dfn>, a promise. It is initially set to null.
 
     The <code><dfn attribute for=SyncRegistration title=tag>tag</dfn></code> attribute MUST return the <a>tag</a> of the associated <a>sync registration</a>.
 
-    The <code><dfn attribute for=SyncRegistration title=done>done</dfn></code> attribute MUST return the result of running the following steps:
+    The <code><dfn attribute for=SyncRegistration title=finished>finished</dfn></code> attribute MUST return the result of running the following steps:
     <ol>
       <li>
-        If the {{SyncRegistration}}'s <a>done promise</a> is null, then:
+        If the {{SyncRegistration}}'s <a>finished promise</a> is null, then:
         <ol>
           <li>
             Let <var>promise</var> be <a>a new promise</a>.
           </li>
           <li>
-            Set the {{SyncRegistration}}'s <a>done promise</a> to <var>promise</var>.
+            Set the {{SyncRegistration}}'s <a>finished promise</a> to <var>promise</var>.
           </li>
           <li>
             <a>In parallel</a>, when/if the <a>sync registration</a>'s <a>registration state</a> becomes a <a>final registration state</a>, run the following steps:
@@ -308,7 +308,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
         </ol>
       </li>
       <li>
-        Return {{SyncRegistration}}'s <a>done promise</a>.
+        Return {{SyncRegistration}}'s <a>finished promise</a>.
       </li>
     </ol>
 

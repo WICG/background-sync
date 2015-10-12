@@ -225,33 +225,33 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
 <pre class="idl">[Exposed=(Window,Worker)]
 interface <dfn class="idl-code" data-dfn-type="interface" data-export="" id="syncregistration">SyncRegistration<a class="self-link" href="#syncregistration"></a></dfn> {
   readonly attribute DOMString <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString " href="#dom-syncregistration-tag">tag</a>;
-  readonly attribute Promise&lt;void> <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="Promise<void> " href="#dom-syncregistration-done">done</a>;
+  readonly attribute Promise&lt;void> <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="Promise<void> " href="#dom-syncregistration-finished">finished</a>;
   Promise&lt;boolean> <a class="idl-code" data-link-type="method" href="#dom-syncregistration-unregister">unregister</a>();
 };
 </pre>
      <div class="note no-marker" role="note">
       <div class="marker">NOTE: SyncRegistration members</div>
        The <code class="idl"><a data-link-type="idl" href="#dom-syncregistration-tag">tag</a></code> attribute exposes the tag provided in options during registration. 
-      <p>The <code class="idl"><a data-link-type="idl" href="#dom-syncregistration-done">done</a></code> attribute returns a promise which will resolve as soon as the service worker has finished handling a sync event. It resolves to true if the event was handled succesfully, and resolves to false if something went wrong.</p>
+      <p>The <code class="idl"><a data-link-type="idl" href="#dom-syncregistration-finished">finished</a></code> attribute returns a promise which will fulfill as soon as the service worker has finished handling a sync event. It resolves if the event was handled succesfully, and rejects if something went wrong.</p>
       <p>The <code class="idl"><a data-link-type="idl" href="#dom-syncregistration-unregister">unregister()</a></code> method can be called to unregister the sync registration.</p>
      </div>
      <p>A <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance has an associated <a data-link-type="dfn" href="#sync-registration">sync registration</a>.</p>
-     <p>A <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance has an associated <dfn data-dfn-type="dfn" data-noexport="" id="done-promise">done promise<a class="self-link" href="#done-promise"></a></dfn>, a promise. It is initially set to null.</p>
+     <p>A <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance has an associated <dfn data-dfn-type="dfn" data-noexport="" id="finished-promise">finished promise<a class="self-link" href="#finished-promise"></a></dfn>, a promise. It is initially set to null.</p>
      <p>The <code><dfn class="idl-code" data-dfn-for="SyncRegistration" data-dfn-type="attribute" data-export="" id="dom-syncregistration-tag" title="tag">tag<a class="self-link" href="#dom-syncregistration-tag"></a></dfn></code> attribute MUST return the <a data-link-type="dfn" href="#tag">tag</a> of the associated <a data-link-type="dfn" href="#sync-registration">sync registration</a>.</p>
-     <p>The <code><dfn class="idl-code" data-dfn-for="SyncRegistration" data-dfn-type="attribute" data-export="" id="dom-syncregistration-done" title="done">done<a class="self-link" href="#dom-syncregistration-done"></a></dfn></code> attribute MUST return the result of running the following steps:</p>
+     <p>The <code><dfn class="idl-code" data-dfn-for="SyncRegistration" data-dfn-type="attribute" data-export="" id="dom-syncregistration-finished" title="finished">finished<a class="self-link" href="#dom-syncregistration-finished"></a></dfn></code> attribute MUST return the result of running the following steps:</p>
      <ol>
       <li>
-        If the <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code>'s <a data-link-type="dfn" href="#done-promise">done promise</a> is null, then: 
+        If the <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code>'s <a data-link-type="dfn" href="#finished-promise">finished promise</a> is null, then: 
        <ol>
         <li> Let <var>promise</var> be <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a>. 
-        <li> Set the <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code>'s <a data-link-type="dfn" href="#done-promise">done promise</a> to <var>promise</var>. 
+        <li> Set the <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code>'s <a data-link-type="dfn" href="#finished-promise">finished promise</a> to <var>promise</var>. 
         <li>
           <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">In parallel</a>, when/if the <a data-link-type="dfn" href="#sync-registration">sync registration</a>’s <a data-link-type="dfn" href="#registration-state">registration state</a> becomes a <a data-link-type="dfn" href="#final-registration-state">final registration state</a>, run the following steps: 
          <ol>
           <li> If the <a data-link-type="dfn" href="#sync-registration">sync registrations</a>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#success">success</a>, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">resolve</a> <var>promise</var> with undefined, else <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code>. 
          </ol>
        </ol>
-      <li> Return <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code>'s <a data-link-type="dfn" href="#done-promise">done promise</a>. 
+      <li> Return <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code>'s <a data-link-type="dfn" href="#finished-promise">finished promise</a>. 
      </ol>
      <p>The <code><dfn class="idl-code" data-dfn-for="SyncRegistration" data-dfn-type="method" data-export="" id="dom-syncregistration-unregister" title="unregister()">unregister()<a class="self-link" href="#dom-syncregistration-unregister"></a></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
      <ol>
@@ -351,10 +351,10 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
   <h2 class="no-num heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="indexlist">
-   <li><a href="#dom-syncregistration-done">done</a><span>, in §5.3</span>
-   <li><a href="#done-promise">done promise</a><span>, in §5.3</span>
    <li><a href="#failed">failed</a><span>, in §3</span>
    <li><a href="#final-registration-state">final registration state</a><span>, in §3</span>
+   <li><a href="#dom-syncregistration-finished">finished</a><span>, in §5.3</span>
+   <li><a href="#finished-promise">finished promise</a><span>, in §5.3</span>
    <li><a href="#fire-a-sync-event">fire a sync event</a><span>, in §5.4</span>
    <li><a href="#firing">firing</a><span>, in §3</span>
    <li><a href="#firing-registration-state">firing registration state</a><span>, in §3</span>
@@ -502,7 +502,7 @@ dictionary <a href="#dictdef-syncregistrationoptions">SyncRegistrationOptions</a
 [Exposed=(Window,Worker)]
 interface <a href="#syncregistration">SyncRegistration</a> {
   readonly attribute DOMString <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString " href="#dom-syncregistration-tag">tag</a>;
-  readonly attribute Promise&lt;void> <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="Promise<void> " href="#dom-syncregistration-done">done</a>;
+  readonly attribute Promise&lt;void> <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="Promise<void> " href="#dom-syncregistration-finished">finished</a>;
   Promise&lt;boolean> <a class="idl-code" data-link-type="method" href="#dom-syncregistration-unregister">unregister</a>();
 };
 
