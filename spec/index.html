@@ -211,7 +211,6 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
       <li> For each <var>registration</var> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a>, add a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance associated with <var>registration</var> to <var>currentRegistrations</var>. 
       <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var> with <var>currentRegistrations</var>. 
      </ol>
-     <p class="issue" id="issue-06bf2d52"><a class="self-link" href="#issue-06bf2d52"></a> Should register/getRegistration/getRegistrations return a new SyncRegistration instance each time, or should it attempt to return the same instance if called from a context where it had already returned a particular registration?</p>
     </section>
     <section>
      <h3 class="heading settled" data-level="5.3" id="sync-registration-interface"><span class="secno">5.3. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> interface</span><a class="self-link" href="#sync-registration-interface"></a></h3>
@@ -512,7 +511,6 @@ dictionary <a href="#dictdef-synceventinit">SyncEventInit</a> : <a data-link-typ
 </pre>
   <h2 class="no-num heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
-   <div class="issue"> Should register/getRegistration/getRegistrations return a new SyncRegistration instance each time, or should it attempt to return the same instance if called from a context where it had already returned a particular registration?<a href="#issue-06bf2d52"> ↵ </a></div>
    <div class="issue"> How should a web app be informed when a sync is no longer going to be retried? <a href="https://github.com/slightlyoff/BackgroundSync/issues/83">&lt;https://github.com/slightlyoff/BackgroundSync/issues/83></a><a href="#issue-19a9204f"> ↵ </a></div>
   </div>
  </body>

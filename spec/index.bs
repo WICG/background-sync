@@ -245,8 +245,6 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
         <a>Resolve</a> <var>promise</var> with <var>currentRegistrations</var>.
       </li>
     </ol>
-
-    Issue: Should register/getRegistration/getRegistrations return a new SyncRegistration instance each time, or should it attempt to return the same instance if called from a context where it had already returned a particular registration?
   </section>
 
   <section>
