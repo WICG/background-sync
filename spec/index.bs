@@ -60,9 +60,11 @@ spec: service-workers; urlPrefix: https://slightlyoff.github.io/ServiceWorker/sp
         text: control; url: dfn-control
         text: extended lifetime promises; url: dfn-extend-lifetime-promises
         text: handle functional event; url: handle-functional-event-algorithm
+        text: installing worker; url: dfn-installing-worker
         text: service worker; url: service-worker-concept
         text: service worker registration; url: service-worker-registration-concept
         text: termination; url: terminate-service-worker-algorithm
+        text: waiting worker; url: dfn-waiting-worker
     type: interface
         text: ExtendableEvent; url: extendable-event-interface
         text: ExtendableEventInit; url: extendable-event-init-dictionary
@@ -73,12 +75,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     type: exception
         text: AbortError; url: aborterror
         text: InvalidAccessError; url: invalidaccesserror
-        text: InvalidModificationError; url: invalidmodificationerror
-        text: NetworkError; url: networkerror
-        text: NotFoundError; url: notfounderror
-        text: NotSupportedError; url: notsupportederror
-        text: SecurityError; url: securityerror
-        text: SyntaxError; url: syntaxerror
+        text: InvalidStateError; url: invalidstateerror
     type: interface
         text: DOMString; url: idl-DOMString
         text: sequence; url: idl-sequence
@@ -171,6 +168,22 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
       <li>
         Let <var>serviceWorkerRegistration</var> be the {{SyncManager}}'s associated <a>service worker registration</a>.
       </li>
+      <li>
+        If <var>serviceWorkerRegistration</var>'s <a>active worker</a> is null:
+        <ol>
+          <li>
+            If <var>serviceWorkerRegistration</var>'s <a>installing worker</a> is null and <var>serviceWorkerRegistration</var>'s <a>waiting worker</a> is null, <a>reject</a> <var>promise</var> with an {{InvalidStateError}} and abort these steps.
+          </li>
+          <li>
+            Wait for the <a>installing worker</a> or the <a>waiting worker</a> of <var>serviceWorkerRegistration</var> to become its <a>active worker</a>.
+          </li>
+          <li>
+            If <var>serviceWorkerRegistration</var> fails to activate either worker, <a>reject</a> <var>promise</var> with an {{InvalidStateError}} and abort these steps.
+          </li>
+          <li>
+            Once <var>serviceWorkerRegistration</var>'s <a>active worker</a> is not null, proceed with the steps below.
+          </li>
+        </ol>
       <li>
         If the <a>global object</a> specified by the <a>incumbent settings object</a> is a {{WorkerGlobalScope}} instance, and the <var>serviceWorkerRegistration</var>'s <a>active worker</a> is not currently <a lt="control">controlling</a> any <a>clients</a>, <a>reject</a> <var>promise</var> with an {{InvalidAccessError}} and abort these steps.
       </li>
