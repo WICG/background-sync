@@ -51,7 +51,7 @@
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-10-12">12 October 2015</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-10-14">14 October 2015</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -126,7 +126,7 @@
    </section>
    <section>
     <h2 class="heading settled" data-level="2" id="concepts"><span class="secno">2. </span><span class="content">Concepts</span><a class="self-link" href="#concepts"></a></h2>
-    <p>The sync event is considered to run <dfn data-dfn-type="dfn" data-noexport="" id="in-the-background">in the background<a class="self-link" href="#in-the-background"></a></dfn> if the user agent is either closed or no service worker clients (controlled or uncontrolled) exist for the corresponding service worker registration.</p>
+    <p>The sync event is considered to run <dfn data-dfn-type="dfn" data-noexport="" id="in-the-background">in the background<a class="self-link" href="#in-the-background"></a></dfn> if no <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-window-client">window clients</a> exist for the corresponding service worker registration.</p>
     <p>The user agent is considered to be <dfn data-dfn-type="dfn" data-noexport="" id="online">online<a class="self-link" href="#online"></a></dfn> if the user agent has established a network connection. A user agent MAY use a stricter definition of being <a data-link-type="dfn" href="#online">online</a>. Such a stricter definition MAY take into account the particular <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a> or origin a <a data-link-type="dfn" href="#sync-registration">sync registration</a> is associated with.</p>
    </section>
    <section>
@@ -185,7 +185,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
         <li> If <var>serviceWorkerRegistration</var> fails to activate either worker, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code> and abort these steps. 
         <li> Once <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-active-worker">active worker</a> is not null, proceed with the steps below. 
        </ol>
-      <li> If the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> specified by the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a></code> instance, and the <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-active-worker">active worker</a> is not currently <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-control">controlling</a> any <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-service-worker-client">clients</a>, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code> and abort these steps. 
+      <li> If the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> specified by the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a></code> instance, and the <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-active-worker">active worker</a> has no <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-window-client">window clients</a>, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code> and abort these steps. 
       <li> Let <var>currentRegistration</var> be the <a data-link-type="dfn" href="#sync-registration">registration</a> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> whose <a data-link-type="dfn" href="#tag">tag</a> equals <var>options.tag</var> if it exists, else null. 
       <li>
         If <var>currentRegistration</var> is not null: 
@@ -454,8 +454,6 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a>
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-interface">ServiceWorkerRegistration</a>
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-active-worker">active worker</a>
-     <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-service-worker-client">client</a>
-     <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-control">control</a>
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-extend-lifetime-promises">extended lifetime promises</a>
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#handle-functional-event-algorithm">handle functional event</a>
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-installing-worker">installing worker</a>
@@ -463,6 +461,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a>
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-waiting-worker">waiting worker</a>
+     <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-window-client">window client</a>
     </ul>
   </ul>
   <h2 class="no-num heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
