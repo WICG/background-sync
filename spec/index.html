@@ -101,6 +101,7 @@
       <li><a href="#sync-registration-interface"><span class="secno">5.3</span> <span class="content"><code class="idl"><span>SyncRegistration</span></code> interface</span></a>
       <li><a href="#sync-event"><span class="secno">5.4</span> <span class="content">The <span>sync</span> event</span></a>
      </ul>
+    <li><a href="#conformance"><span class="secno"></span> <span class="content"> Conformance</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
      <ul class="toc">
@@ -134,6 +135,8 @@
     <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="tag">tag<a class="self-link" href="#tag"></a></dfn>, a DOMString.</p>
     <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="registration-state">registration state<a class="self-link" href="#registration-state"></a></dfn>, which is one of <dfn data-dfn-type="dfn" data-noexport="" id="pending">pending<a class="self-link" href="#pending"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="waiting">waiting<a class="self-link" href="#waiting"></a></dfn>, or <dfn data-dfn-type="dfn" data-noexport="" id="firing">firing<a class="self-link" href="#firing"></a></dfn>. It is initially set to <a data-link-type="dfn" href="#pending">pending</a>.</p>
     <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. It is initially set to null.</p>
+    <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="rejection-count">rejection count<a class="self-link" href="#rejection-count"></a></dfn>, an integer initially set to 0.</p>
+    <p>A user agent has an associated <dfn data-dfn-type="dfn" data-noexport="" id="max-number-of-rejections">max number of rejections<a class="self-link" href="#max-number-of-rejections"></a></dfn>, an integer value that represents the number of times the user agent is willing to try a sync registration before discarding it.</p>
     <p>Within one <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> each <a data-link-type="dfn" href="#sync-registration">sync registration</a> MUST have a unique <a data-link-type="dfn" href="#tag">tag</a>.</p>
    </section>
    <section>
@@ -276,8 +279,9 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
         <li>
           <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a> of the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>, perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
          <ol>
+          <li>Increment <var>registration</var>’s <a data-link-type="dfn" href="#rejection-count">rejection count</a> by one. 
           <li>
-            If the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> is false, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
+            If the <a data-link-type="dfn" href="#rejection-count">rejection count</a> of <var>registration</var> is less than <a data-link-type="dfn" href="#max-number-of-rejections">max number of rejections</a>, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
            <ol>
             <li>Wait a user agent defined length of time.
             <li>If <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is not <a data-link-type="dfn" href="#waiting">waiting</a>, abort these substeps.
@@ -293,6 +297,21 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
     </section>
    </section>
   </main>
+  <h2 class="no-ref no-num heading settled" id="conformance"><span class="content"> Conformance</span><a class="self-link" href="#conformance"></a></h2>
+  <p> Conformance requirements are expressed with a combination of descriptive assertions and RFC 2119 terminology.
+        The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL”
+        in the normative parts of this document
+        are to be interpreted as described in RFC 2119.
+        However, for readability,
+        these words do not appear in all uppercase letters in this specification. </p>
+  <p> All of the text of this specification is normative
+        except sections explicitly marked as non-normative, examples, and notes. <a data-link-type="biblio" href="#biblio-rfc2119">[RFC2119]</a> </p>
+  <p> Examples in this specification are introduced with the words “for example”
+        or are set apart from the normative text with <code>class="example"</code>, like this: </p>
+  <div class="example" id="example-ae2b6bc0"><a class="self-link" href="#example-ae2b6bc0"></a> This is an example of an informative example. </div>
+  <p> Informative notes begin with the word “Note”
+        and are set apart from the normative text with <code>class="note"</code>, like this: </p>
+  <p class="note" role="note"> Note, this is an informative note. </p>
   <h2 class="no-num heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="indexlist">
@@ -309,6 +328,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
      <li><a href="#dom-synceventinit-lastchance">dict-member for SyncEventInit</a><span>, in §5.4</span>
     </ul>
    <li><a href="#list-of-sync-registrations">list of sync registrations</a><span>, in §3</span>
+   <li><a href="#max-number-of-rejections">max number of rejections</a><span>, in §3</span>
    <li><a href="#online">online</a><span>, in §2</span>
    <li><a href="#dom-serviceworkerglobalscope-onsync">onsync</a><span>, in §5.4</span>
    <li><a href="#dom-syncmanager-register-options-options">options</a><span>, in §5.2</span>
@@ -322,6 +342,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
      <li><a href="#dom-synceventinit-registration">dict-member for SyncEventInit</a><span>, in §5.4</span>
     </ul>
    <li><a href="#registration-state">registration state</a><span>, in §3</span>
+   <li><a href="#rejection-count">rejection count</a><span>, in §3</span>
    <li>
     sync
     <ul>
@@ -419,6 +440,8 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
    <dd>Mike West; Yan Zhu. <a href="http://www.w3.org/TR/powerful-features/">Privileged Contexts</a>. 24 April 2015. WD. URL: <a href="http://www.w3.org/TR/powerful-features/">http://www.w3.org/TR/powerful-features/</a>
    <dt id="biblio-promises-guide"><a class="self-link" href="#biblio-promises-guide"></a>[PROMISES-GUIDE]
    <dd><a href="https://www.w3.org/2001/tag/doc/promises-guide">Writing Promise-Using Specifications</a>. 24 July 2015. Finding of the W3C TAG. URL: <a href="https://www.w3.org/2001/tag/doc/promises-guide">https://www.w3.org/2001/tag/doc/promises-guide</a>
+   <dt id="biblio-rfc2119"><a class="self-link" href="#biblio-rfc2119"></a>[RFC2119]
+   <dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119">https://tools.ietf.org/html/rfc2119</a>
    <dt id="biblio-service-workers"><a class="self-link" href="#biblio-service-workers"></a>[SERVICE-WORKERS]
    <dd>Alex Russell; Jungkee Song; Jake Archibald. <a href="http://www.w3.org/TR/service-workers/">Service Workers</a>. 25 June 2015. WD. URL: <a href="http://www.w3.org/TR/service-workers/">http://www.w3.org/TR/service-workers/</a>
   </dl>

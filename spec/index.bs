@@ -360,7 +360,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
           <li>
             <a>Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a>termination</a> of the <a>service worker</a>, perform the following steps <a>in parallel</a>:
             <ol>
-              <li>Increment <var>registration</var>'s <a>rejection count</a> by 1.
+              <li>Increment <var>registration</var>'s <a>rejection count</a> by one.
               <li>
                 If the <a>rejection count</a> of <var>registration</var> is less than <a>max number of rejections</a>, set <var>registration</var>'s <a>registration state</a> to <a>waiting</a>, and perform the following steps <a>in parallel</a>:
                 <ol>
