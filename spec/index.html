@@ -133,7 +133,7 @@
      A <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="list-of-sync-registrations">list of sync registrations<a class="self-link" href="#list-of-sync-registrations"></a></dfn> whose element type is a <a data-link-type="dfn" href="#sync-registration">sync registration</a>. 
     <p>A <dfn data-dfn-type="dfn" data-noexport="" id="sync-registration">sync registration<a class="self-link" href="#sync-registration"></a></dfn> is a tuple consisting of a <a data-link-type="dfn" href="#tag">tag</a> and a <a data-link-type="dfn" href="#registration-state">state</a>.</p>
     <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="tag">tag<a class="self-link" href="#tag"></a></dfn>, a DOMString.</p>
-    <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="registration-state">registration state<a class="self-link" href="#registration-state"></a></dfn>, which is one of <dfn data-dfn-type="dfn" data-noexport="" id="pending">pending<a class="self-link" href="#pending"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="waiting">waiting<a class="self-link" href="#waiting"></a></dfn>, or <dfn data-dfn-type="dfn" data-noexport="" id="firing">firing<a class="self-link" href="#firing"></a></dfn>. It is initially set to <a data-link-type="dfn" href="#pending">pending</a>.</p>
+    <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <dfn data-dfn-type="dfn" data-noexport="" id="registration-state">registration state<a class="self-link" href="#registration-state"></a></dfn>, which is one of <dfn data-dfn-type="dfn" data-noexport="" id="pending">pending<a class="self-link" href="#pending"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="waiting">waiting<a class="self-link" href="#waiting"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport="" id="firing">firing<a class="self-link" href="#firing"></a></dfn>, or <dfn data-dfn-type="dfn" data-noexport="" id="reregisteredwhilefiring">reregisteredWhileFiring<a class="self-link" href="#reregisteredwhilefiring"></a></dfn>. It is initially set to <a data-link-type="dfn" href="#pending">pending</a>.</p>
     <p>A <a data-link-type="dfn" href="#sync-registration">sync registration</a> has an associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. It is initially set to null.</p>
     <p>Within one <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> each <a data-link-type="dfn" href="#sync-registration">sync registration</a> MUST have a unique <a data-link-type="dfn" href="#tag">tag</a>.</p>
    </section>
@@ -188,8 +188,9 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
         If <var>currentRegistration</var> is not null: 
        <ol>
         <li> If <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#waiting">waiting</a>, set <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#pending">pending</a>. 
+        <li> If <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#firing">firing</a>, set <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a>. 
         <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var> with a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance associated with <var>currentRegistration</var>. 
-        <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>currentRegistration</var>. 
+        <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a> and <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#pending">pending</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>currentRegistration</var>. 
        </ol>
       <li>
         Else: 
@@ -273,19 +274,24 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
         <li> Let the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> be initialized to false if the user agent <a data-link-type="dfn" href="#will-retry">will retry</a> this sync event if it fails, or true if no further attempts will be made after the current attempt. 
         <li> Dispatch <var>e</var> at <var>globalObject</var>. 
         <li> Let <var>waitUntilPromise</var> be the result of <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all</a> of <var>e</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-extend-lifetime-promises">extended lifetime promises</a>. 
-        <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment</a> of <var>waitUntilPromise</var>, remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registration</a>, if <var>registration</var> is still in that list. 
+        <li> If <var>registration</var>’s state is <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a> set <var>registration</var>’s state to <a data-link-type="dfn" href="#pending">pending</a> and <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var> if the user agent is currently online. 
         <li>
-          <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a> of the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>, perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
+          Else: 
          <ol>
+          <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment</a> of <var>waitUntilPromise</var>, remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registration</a>, if <var>registration</var> is still in that list. 
           <li>
-            If the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> is false, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
+            <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a> of the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>, perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
            <ol>
-            <li>Wait a user agent defined length of time.
-            <li>If <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is not <a data-link-type="dfn" href="#waiting">waiting</a>, abort these substeps.
-            <li>Set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#pending">pending</a>.
-            <li>If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>.
+            <li>
+              If the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> is false, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
+             <ol>
+              <li>Wait a user agent defined length of time.
+              <li>If <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is not <a data-link-type="dfn" href="#waiting">waiting</a>, abort these substeps.
+              <li>Set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#pending">pending</a>.
+              <li>If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>.
+             </ol>
+            <li> Else remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a>. 
            </ol>
-          <li> Else remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a>. 
          </ol>
        </ol>
      </ol>
@@ -338,6 +344,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
      <li><a href="#dom-synceventinit-registration">dict-member for SyncEventInit</a><span>, in §5.4</span>
     </ul>
    <li><a href="#registration-state">registration state</a><span>, in §3</span>
+   <li><a href="#reregisteredwhilefiring">reregisteredWhileFiring</a><span>, in §3</span>
    <li>
     sync
     <ul>

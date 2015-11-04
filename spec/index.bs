@@ -108,7 +108,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
 
   A <a>sync registration</a> has an associated <dfn>tag</dfn>, a DOMString.
 
-  A <a>sync registration</a> has an associated <dfn>registration state</dfn>, which is one of <dfn>pending</dfn>, <dfn>waiting</dfn>, or <dfn>firing</dfn>. It is initially set to <a>pending</a>.
+  A <a>sync registration</a> has an associated <dfn>registration state</dfn>, which is one of <dfn>pending</dfn>, <dfn>waiting</dfn>, <dfn>firing</dfn>, or <dfn>reregisteredWhileFiring</dfn>. It is initially set to <a>pending</a>.
 
   A <a>sync registration</a> has an associated <a>service worker registration</a>. It is initially set to null.
 
@@ -194,10 +194,13 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             If <var>currentRegistration</var>'s <a>registration state</a> is <a>waiting</a>, set <var>currentRegistration</var>'s <a>registration state</a> to <a>pending</a>.
           </li>
           <li>
+            If <var>currentRegistration</var>'s <a>registration state</a> is <a>firing</a>, set <var>currentRegistration</var>'s <a>registration state</a> to <a>reregisteredWhileFiring</a>.
+          </li>
+          <li>
             <a>Resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>currentRegistration</var>.
           </li>
           <li>
-            If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>currentRegistration</var>.
+            If the user agent is currently <a>online</a> and <var>currentRegistration</var>'s <a>registration state</a> is <a>pending</a>, <a>fire a sync event</a> for <var>currentRegistration</var>.
           </li>
         </ol>
       </li>
@@ -351,22 +354,30 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             Let <var>waitUntilPromise</var> be the result of <a>waiting for all</a> of <var>e</var>'s <a>extended lifetime promises</a>.
           </li>
           <li>
-            <a>Upon fulfillment</a> of <var>waitUntilPromise</var>, remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registration</a>, if <var>registration</var> is still in that list.
+            If <var>registration</var>'s state is <a>reregisteredWhileFiring</a> set <var>registration</var>'s state to <a>pending</a> and <a>fire a sync event</a> for <var>registration</var> if the user agent is currently </a>online</a>.
           </li>
           <li>
-            <a>Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a>termination</a> of the <a>service worker</a>, perform the following steps <a>in parallel</a>:
+            Else:
             <ol>
               <li>
-                If the {{SyncEvent/lastChance}} attribute of <var>e</var> is false, set <var>registration</var>'s <a>registration state</a> to <a>waiting</a>, and perform the following steps <a>in parallel</a>:
-                <ol>
-                  <li>Wait a user agent defined length of time.</li>
-                  <li>If <var>registration</var>'s <a>registration state</a> is not <a>waiting</a>, abort these substeps.</li>
-                  <li>Set <var>registration</var>'s <a>registration state</a> to <a>pending</a>.</li>
-                  <li>If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.</li>
-                </ol>
+                <a>Upon fulfillment</a> of <var>waitUntilPromise</var>, remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registration</a>, if <var>registration</var> is still in that list.
               </li>
               <li>
-                Else remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>.
+                <a>Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a>termination</a> of the <a>service worker</a>, perform the following steps <a>in parallel</a>:
+                <ol>
+                  <li>
+                    If the {{SyncEvent/lastChance}} attribute of <var>e</var> is false, set <var>registration</var>'s <a>registration state</a> to <a>waiting</a>, and perform the following steps <a>in parallel</a>:
+                    <ol>
+                      <li>Wait a user agent defined length of time.</li>
+                      <li>If <var>registration</var>'s <a>registration state</a> is not <a>waiting</a>, abort these substeps.</li>
+                      <li>Set <var>registration</var>'s <a>registration state</a> to <a>pending</a>.</li>
+                      <li>If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.</li>
+                    </ol>
+                  </li>
+                  <li>
+                    Else remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>.
+                  </li>
+                </ol>
               </li>
             </ol>
           </li>
