@@ -51,7 +51,7 @@
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-11-04">4 November 2015</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-11-06">6 November 2015</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -98,8 +98,7 @@
      <ul class="toc">
       <li><a href="#service-worker-registration-extensions"><span class="secno">5.1</span> <span class="content">Extensions to the <code class="idl"><span>ServiceWorkerRegistration</span></code> interface</span></a>
       <li><a href="#sync-manager-interface"><span class="secno">5.2</span> <span class="content"><code class="idl"><span>SyncManager</span></code> interface</span></a>
-      <li><a href="#sync-registration-interface"><span class="secno">5.3</span> <span class="content"><code class="idl"><span>SyncRegistration</span></code> interface</span></a>
-      <li><a href="#sync-event"><span class="secno">5.4</span> <span class="content">The <span>sync</span> event</span></a>
+      <li><a href="#sync-event"><span class="secno">5.3</span> <span class="content">The <span>sync</span> event</span></a>
      </ul>
     <li><a href="#conformance"><span class="secno"></span> <span class="content"> Conformance</span></a>
     <li>
@@ -162,16 +161,11 @@
      <h3 class="heading settled" data-level="5.2" id="sync-manager-interface"><span class="secno">5.2. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#syncmanager">SyncManager</a></code> interface</span><a class="self-link" href="#sync-manager-interface"></a></h3>
 <pre class="idl">[Exposed=(Window,Worker)]
 interface <dfn class="idl-code" data-dfn-type="interface" data-export="" id="syncmanager">SyncManager<a class="self-link" href="#syncmanager"></a></dfn> {
-  Promise&lt;<a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-register">register</a>(optional <a data-link-type="idl-name" href="#dictdef-syncregistrationoptions">SyncRegistrationOptions</a> <dfn class="idl-code" data-dfn-for="SyncManager/register(options), SyncManager/register()" data-dfn-type="argument" data-export="" id="dom-syncmanager-register-options-options">options<a class="self-link" href="#dom-syncmanager-register-options-options"></a></dfn>);
-  Promise&lt;<a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-getregistration">getRegistration</a>(DOMString <dfn class="idl-code" data-dfn-for="SyncManager/getRegistration(tag)" data-dfn-type="argument" data-export="" id="dom-syncmanager-getregistration-tag-tag">tag<a class="self-link" href="#dom-syncmanager-getregistration-tag-tag"></a></dfn>);
-  Promise&lt;sequence&lt;<a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a>>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-getregistrations">getRegistrations</a>();
-};
-
-dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-syncregistrationoptions">SyncRegistrationOptions<a class="self-link" href="#dictdef-syncregistrationoptions"></a></dfn> {
-  DOMString <dfn class="idl-code" data-dfn-for="SyncRegistrationOptions" data-dfn-type="dict-member" data-export="" data-type="DOMString " id="dom-syncregistrationoptions-tag">tag<a class="self-link" href="#dom-syncregistrationoptions-tag"></a></dfn>;
+  Promise&lt;void> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-register">register</a>(DOMString <dfn class="idl-code" data-dfn-for="SyncManager/register(tag)" data-dfn-type="argument" data-export="" id="dom-syncmanager-register-tag-tag">tag<a class="self-link" href="#dom-syncmanager-register-tag-tag"></a></dfn>);
+  Promise&lt;sequence&lt;DOMString>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-gettags">getTags</a>();
 };
 </pre>
-     <p>The <code><dfn class="idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" data-lt="register(options)|register()" id="dom-syncmanager-register" title="register(options)">register(<var>options</var>)<a class="self-link" href="#dom-syncmanager-register"></a></dfn></code> method, when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
+     <p>The <code><dfn class="idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" id="dom-syncmanager-register" title="register(tag)">register(<var>tag</var>)<a class="self-link" href="#dom-syncmanager-register"></a></dfn></code> method, when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
      <ol>
       <li> Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#syncmanager">SyncManager</a></code>'s associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. 
       <li>
@@ -183,78 +177,49 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
         <li> Once <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-active-worker">active worker</a> is not null, proceed with the steps below. 
        </ol>
       <li> If the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> specified by the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a></code> instance, and there are no <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-window-client">window clients</a> for the <var>serviceWorkerRegistration</var>’s origin, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code> and abort these steps. 
-      <li> Let <var>currentRegistration</var> be the <a data-link-type="dfn" href="#sync-registration">registration</a> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> whose <a data-link-type="dfn" href="#tag">tag</a> equals <var>options.tag</var> if it exists, else null. 
+      <li> Let <var>currentRegistration</var> be the <a data-link-type="dfn" href="#sync-registration">registration</a> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> whose <a data-link-type="dfn" href="#tag">tag</a> equals <var>tag</var> if it exists, else null. 
       <li>
         If <var>currentRegistration</var> is not null: 
        <ol>
         <li> If <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#waiting">waiting</a>, set <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#pending">pending</a>. 
         <li> If <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#firing">firing</a>, set <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a>. 
-        <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var> with a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance associated with <var>currentRegistration</var>. 
+        <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var>. 
         <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a> and <var>currentRegistration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#pending">pending</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>currentRegistration</var>. 
        </ol>
       <li>
         Else: 
        <ol>
         <li> Let <var>newRegistration</var> be a new <a data-link-type="dfn" href="#sync-registration">sync registration</a>. 
-        <li> Set <var>newRegistration</var>’s associated <a data-link-type="dfn" href="#tag">tag</a> to <var>options.tag</var>. 
+        <li> Set <var>newRegistration</var>’s associated <a data-link-type="dfn" href="#tag">tag</a> to <var>tag</var>. 
         <li> Set <var>newRegistration</var>’s associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a> to <var>serviceWorkerRegistration</var>. 
         <li> Add <var>newRegistration</var> to <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a>. 
-        <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var> with a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance associated with <var>newRegistration</var>. 
+        <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var>. 
         <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>newRegistration</var>. 
        </ol>
      </ol>
-     <p>The <code><dfn class="idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" id="dom-syncmanager-getregistration" title="getRegistration(tag)">getRegistration(<var>tag</var>)<a class="self-link" href="#dom-syncmanager-getregistration"></a></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
+     <p>The <code><dfn class="idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" id="dom-syncmanager-gettags" title="getTags()">getTags()<a class="self-link" href="#dom-syncmanager-gettags"></a></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
      <ol>
       <li> Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#syncmanager">SyncManager</a></code>'s associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. 
-      <li> Let <var>currentRegistration</var> be the <a data-link-type="dfn" href="#sync-registration">registration</a> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> whose <a data-link-type="dfn" href="#tag">tag</a> equals <var>options.tag</var> if it exists, else null. 
-      <li> If <var>currentRegistration</var> is null, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">resolve</a> <var>promise</var> with null. 
-      <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var> with a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance associated with <var>currentRegistration</var>. 
-     </ol>
-     <p>The <code><dfn class="idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" id="dom-syncmanager-getregistrations" title="getRegistrations()">getRegistrations()<a class="self-link" href="#dom-syncmanager-getregistrations"></a></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
-     <ol>
-      <li> Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#syncmanager">SyncManager</a></code>'s associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. 
-      <li>Let <var>currentRegistrations</var> be a new <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-sequence">sequence</a></code>.
-      <li> For each <var>registration</var> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a>, add a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance associated with <var>registration</var> to <var>currentRegistrations</var>. 
-      <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var> with <var>currentRegistrations</var>. 
+      <li>Let <var>currentTags</var> be a new <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-sequence">sequence</a></code>.
+      <li> For each <var>registration</var> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a>, add <var>registration</var>’s associated <a data-link-type="dfn" href="#tag">tag</a> to <var>currentTags</var>. 
+      <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var> with <var>currentTags</var>. 
      </ol>
     </section>
     <section>
-     <h3 class="heading settled" data-level="5.3" id="sync-registration-interface"><span class="secno">5.3. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> interface</span><a class="self-link" href="#sync-registration-interface"></a></h3>
-<pre class="idl">[Exposed=(Window,Worker)]
-interface <dfn class="idl-code" data-dfn-type="interface" data-export="" id="syncregistration">SyncRegistration<a class="self-link" href="#syncregistration"></a></dfn> {
-  readonly attribute DOMString <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString " href="#dom-syncregistration-tag">tag</a>;
-  Promise&lt;boolean> <a class="idl-code" data-link-type="method" href="#dom-syncregistration-unregister">unregister</a>();
-};
-</pre>
-     <div class="note no-marker" role="note">
-      <div class="marker">NOTE: SyncRegistration members</div>
-       The <code class="idl"><a data-link-type="idl" href="#dom-syncregistration-tag">tag</a></code> attribute exposes the tag provided in options during registration. 
-      <p>The <code class="idl"><a data-link-type="idl" href="#dom-syncregistration-unregister">unregister()</a></code> method can be called to unregister the sync registration.</p>
-     </div>
-     <p>A <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> instance has an associated <a data-link-type="dfn" href="#sync-registration">sync registration</a>.</p>
-     <p>The <code><dfn class="idl-code" data-dfn-for="SyncRegistration" data-dfn-type="attribute" data-export="" id="dom-syncregistration-tag" title="tag">tag<a class="self-link" href="#dom-syncregistration-tag"></a></dfn></code> attribute MUST return the <a data-link-type="dfn" href="#tag">tag</a> of the associated <a data-link-type="dfn" href="#sync-registration">sync registration</a>.</p>
-     <p>The <code><dfn class="idl-code" data-dfn-for="SyncRegistration" data-dfn-type="method" data-export="" id="dom-syncregistration-unregister" title="unregister()">unregister()<a class="self-link" href="#dom-syncregistration-unregister"></a></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
-     <ol>
-      <li> If this <a data-link-type="dfn" href="#sync-registration">sync registration</a> is not currently in the <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> associated with this <a data-link-type="dfn" href="#sync-registration">sync registration</a>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">resolve</a> <var>promise</var> with false and abort these steps. 
-      <li> Remove this <a data-link-type="dfn" href="#sync-registration">sync registration</a> from the <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> associated with this <a data-link-type="dfn" href="#sync-registration">sync registration</a>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. 
-      <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#resolve-promise">Resolve</a> <var>promise</var> with true. 
-     </ol>
-    </section>
-    <section>
-     <h3 class="heading settled" data-level="5.4" id="sync-event"><span class="secno">5.4. </span><span class="content">The <dfn data-dfn-type="dfn" data-noexport="" id="sync">sync<a class="self-link" href="#sync"></a></dfn> event</span><a class="self-link" href="#sync-event"></a></h3>
+     <h3 class="heading settled" data-level="5.3" id="sync-event"><span class="secno">5.3. </span><span class="content">The <dfn data-dfn-type="dfn" data-noexport="" id="sync">sync<a class="self-link" href="#sync"></a></dfn> event</span><a class="self-link" href="#sync-event"></a></h3>
 <pre class="idl">partial interface <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> {
   attribute <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <dfn class="idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="attribute" data-export="" data-type="EventHandler " id="dom-serviceworkerglobalscope-onsync">onsync<a class="self-link" href="#dom-serviceworkerglobalscope-onsync"></a></dfn>;
 };
 
 [<dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="constructor" data-export="" data-lt="SyncEvent(type, init)" id="dom-syncevent-syncevent">Constructor<a class="self-link" href="#dom-syncevent-syncevent"></a></dfn>(DOMString <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export="" id="dom-syncevent-syncevent-type-init-type">type<a class="self-link" href="#dom-syncevent-syncevent-type-init-type"></a></dfn>, <a data-link-type="idl-name" href="#dictdef-synceventinit">SyncEventInit</a> <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export="" id="dom-syncevent-syncevent-type-init-init">init<a class="self-link" href="#dom-syncevent-syncevent-type-init-init"></a></dfn>), Exposed=ServiceWorker]
 interface <dfn class="idl-code" data-dfn-type="interface" data-export="" id="syncevent">SyncEvent<a class="self-link" href="#syncevent"></a></dfn> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a> {
-  readonly attribute <a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a> <dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export="" data-readonly="" data-type="SyncRegistration " id="dom-syncevent-registration">registration<a class="self-link" href="#dom-syncevent-registration"></a></dfn>;
+  readonly attribute DOMString <dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export="" data-readonly="" data-type="DOMString " id="dom-syncevent-tag">tag<a class="self-link" href="#dom-syncevent-tag"></a></dfn>;
   readonly attribute boolean <dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export="" data-readonly="" data-type="boolean " id="dom-syncevent-lastchance">lastChance<a class="self-link" href="#dom-syncevent-lastchance"></a></dfn>;
 };
 
 dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-synceventinit">SyncEventInit<a class="self-link" href="#dictdef-synceventinit"></a></dfn> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary">ExtendableEventInit</a> {
-  required <a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a> <dfn class="idl-code" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="SyncRegistration " id="dom-synceventinit-registration">registration<a class="self-link" href="#dom-synceventinit-registration"></a></dfn>;
-  required boolean <dfn class="idl-code" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="boolean " id="dom-synceventinit-lastchance">lastChance<a class="self-link" href="#dom-synceventinit-lastchance"></a></dfn>;
+  required DOMString <dfn class="idl-code" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="DOMString " id="dom-synceventinit-tag">tag<a class="self-link" href="#dom-synceventinit-tag"></a></dfn>;
+  boolean <dfn class="idl-code" data-default="false" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="boolean " id="dom-synceventinit-lastchance">lastChance<a class="self-link" href="#dom-synceventinit-lastchance"></a></dfn> = false;
 };
 </pre>
      <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute is true if the user agent will not make further attempts to try this sync after the current attempt.</p>
@@ -270,18 +235,36 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
        <ol>
         <li> Let <var>globalObject</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> these steps are called with. 
         <li> Create a <a data-link-type="dfn" href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> interface, with the event type <a data-link-type="dfn" href="#sync">sync</a>, which does not bubble and has no default action. 
-        <li> Let the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-registration">registration</a></code> attribute of <var>e</var> be initialized to a new <code class="idl"><a data-link-type="idl" href="#syncregistration">SyncRegistration</a></code> associated with <var>registration</var>. 
+        <li> Let the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-tag">tag</a></code> attribute of <var>e</var> be initialized to the <a data-link-type="dfn" href="#tag">tag</a> associated with <var>registration</var>. 
         <li> Let the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> be initialized to false if the user agent <a data-link-type="dfn" href="#will-retry">will retry</a> this sync event if it fails, or true if no further attempts will be made after the current attempt. 
         <li> Dispatch <var>e</var> at <var>globalObject</var>. 
         <li> Let <var>waitUntilPromise</var> be the result of <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all</a> of <var>e</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-extend-lifetime-promises">extended lifetime promises</a>. 
-        <li> If <var>registration</var>’s state is <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a> set <var>registration</var>’s state to <a data-link-type="dfn" href="#pending">pending</a> and <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var> if the user agent is currently online. 
         <li>
           Else: 
          <ol>
-          <li> <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment</a> of <var>waitUntilPromise</var>, remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registration</a>, if <var>registration</var> is still in that list. 
           <li>
-            <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a> of the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>, perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
+            <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment</a> of <var>waitUntilPromise</var>, perform the following steps atomically: 
            <ol>
+            <li>
+              If <var>registration</var>’s state is <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a>: 
+             <ol>
+              <li> Set <var>registration</var>’s state to <a data-link-type="dfn" href="#pending">pending</a>. 
+              <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>. 
+              <li> Abort the rest of these steps. 
+             </ol>
+            <li> <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">Assert</a>: <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#firing">firing</a>. 
+            <li> Remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registration</a>. 
+           </ol>
+          <li>
+            <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a> of the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>, perform the following steps atomically: 
+           <ol>
+            <li>
+              If <var>registration</var>’s state is <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a>: 
+             <ol>
+              <li> Set <var>registration</var>’s state to <a data-link-type="dfn" href="#pending">pending</a>. 
+              <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>. 
+              <li> Abort the rest of these steps. 
+             </ol>
             <li>
               If the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> is false, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
              <ol>
@@ -318,31 +301,22 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
   <h2 class="no-num heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="indexlist">
-   <li><a href="#fire-a-sync-event">fire a sync event</a><span>, in §5.4</span>
+   <li><a href="#fire-a-sync-event">fire a sync event</a><span>, in §5.3</span>
    <li><a href="#firing">firing</a><span>, in §3</span>
-   <li><a href="#dom-syncmanager-getregistrations">getRegistrations()</a><span>, in §5.2</span>
-   <li><a href="#dom-syncmanager-getregistration">getRegistration(tag)</a><span>, in §5.2</span>
-   <li><a href="#dom-syncevent-syncevent-type-init-init">init</a><span>, in §5.4</span>
+   <li><a href="#dom-syncmanager-gettags">getTags()</a><span>, in §5.2</span>
+   <li><a href="#dom-syncevent-syncevent-type-init-init">init</a><span>, in §5.3</span>
    <li><a href="#in-the-background">in the background</a><span>, in §2</span>
    <li>
     lastChance
     <ul>
-     <li><a href="#dom-syncevent-lastchance">attribute for SyncEvent</a><span>, in §5.4</span>
-     <li><a href="#dom-synceventinit-lastchance">dict-member for SyncEventInit</a><span>, in §5.4</span>
+     <li><a href="#dom-syncevent-lastchance">attribute for SyncEvent</a><span>, in §5.3</span>
+     <li><a href="#dom-synceventinit-lastchance">dict-member for SyncEventInit</a><span>, in §5.3</span>
     </ul>
    <li><a href="#list-of-sync-registrations">list of sync registrations</a><span>, in §3</span>
    <li><a href="#online">online</a><span>, in §2</span>
-   <li><a href="#dom-serviceworkerglobalscope-onsync">onsync</a><span>, in §5.4</span>
-   <li><a href="#dom-syncmanager-register-options-options">options</a><span>, in §5.2</span>
+   <li><a href="#dom-serviceworkerglobalscope-onsync">onsync</a><span>, in §5.3</span>
    <li><a href="#pending">pending</a><span>, in §3</span>
-   <li><a href="#dom-syncmanager-register">register()</a><span>, in §5.2</span>
-   <li><a href="#dom-syncmanager-register">register(options)</a><span>, in §5.2</span>
-   <li>
-    registration
-    <ul>
-     <li><a href="#dom-syncevent-registration">attribute for SyncEvent</a><span>, in §5.4</span>
-     <li><a href="#dom-synceventinit-registration">dict-member for SyncEventInit</a><span>, in §5.4</span>
-    </ul>
+   <li><a href="#dom-syncmanager-register">register(tag)</a><span>, in §5.2</span>
    <li><a href="#registration-state">registration state</a><span>, in §3</span>
    <li><a href="#reregisteredwhilefiring">reregisteredWhileFiring</a><span>, in §3</span>
    <li>
@@ -350,27 +324,24 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
     <ul>
      <li><a href="#dom-serviceworkerregistration-sync">attribute for ServiceWorkerRegistration</a><span>, in §5.1</span>
      <li><a href="#dom-syncmanager-sync">attribute for SyncManager</a><span>, in §5.1</span>
-     <li><a href="#sync">definition of</a><span>, in §5.4</span>
+     <li><a href="#sync">definition of</a><span>, in §5.3</span>
     </ul>
-   <li><a href="#syncevent">SyncEvent</a><span>, in §5.4</span>
-   <li><a href="#dictdef-synceventinit">SyncEventInit</a><span>, in §5.4</span>
-   <li><a href="#dom-syncevent-syncevent">SyncEvent(type, init)</a><span>, in §5.4</span>
+   <li><a href="#syncevent">SyncEvent</a><span>, in §5.3</span>
+   <li><a href="#dictdef-synceventinit">SyncEventInit</a><span>, in §5.3</span>
+   <li><a href="#dom-syncevent-syncevent">SyncEvent(type, init)</a><span>, in §5.3</span>
    <li><a href="#syncmanager">SyncManager</a><span>, in §5.2</span>
-   <li><a href="#syncregistration">SyncRegistration</a><span>, in §5.3</span>
    <li><a href="#sync-registration">sync registration</a><span>, in §3</span>
-   <li><a href="#dictdef-syncregistrationoptions">SyncRegistrationOptions</a><span>, in §5.2</span>
    <li>
     tag
     <ul>
      <li><a href="#tag">definition of</a><span>, in §3</span>
-     <li><a href="#dom-syncmanager-getregistration-tag-tag">argument for SyncManager/getRegistration(tag)</a><span>, in §5.2</span>
-     <li><a href="#dom-syncregistrationoptions-tag">dict-member for SyncRegistrationOptions</a><span>, in §5.2</span>
-     <li><a href="#dom-syncregistration-tag">attribute for SyncRegistration</a><span>, in §5.3</span>
+     <li><a href="#dom-syncmanager-register-tag-tag">argument for SyncManager/register(tag)</a><span>, in §5.2</span>
+     <li><a href="#dom-syncevent-tag">attribute for SyncEvent</a><span>, in §5.3</span>
+     <li><a href="#dom-synceventinit-tag">dict-member for SyncEventInit</a><span>, in §5.3</span>
     </ul>
-   <li><a href="#dom-syncevent-syncevent-type-init-type">type</a><span>, in §5.4</span>
-   <li><a href="#dom-syncregistration-unregister">unregister()</a><span>, in §5.3</span>
+   <li><a href="#dom-syncevent-syncevent-type-init-type">type</a><span>, in §5.3</span>
    <li><a href="#waiting">waiting</a><span>, in §3</span>
-   <li><a href="#will-retry">will retry</a><span>, in §5.4</span>
+   <li><a href="#will-retry">will retry</a><span>, in §5.3</span>
   </ul>
   <h3 class="no-num heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="indexlist">
@@ -433,7 +404,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
   <h3 class="no-num heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-ecma-262"><a class="self-link" href="#biblio-ecma-262"></a>[ECMA-262]
-   <dd><a href="https://tc39.github.io/ecma262/">ECMAScript Language Specification</a>. URL: <a href="https://tc39.github.io/ecma262/">https://tc39.github.io/ecma262/</a>
+   <dd>Allen Wirfs-Brock. <a href="http://www.ecma-international.org/ecma-262/6.0/">ECMA-262 6th Edition, The ECMAScript 2015 Language Specification</a>. June 2015. Standard. URL: <a href="http://www.ecma-international.org/ecma-262/6.0/">http://www.ecma-international.org/ecma-262/6.0/</a>
    <dt id="biblio-html"><a class="self-link" href="#biblio-html"></a>[HTML]
    <dd>Ian Hickson. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-webidl"><a class="self-link" href="#biblio-webidl"></a>[WebIDL]
@@ -454,19 +425,8 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
 
 [Exposed=(Window,Worker)]
 interface <a href="#syncmanager">SyncManager</a> {
-  Promise&lt;<a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-register">register</a>(optional <a data-link-type="idl-name" href="#dictdef-syncregistrationoptions">SyncRegistrationOptions</a> <a href="#dom-syncmanager-register-options-options">options</a>);
-  Promise&lt;<a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-getregistration">getRegistration</a>(DOMString <a href="#dom-syncmanager-getregistration-tag-tag">tag</a>);
-  Promise&lt;sequence&lt;<a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a>>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-getregistrations">getRegistrations</a>();
-};
-
-dictionary <a href="#dictdef-syncregistrationoptions">SyncRegistrationOptions</a> {
-  DOMString <a data-type="DOMString " href="#dom-syncregistrationoptions-tag">tag</a>;
-};
-
-[Exposed=(Window,Worker)]
-interface <a href="#syncregistration">SyncRegistration</a> {
-  readonly attribute DOMString <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString " href="#dom-syncregistration-tag">tag</a>;
-  Promise&lt;boolean> <a class="idl-code" data-link-type="method" href="#dom-syncregistration-unregister">unregister</a>();
+  Promise&lt;void> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-register">register</a>(DOMString <a href="#dom-syncmanager-register-tag-tag">tag</a>);
+  Promise&lt;sequence&lt;DOMString>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-gettags">getTags</a>();
 };
 
 partial interface <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> {
@@ -475,13 +435,13 @@ partial interface <a class="idl-code" data-link-type="interface" href="https://s
 
 [<a href="#dom-syncevent-syncevent">Constructor</a>(DOMString <a href="#dom-syncevent-syncevent-type-init-type">type</a>, <a data-link-type="idl-name" href="#dictdef-synceventinit">SyncEventInit</a> <a href="#dom-syncevent-syncevent-type-init-init">init</a>), Exposed=ServiceWorker]
 interface <a href="#syncevent">SyncEvent</a> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a> {
-  readonly attribute <a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a> <a data-readonly="" data-type="SyncRegistration " href="#dom-syncevent-registration">registration</a>;
+  readonly attribute DOMString <a data-readonly="" data-type="DOMString " href="#dom-syncevent-tag">tag</a>;
   readonly attribute boolean <a data-readonly="" data-type="boolean " href="#dom-syncevent-lastchance">lastChance</a>;
 };
 
 dictionary <a href="#dictdef-synceventinit">SyncEventInit</a> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary">ExtendableEventInit</a> {
-  required <a data-link-type="idl-name" href="#syncregistration">SyncRegistration</a> <a data-type="SyncRegistration " href="#dom-synceventinit-registration">registration</a>;
-  required boolean <a data-type="boolean " href="#dom-synceventinit-lastchance">lastChance</a>;
+  required DOMString <a data-type="DOMString " href="#dom-synceventinit-tag">tag</a>;
+  boolean <a data-default="false" data-type="boolean " href="#dom-synceventinit-lastchance">lastChance</a> = false;
 };
 
 </pre>

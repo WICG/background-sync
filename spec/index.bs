@@ -150,17 +150,12 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     <pre class="idl">
       [Exposed=(Window,Worker)]
       interface SyncManager {
-        Promise&lt;SyncRegistration&gt; register(optional SyncRegistrationOptions options);
-        Promise&lt;SyncRegistration&gt; getRegistration(DOMString tag);
-        Promise&lt;sequence&lt;SyncRegistration&gt;&gt; getRegistrations();
-      };
-
-      dictionary SyncRegistrationOptions {
-        DOMString tag;
+        Promise&lt;void&gt; register(DOMString tag);
+        Promise&lt;sequence&lt;DOMString&gt;&gt; getTags();
       };
     </pre>
 
-    The <code><dfn method for=SyncManager title="register(options)">register(<var>options</var>)</dfn></code> method, when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
+    The <code><dfn method for=SyncManager title="register(tag)">register(<var>tag</var>)</dfn></code> method, when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
     <ol>
       <li>
         Let <var>serviceWorkerRegistration</var> be the {{SyncManager}}'s associated <a>service worker registration</a>.
@@ -185,7 +180,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
         If the <a>global object</a> specified by the <a>incumbent settings object</a> is a {{WorkerGlobalScope}} instance, and there are no <a>window clients</a> for the <var>serviceWorkerRegistration</var>'s origin, <a>reject</a> <var>promise</var> with an {{InvalidAccessError}} and abort these steps.
       </li>
       <li>
-        Let <var>currentRegistration</var> be the <a lt="sync registration">registration</a> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a> whose <a>tag</a> equals <var>options.tag</var> if it exists, else null.
+        Let <var>currentRegistration</var> be the <a lt="sync registration">registration</a> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a> whose <a>tag</a> equals <var>tag</var> if it exists, else null.
       </li>
       <li>
         If <var>currentRegistration</var> is not null:
@@ -197,7 +192,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             If <var>currentRegistration</var>'s <a>registration state</a> is <a>firing</a>, set <var>currentRegistration</var>'s <a>registration state</a> to <a>reregisteredWhileFiring</a>.
           </li>
           <li>
-            <a>Resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>currentRegistration</var>.
+            <a>Resolve</a> <var>promise</var>.
           </li>
           <li>
             If the user agent is currently <a>online</a> and <var>currentRegistration</var>'s <a>registration state</a> is <a>pending</a>, <a>fire a sync event</a> for <var>currentRegistration</var>.
@@ -211,7 +206,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             Let <var>newRegistration</var> be a new <a>sync registration</a>.
           </li>
           <li>
-            Set <var>newRegistration</var>'s associated <a>tag</a> to <var>options.tag</var>.
+            Set <var>newRegistration</var>'s associated <a>tag</a> to <var>tag</var>.
           </li>
           <li>
             Set <var>newRegistration</var>'s associated <a>service worker registration</a> to <var>serviceWorkerRegistration</var>.
@@ -220,7 +215,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             Add <var>newRegistration</var> to <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>.
           </li>
           <li>
-            <a>Resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>newRegistration</var>.
+            <a>Resolve</a> <var>promise</var>.
           </li>
           <li>
             If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>newRegistration</var>.
@@ -229,68 +224,17 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
       </li>
     </ol>
 
-    The <code><dfn method for=SyncManager title="getRegistration(tag)">getRegistration(<var>tag</var>)</dfn></code> method when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
+    The <code><dfn method for=SyncManager title="getTags()">getTags()</dfn></code> method when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
     <ol>
       <li>
         Let <var>serviceWorkerRegistration</var> be the {{SyncManager}}'s associated <a>service worker registration</a>.
       </li>
+      <li>Let <var>currentTags</var> be a new {{sequence}}.</li>
       <li>
-        Let <var>currentRegistration</var> be the <a lt="sync registration">registration</a> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a> whose <a>tag</a> equals <var>options.tag</var> if it exists, else null.
+        For each <var>registration</var> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>, add <var>registration</var>'s associated <a>tag</a> to <var>currentTags</var>.
       </li>
       <li>
-        If <var>currentRegistration</var> is null, <a>resolve</a> <var>promise</var> with null.
-      </li>
-      <li>
-        <a>Resolve</a> <var>promise</var> with a new {{SyncRegistration}} instance associated with <var>currentRegistration</var>.
-      </li>
-    </ol>
-
-    The <code><dfn method for=SyncManager title="getRegistrations()">getRegistrations()</dfn></code> method when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
-    <ol>
-      <li>
-        Let <var>serviceWorkerRegistration</var> be the {{SyncManager}}'s associated <a>service worker registration</a>.
-      </li>
-      <li>Let <var>currentRegistrations</var> be a new {{sequence}}.</li>
-      <li>
-        For each <var>registration</var> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>, add a new {{SyncRegistration}} instance associated with <var>registration</var> to <var>currentRegistrations</var>.
-      </li>
-      <li>
-        <a>Resolve</a> <var>promise</var> with <var>currentRegistrations</var>.
-      </li>
-    </ol>
-  </section>
-
-  <section>
-    <h3 id="sync-registration-interface">{{SyncRegistration}} interface</h3>
-
-    <pre class="idl">
-      [Exposed=(Window,Worker)]
-      interface SyncRegistration {
-        readonly attribute DOMString tag;
-        Promise&lt;boolean&gt; unregister();
-      };
-    </pre>
-
-    <div class="note" heading="SyncRegistration members">
-      The {{SyncRegistration/tag}} attribute exposes the tag provided in options during registration.
-
-      The {{SyncRegistration/unregister()}} method can be called to unregister the sync registration.
-    </div>
-
-    A {{SyncRegistration}} instance has an associated <a>sync registration</a>.
-
-    The <code><dfn attribute for=SyncRegistration title=tag>tag</dfn></code> attribute MUST return the <a>tag</a> of the associated <a>sync registration</a>.
-
-    The <code><dfn method for=SyncRegistration title="unregister()">unregister()</dfn></code> method when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
-    <ol>
-      <li>
-        If this <a>sync registration</a> is not currently in the <a>list of sync registrations</a> associated with this <a>sync registration</a>'s <a>service worker registration</a>, <a>resolve</a> <var>promise</var> with false and abort these steps.
-      </li>
-      <li>
-        Remove this <a>sync registration</a> from the <a>list of sync registrations</a> associated with this <a>sync registration</a>'s <a>service worker registration</a>.
-      </li>
-      <li>
-        <a>Resolve</a> <var>promise</var> with true.
+        <a>Resolve</a> <var>promise</var> with <var>currentTags</var>.
       </li>
     </ol>
   </section>
@@ -305,13 +249,13 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
 
       [Constructor(DOMString type, SyncEventInit init), Exposed=ServiceWorker]
       interface SyncEvent : ExtendableEvent {
-        readonly attribute SyncRegistration registration;
+        readonly attribute DOMString tag;
         readonly attribute boolean lastChance;
       };
 
       dictionary SyncEventInit : ExtendableEventInit {
-        required SyncRegistration registration;
-        required boolean lastChance;
+        required DOMString tag;
+        boolean lastChance = false;
       };
     </pre>
 
@@ -343,7 +287,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             Create a <a>trusted</a> event <var>e</var> that uses the {{SyncEvent}} interface, with the event type <a>sync</a>, which does not bubble and has no default action.
           </li>
           <li>
-            Let the {{SyncEvent/registration}} attribute of <var>e</var> be initialized to a new {{SyncRegistration}} associated with <var>registration</var>.
+            Let the {{SyncEvent/tag}} attribute of <var>e</var> be initialized to the <a>tag</a> associated with <var>registration</var>.
           </li>
           <li>
             Let the {{SyncEvent/lastChance}} attribute of <var>e</var> be initialized to false if the user agent <a>will retry</a> this sync event if it fails, or true if no further attempts will be made after the current attempt.
@@ -354,17 +298,50 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             Let <var>waitUntilPromise</var> be the result of <a>waiting for all</a> of <var>e</var>'s <a>extended lifetime promises</a>.
           </li>
           <li>
-            If <var>registration</var>'s state is <a>reregisteredWhileFiring</a> set <var>registration</var>'s state to <a>pending</a> and <a>fire a sync event</a> for <var>registration</var> if the user agent is currently </a>online</a>.
-          </li>
-          <li>
             Else:
             <ol>
               <li>
-                <a>Upon fulfillment</a> of <var>waitUntilPromise</var>, remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registration</a>, if <var>registration</var> is still in that list.
+                <a>Upon fulfillment</a> of <var>waitUntilPromise</var>, perform the following steps atomically:
+                <ol>
+                  <li>
+                    If <var>registration</var>'s state is <a>reregisteredWhileFiring</a>:
+                    <ol>
+                      <li>
+                        Set <var>registration</var>'s state to <a>pending</a>.
+                      </li>
+                      <li>
+                        If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.
+                      </li>
+                      <li>
+                        Abort the rest of these steps.
+                      </li>
+                    </ol>
+                  </li>
+                  <li>
+                    <a>Assert</a>: <var>registration</var>'s <a>registration state</a> is <a>firing</a>.
+                  </li>
+                  <li>
+                    Remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registration</a>.
+                  </li>
+                </ol>
               </li>
               <li>
-                <a>Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a>termination</a> of the <a>service worker</a>, perform the following steps <a>in parallel</a>:
+                <a>Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a>termination</a> of the <a>service worker</a>, perform the following steps atomically:
                 <ol>
+                  <li>
+                    If <var>registration</var>'s state is <a>reregisteredWhileFiring</a>:
+                    <ol>
+                      <li>
+                        Set <var>registration</var>'s state to <a>pending</a>.
+                      </li>
+                      <li>
+                        If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.
+                      </li>
+                      <li>
+                        Abort the rest of these steps.
+                      </li>
+                    </ol>
+                  </li>
                   <li>
                     If the {{SyncEvent/lastChance}} attribute of <var>e</var> is false, set <var>registration</var>'s <a>registration state</a> to <a>waiting</a>, and perform the following steps <a>in parallel</a>:
                     <ol>
