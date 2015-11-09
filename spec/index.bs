@@ -1,21 +1,16 @@
 <pre class='metadata'>
 Title: Web Background Synchronization
-Status: UD
+Status: CG-DRAFT
 ED: https://wicg.github.io/BackgroundSync/spec/
 Shortname: foreign-fetch
 Level: 1
 Editor: Josh Karlin, Google, jkarlin@chromium.org
 Editor: Marijn Kruisselbrink, Google, mek@chromium.org
 Abstract: This specification describes a method that enables web applications to synchronize data in the background.
-Group: personal
+Group: wicg
 Repository: WICG/BackgroundSync
 Link Defaults: html (dfn) allowed to show a popup/event handler idl attribute/global object/in parallel/incumbent settings object/perform a microtask checkpoint/queue a task/script execution environment
 </pre>
-
-<p boilerplate='copyright'>
-  <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2015 the Contributors to the Web Background Synchronization Specification , published under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
-  A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/">summary</a> is available.
-</p>
 
 <pre class=biblio>
 {
