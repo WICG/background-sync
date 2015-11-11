@@ -298,63 +298,58 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             Let <var>waitUntilPromise</var> be the result of <a>waiting for all</a> of <var>e</var>'s <a>extended lifetime promises</a>.
           </li>
           <li>
-            Else:
+            <a>Upon fulfillment</a> of <var>waitUntilPromise</var>, perform the following steps atomically:
             <ol>
               <li>
-                <a>Upon fulfillment</a> of <var>waitUntilPromise</var>, perform the following steps atomically:
+                If <var>registration</var>'s state is <a>reregisteredWhileFiring</a>:
                 <ol>
                   <li>
-                    If <var>registration</var>'s state is <a>reregisteredWhileFiring</a>:
-                    <ol>
-                      <li>
-                        Set <var>registration</var>'s state to <a>pending</a>.
-                      </li>
-                      <li>
-                        If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.
-                      </li>
-                      <li>
-                        Abort the rest of these steps.
-                      </li>
-                    </ol>
+                    Set <var>registration</var>'s state to <a>pending</a>.
                   </li>
                   <li>
-                    <a>Assert</a>: <var>registration</var>'s <a>registration state</a> is <a>firing</a>.
+                    If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.
                   </li>
                   <li>
-                    Remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registration</a>.
+                    Abort the rest of these steps.
                   </li>
                 </ol>
               </li>
               <li>
-                <a>Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a>termination</a> of the <a>service worker</a>, perform the following steps atomically:
+                <a>Assert</a>: <var>registration</var>'s <a>registration state</a> is <a>firing</a>.
+              </li>
+              <li>
+                Remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registration</a>.
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a>Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a>termination</a> of the <a>service worker</a>, perform the following steps atomically:
+            <ol>
+              <li>
+                If <var>registration</var>'s state is <a>reregisteredWhileFiring</a>:
                 <ol>
                   <li>
-                    If <var>registration</var>'s state is <a>reregisteredWhileFiring</a>:
-                    <ol>
-                      <li>
-                        Set <var>registration</var>'s state to <a>pending</a>.
-                      </li>
-                      <li>
-                        If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.
-                      </li>
-                      <li>
-                        Abort the rest of these steps.
-                      </li>
-                    </ol>
+                    Set <var>registration</var>'s state to <a>pending</a>.
                   </li>
                   <li>
-                    If the {{SyncEvent/lastChance}} attribute of <var>e</var> is false, set <var>registration</var>'s <a>registration state</a> to <a>waiting</a>, and perform the following steps <a>in parallel</a>:
-                    <ol>
-                      <li>Wait a user agent defined length of time.</li>
-                      <li>If <var>registration</var>'s <a>registration state</a> is not <a>waiting</a>, abort these substeps.</li>
-                      <li>Set <var>registration</var>'s <a>registration state</a> to <a>pending</a>.</li>
-                      <li>If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.</li>
-                    </ol>
+                    If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.
                   </li>
                   <li>
-                    Else remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>.
+                    Abort the rest of these steps.
                   </li>
                 </ol>
+              </li>
+              <li>
+                If the {{SyncEvent/lastChance}} attribute of <var>e</var> is false, set <var>registration</var>'s <a>registration state</a> to <a>waiting</a>, and perform the following steps <a>in parallel</a>:
+                <ol>
+                  <li>Wait a user agent defined length of time.</li>
+                  <li>If <var>registration</var>'s <a>registration state</a> is not <a>waiting</a>, abort these substeps.</li>
+                  <li>Set <var>registration</var>'s <a>registration state</a> to <a>pending</a>.</li>
+                  <li>If the user agent is currently <a>online</a>, <a>fire a sync event</a> for <var>registration</var>.</li>
+                </ol>
+              </li>
+              <li>
+                Else remove <var>registration</var> from <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a>.
               </li>
             </ol>
           </li>
