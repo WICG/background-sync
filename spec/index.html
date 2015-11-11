@@ -51,7 +51,7 @@
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-11-09">9 November 2015</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Unofficial Proposal Draft, <time class="dt-updated" datetime="2015-11-11">11 November 2015</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -240,41 +240,37 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
         <li> Dispatch <var>e</var> at <var>globalObject</var>. 
         <li> Let <var>waitUntilPromise</var> be the result of <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all</a> of <var>e</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-extend-lifetime-promises">extended lifetime promises</a>. 
         <li>
-          Else: 
+          <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment</a> of <var>waitUntilPromise</var>, perform the following steps atomically: 
          <ol>
           <li>
-            <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment</a> of <var>waitUntilPromise</var>, perform the following steps atomically: 
+            If <var>registration</var>’s state is <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a>: 
            <ol>
-            <li>
-              If <var>registration</var>’s state is <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a>: 
-             <ol>
-              <li> Set <var>registration</var>’s state to <a data-link-type="dfn" href="#pending">pending</a>. 
-              <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>. 
-              <li> Abort the rest of these steps. 
-             </ol>
-            <li> <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">Assert</a>: <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#firing">firing</a>. 
-            <li> Remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registration</a>. 
+            <li> Set <var>registration</var>’s state to <a data-link-type="dfn" href="#pending">pending</a>. 
+            <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>. 
+            <li> Abort the rest of these steps. 
+           </ol>
+          <li> <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">Assert</a>: <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#firing">firing</a>. 
+          <li> Remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registration</a>. 
+         </ol>
+        <li>
+          <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a> of the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>, perform the following steps atomically: 
+         <ol>
+          <li>
+            If <var>registration</var>’s state is <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a>: 
+           <ol>
+            <li> Set <var>registration</var>’s state to <a data-link-type="dfn" href="#pending">pending</a>. 
+            <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>. 
+            <li> Abort the rest of these steps. 
            </ol>
           <li>
-            <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#terminate-service-worker-algorithm">termination</a> of the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>, perform the following steps atomically: 
+            If the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> is false, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
            <ol>
-            <li>
-              If <var>registration</var>’s state is <a data-link-type="dfn" href="#reregisteredwhilefiring">reregisteredWhileFiring</a>: 
-             <ol>
-              <li> Set <var>registration</var>’s state to <a data-link-type="dfn" href="#pending">pending</a>. 
-              <li> If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>. 
-              <li> Abort the rest of these steps. 
-             </ol>
-            <li>
-              If the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute of <var>e</var> is false, set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#waiting">waiting</a>, and perform the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
-             <ol>
-              <li>Wait a user agent defined length of time.
-              <li>If <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is not <a data-link-type="dfn" href="#waiting">waiting</a>, abort these substeps.
-              <li>Set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#pending">pending</a>.
-              <li>If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>.
-             </ol>
-            <li> Else remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a>. 
+            <li>Wait a user agent defined length of time.
+            <li>If <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> is not <a data-link-type="dfn" href="#waiting">waiting</a>, abort these substeps.
+            <li>Set <var>registration</var>’s <a data-link-type="dfn" href="#registration-state">registration state</a> to <a data-link-type="dfn" href="#pending">pending</a>.
+            <li>If the user agent is currently <a data-link-type="dfn" href="#online">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for <var>registration</var>.
            </ol>
+          <li> Else remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a>. 
          </ol>
        </ol>
      </ol>
@@ -404,7 +400,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
   <h3 class="no-num heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-ecma-262"><a class="self-link" href="#biblio-ecma-262"></a>[ECMA-262]
-   <dd>Allen Wirfs-Brock. <a href="http://www.ecma-international.org/ecma-262/6.0/">ECMA-262 6th Edition, The ECMAScript 2015 Language Specification</a>. June 2015. Standard. URL: <a href="http://www.ecma-international.org/ecma-262/6.0/">http://www.ecma-international.org/ecma-262/6.0/</a>
+   <dd><a href="https://tc39.github.io/ecma262/">ECMAScript Language Specification</a>. URL: <a href="https://tc39.github.io/ecma262/">https://tc39.github.io/ecma262/</a>
    <dt id="biblio-html"><a class="self-link" href="#biblio-html"></a>[HTML]
    <dd>Ian Hickson. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-webidl"><a class="self-link" href="#biblio-webidl"></a>[WebIDL]
