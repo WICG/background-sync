@@ -2,7 +2,7 @@
 Title: Web Background Synchronization
 Status: CG-DRAFT
 ED: https://wicg.github.io/BackgroundSync/spec/
-Shortname: foreign-fetch
+Shortname: background-sync
 Level: 1
 Editor: Josh Karlin, Google, jkarlin@chromium.org
 Editor: Marijn Kruisselbrink, Google, mek@chromium.org
@@ -32,6 +32,7 @@ spec: ecma-262; urlPrefix: http://www.ecma-international.org/ecma-262/6.0/
 spec: html; urlPrefix: https://html.spec.whatwg.org/
     type: dfn
         text: trusted; url: concept-events-trusted
+        text: browsing context; url: browsing-context
 
 spec: powerful-features; urlPrefix: https://w3c.github.io/webappsec/specs/powerfulfeatures/#
     type: dfn
@@ -67,6 +68,11 @@ spec: service-workers; urlPrefix: https://slightlyoff.github.io/ServiceWorker/sp
         text: ServiceWorkerGlobalScope; url: service-worker-global-scope-interface
         text: ServiceWorkerRegistration; url: service-worker-registration-interface
 
+spec: notifications; urlPrefix: https://notifications.spec.whatwg.org/#
+    type: dfn
+        text: notification; url: concept-notification
+        text: permission to show notifications; url: permission-model
+
 spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     type: exception
         text: AbortError; url: aborterror
@@ -82,9 +88,60 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
 
   <em>This section is non-normative.</em>
 
-  Web Applications often run in environments with unreliable networks (e.g., mobile phones) and unknown lifetimes (the browser might be killed or the user might navigate away). This makes it difficult to  synchronize client data from web apps (such as photo uploads, document changes, or composed emails) with servers. If the browser closes or the user navigates away before synchronization can complete, the app must wait until the user revisits the page to try again. This specification provides a new onsync <a>service worker</a> event which can fire <a>in the background</a> so that synchronization attempts can continue despite adverse conditions when initially requested. This API is intended to reduce the time between content creation and content synchronization with the server.
+  Web Applications often run in environments with unreliable networks (e.g., mobile phones) and unknown lifetimes (the browser might be killed or the user might navigate away). This makes it difficult to synchronize client data from web apps (such as photo uploads, document changes, or composed emails) with servers. If the browser closes or the user navigates away before synchronization can complete, the app must wait until the user revisits the page to try again. This specification provides a new onsync <a>service worker</a> event which can fire <a>in the background</a> so that synchronization attempts can continue despite adverse conditions when initially requested. This API is intended to reduce the time between content creation and content synchronization with the server.
 
   As this API relies on service workers, functionality provided by this API is only available in a <a>secure context</a>.
+
+  <div class="example">
+    Requesting a background sync opportunity from a <a>browsing context</a>:
+
+    <pre class="lang-js">
+      function sendChatMessage(message) {
+        return addChatMessageToOutbox(message).then(() => {
+          // Wait for the scoped service worker registration to get a
+          // service worker with an active state
+          return navigator.serviceWorker.ready;
+        }).then(reg => {
+          return reg.sync.register('send-chats');
+        }).then(() => {
+          console.log('Sync registered!');
+        }).catch(() => {
+          console.log('Sync registration failed :(');
+        });
+      }
+    </pre>
+
+    In the above example <code>addChatMessageToOutbox</code> is a developer-defined function.
+
+    Reacting to a sync event within a <a>service worker</a>:
+
+    <pre class="lang-js">
+      self.addEventListener('sync', event => {
+        if (event.tag == 'send-chats') {
+          event.waitUntil(
+            getMessagesFromOutbox().then(messages => {
+              // Post the messages to the server
+              return fetch('/send', {
+                method: 'POST',
+                body: JSON.stringify(messages),
+                headers: { 'Content-Type': 'application/json' }
+              }).then(() => {
+                // Success! Remove them from the outbox
+                return removeMessagesFromOutbox(messages);
+              });
+            }).then(() => {
+              // Tell pages of your success so they can update UI
+              return clients.matchAll({ includeUncontrolled: true });
+            }).then(clients => {
+              clients.forEach(client => client.postMessage('outbox-processed'))
+            })
+          );
+        }
+      });
+    </pre>
+
+    In the above example <code>getMessagesFromOutbox</code> and <code>removeMessagesFromOutbox</code> are developer-defined functions.
+  </div>
 </section>
 
 <section>
@@ -255,6 +312,29 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     </pre>
 
     Note: The {{SyncEvent}} interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The {{SyncEvent/lastChance}} attribute is true if the user agent will not make further attempts to try this sync after the current attempt.
+
+    <div class="example">
+      Reacting to {{SyncEvent/lastChance}}:
+
+      <pre class="lang-js">
+        self.addEventListener('sync', event => {
+          if (event.tag == 'important-thing') {
+            event.waitUntil(
+              doImportantThing().catch(err => {
+                if (event.lastChance) {
+                  self.registration.showNotification("Important thing failed");
+                }
+                throw err;
+              })
+            );
+          }
+        });
+      </pre>
+      
+      The above example reacts to {{SyncEvent/lastChance}} by showing a <a>notification</a> to the user. This requires the origin to have <a>permission to show notifications</a>.
+
+      In the above example <code>doImportantThing</code> is a developer-defined function.
+    </div>
 
     Whenever the user agent changes to <a>online</a>, the user agent SHOULD <a>fire a sync event</a> for each <a>sync registration</a> whose <a>registration state</a> is <a>pending</a>.
 

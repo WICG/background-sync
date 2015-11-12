@@ -1005,12 +1005,70 @@
     background-repeat: no-repeat;
   }
 </style>
+<style>.highlight .hll { background-color: #ffffcc }
+.highlight  { background: #ffffff; }
+.highlight .c { color: #708090 } /* Comment */
+.highlight .k { color: #990055 } /* Keyword */
+.highlight .l { color: #669900 } /* Literal */
+.highlight .n { color: #0077aa } /* Name */
+.highlight .o { color: #999999 } /* Operator */
+.highlight .p { color: #999999 } /* Punctuation */
+.highlight .cm { color: #708090 } /* Comment.Multiline */
+.highlight .cp { color: #708090 } /* Comment.Preproc */
+.highlight .c1 { color: #708090 } /* Comment.Single */
+.highlight .cs { color: #708090 } /* Comment.Special */
+.highlight .kc { color: #990055 } /* Keyword.Constant */
+.highlight .kd { color: #990055 } /* Keyword.Declaration */
+.highlight .kn { color: #990055 } /* Keyword.Namespace */
+.highlight .kp { color: #990055 } /* Keyword.Pseudo */
+.highlight .kr { color: #990055 } /* Keyword.Reserved */
+.highlight .kt { color: #990055 } /* Keyword.Type */
+.highlight .ld { color: #669900 } /* Literal.Date */
+.highlight .m { color: #990055 } /* Literal.Number */
+.highlight .s { color: #669900 } /* Literal.String */
+.highlight .na { color: #0077aa } /* Name.Attribute */
+.highlight .nc { color: #0077aa } /* Name.Class */
+.highlight .no { color: #0077aa } /* Name.Constant */
+.highlight .nd { color: #0077aa } /* Name.Decorator */
+.highlight .ni { color: #0077aa } /* Name.Entity */
+.highlight .ne { color: #0077aa } /* Name.Exception */
+.highlight .nf { color: #0077aa } /* Name.Function */
+.highlight .nl { color: #0077aa } /* Name.Label */
+.highlight .nn { color: #0077aa } /* Name.Namespace */
+.highlight .py { color: #0077aa } /* Name.Property */
+.highlight .nt { color: #0077aa } /* Name.Tag */
+.highlight .nv { color: #0077aa } /* Name.Variable */
+.highlight .ow { color: #999999 } /* Operator.Word */
+.highlight .mb { color: #990055 } /* Literal.Number.Bin */
+.highlight .mf { color: #990055 } /* Literal.Number.Float */
+.highlight .mh { color: #990055 } /* Literal.Number.Hex */
+.highlight .mi { color: #990055 } /* Literal.Number.Integer */
+.highlight .mo { color: #990055 } /* Literal.Number.Oct */
+.highlight .sb { color: #669900 } /* Literal.String.Backtick */
+.highlight .sc { color: #669900 } /* Literal.String.Char */
+.highlight .sd { color: #669900 } /* Literal.String.Doc */
+.highlight .s2 { color: #669900 } /* Literal.String.Double */
+.highlight .se { color: #669900 } /* Literal.String.Escape */
+.highlight .sh { color: #669900 } /* Literal.String.Heredoc */
+.highlight .si { color: #669900 } /* Literal.String.Interpol */
+.highlight .sx { color: #669900 } /* Literal.String.Other */
+.highlight .sr { color: #669900 } /* Literal.String.Regex */
+.highlight .s1 { color: #669900 } /* Literal.String.Single */
+.highlight .ss { color: #669900 } /* Literal.String.Symbol */
+.highlight .vc { color: #0077aa } /* Name.Variable.Class */
+.highlight .vg { color: #0077aa } /* Name.Variable.Global */
+.highlight .vi { color: #0077aa } /* Name.Variable.Instance */
+.highlight .il { color: #990055 } /* Literal.Number.Integer.Long */
+        .highlight { background: hsl(24, 20%, 95%); }
+        code.highlight { padding: .1em; border-radius: .3em; }
+        pre.highlight, pre > code.highlight { display: block; padding: 1em; margin: .5em 0; overflow: auto; border-radius: 0; }
+        </style>
  </head>
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2015-11-11">11 November 2015</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2015-11-12">12 November 2015</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1081,8 +1139,49 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <section>
     <h2 class="heading settled" data-level="1" id="introduction"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#introduction"></a></h2>
     <p><em>This section is non-normative.</em></p>
-    <p>Web Applications often run in environments with unreliable networks (e.g., mobile phones) and unknown lifetimes (the browser might be killed or the user might navigate away). This makes it difficult to  synchronize client data from web apps (such as photo uploads, document changes, or composed emails) with servers. If the browser closes or the user navigates away before synchronization can complete, the app must wait until the user revisits the page to try again. This specification provides a new onsync <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a> event which can fire <a data-link-type="dfn" href="#in-the-background">in the background</a> so that synchronization attempts can continue despite adverse conditions when initially requested. This API is intended to reduce the time between content creation and content synchronization with the server.</p>
+    <p>Web Applications often run in environments with unreliable networks (e.g., mobile phones) and unknown lifetimes (the browser might be killed or the user might navigate away). This makes it difficult to synchronize client data from web apps (such as photo uploads, document changes, or composed emails) with servers. If the browser closes or the user navigates away before synchronization can complete, the app must wait until the user revisits the page to try again. This specification provides a new onsync <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a> event which can fire <a data-link-type="dfn" href="#in-the-background">in the background</a> so that synchronization attempts can continue despite adverse conditions when initially requested. This API is intended to reduce the time between content creation and content synchronization with the server.</p>
     <p>As this API relies on service workers, functionality provided by this API is only available in a <a data-link-type="dfn" href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure context</a>.</p>
+    <div class="example" id="example-36328b3d">
+     <a class="self-link" href="#example-36328b3d"></a> Requesting a background sync opportunity from a <a data-link-type="dfn" href="https://html.spec.whatwg.org/#browsing-context">browsing context</a>: 
+<pre class="lang-js highlight"><span class="kd">function</span> <span class="nx">sendChatMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">addChatMessageToOutbox</span><span class="p">(</span><span class="nx">message</span><span class="p">).</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=></span> <span class="p">{</span>
+    <span class="c1">// Wait for the scoped service worker registration to get a</span>
+    <span class="c1">// service worker with an active state</span>
+    <span class="k">return</span> <span class="nx">navigator</span><span class="p">.</span><span class="nx">serviceWorker</span><span class="p">.</span><span class="nx">ready</span><span class="p">;</span>
+  <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">reg</span> <span class="o">=></span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">reg</span><span class="p">.</span><span class="nx">sync</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'send-chats'</span><span class="p">);</span>
+  <span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=></span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Sync registered!'</span><span class="p">);</span>
+  <span class="p">}).</span><span class="k">catch</span><span class="p">(()</span> <span class="o">=></span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Sync registration failed :('</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">}</span></pre>
+     <p>In the above example <code>addChatMessageToOutbox</code> is a developer-defined function.</p>
+     <p>Reacting to a sync event within a <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>:</p>
+<pre class="lang-js highlight"><span class="nx">self</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'sync'</span><span class="p">,</span> <span class="nx">event</span> <span class="o">=></span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">tag</span> <span class="o">==</span> <span class="s1">'send-chats'</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">waitUntil</span><span class="p">(</span>
+      <span class="nx">getMessagesFromOutbox</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">messages</span> <span class="o">=></span> <span class="p">{</span>
+        <span class="c1">// Post the messages to the server</span>
+        <span class="k">return</span> <span class="nx">fetch</span><span class="p">(</span><span class="s1">'/send'</span><span class="p">,</span> <span class="p">{</span>
+          <span class="nx">method</span><span class="o">:</span> <span class="s1">'POST'</span><span class="p">,</span>
+          <span class="nx">body</span><span class="o">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">messages</span><span class="p">),</span>
+          <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span> <span class="s1">'Content-Type'</span><span class="o">:</span> <span class="s1">'application/json'</span> <span class="p">}</span>
+        <span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=></span> <span class="p">{</span>
+          <span class="c1">// Success! Remove them from the outbox</span>
+          <span class="k">return</span> <span class="nx">removeMessagesFromOutbox</span><span class="p">(</span><span class="nx">messages</span><span class="p">);</span>
+        <span class="p">});</span>
+      <span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=></span> <span class="p">{</span>
+        <span class="c1">// Tell pages of your success so they can update UI</span>
+        <span class="k">return</span> <span class="nx">clients</span><span class="p">.</span><span class="nx">matchAll</span><span class="p">({</span> <span class="nx">includeUncontrolled</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
+      <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">clients</span> <span class="o">=></span> <span class="p">{</span>
+        <span class="nx">clients</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">client</span> <span class="o">=></span> <span class="nx">client</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">(</span><span class="s1">'outbox-processed'</span><span class="p">))</span>
+      <span class="p">})</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span></pre>
+     <p>In the above example <code>getMessagesFromOutbox</code> and <code>removeMessagesFromOutbox</code> are developer-defined functions.</p>
+    </div>
    </section>
    <section>
     <h2 class="heading settled" data-level="2" id="concepts"><span class="secno">2. </span><span class="content">Concepts</span><a class="self-link" href="#concepts"></a></h2>
@@ -1185,6 +1284,23 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
 };
 </pre>
      <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute is true if the user agent will not make further attempts to try this sync after the current attempt.</p>
+     <div class="example" id="example-d5c30e79">
+      <a class="self-link" href="#example-d5c30e79"></a> Reacting to <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code>: 
+<pre class="lang-js highlight"><span class="nx">self</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'sync'</span><span class="p">,</span> <span class="nx">event</span> <span class="o">=></span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">tag</span> <span class="o">==</span> <span class="s1">'important-thing'</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">waitUntil</span><span class="p">(</span>
+      <span class="nx">doImportantThing</span><span class="p">().</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=></span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">lastChance</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">self</span><span class="p">.</span><span class="nx">registration</span><span class="p">.</span><span class="nx">showNotification</span><span class="p">(</span><span class="s2">"Important thing failed"</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span>
+      <span class="p">})</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span></pre>
+      <p>The above example reacts to <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> by showing a <a data-link-type="dfn" href="https://notifications.spec.whatwg.org/#concept-notification">notification</a> to the user. This requires the origin to have <a data-link-type="dfn" href="https://notifications.spec.whatwg.org/#permission-model">permission to show notifications</a>.</p>
+      <p>In the above example <code>doImportantThing</code> is a developer-defined function.</p>
+     </div>
      <p>Whenever the user agent changes to <a data-link-type="dfn" href="#online">online</a>, the user agent SHOULD <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for each <a data-link-type="dfn" href="#sync-registration">sync registration</a> whose <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#pending">pending</a>.</p>
      <p>To <dfn data-dfn-type="dfn" data-noexport="" id="fire-a-sync-event">fire a sync event<a class="self-link" href="#fire-a-sync-event"></a></dfn> for a <a data-link-type="dfn" href="#sync-registration">sync registration</a> <var>registration</var>, the user agent MUST run the following steps:</p>
      <ol>
@@ -1320,10 +1436,17 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
     <ul>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a>
+     <li><a href="https://html.spec.whatwg.org/#browsing-context">browsing context</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>
      <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>
      <li><a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a>
+    </ul>
+   <li>
+    <a data-link-type="biblio" href="#biblio-notifications">[notifications]</a> defines the following terms:
+    <ul>
+     <li><a href="https://notifications.spec.whatwg.org/#concept-notification">notification</a>
+     <li><a href="https://notifications.spec.whatwg.org/#permission-model">permission to show notifications</a>
     </ul>
    <li>
     <a data-link-type="biblio" href="#biblio-powerful-features">[powerful-features]</a> defines the following terms:
@@ -1362,11 +1485,13 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
   <h3 class="no-num heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-ecma-262"><a class="self-link" href="#biblio-ecma-262"></a>[ECMA-262]
-   <dd>Allen Wirfs-Brock. <a href="http://www.ecma-international.org/ecma-262/6.0/">ECMA-262 6th Edition, The ECMAScript 2015 Language Specification</a>. June 2015. Standard. URL: <a href="http://www.ecma-international.org/ecma-262/6.0/">http://www.ecma-international.org/ecma-262/6.0/</a>
+   <dd><a href="https://tc39.github.io/ecma262/">ECMAScript Language Specification</a>. URL: <a href="https://tc39.github.io/ecma262/">https://tc39.github.io/ecma262/</a>
    <dt id="biblio-html"><a class="self-link" href="#biblio-html"></a>[HTML]
    <dd>Ian Hickson. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-webidl"><a class="self-link" href="#biblio-webidl"></a>[WebIDL]
    <dd>Cameron McCormack; Boris Zbarsky. <a href="http://www.w3.org/TR/WebIDL-1/">WebIDL Level 1</a>. 4 August 2015. WD. URL: <a href="http://www.w3.org/TR/WebIDL-1/">http://www.w3.org/TR/WebIDL-1/</a>
+   <dt id="biblio-notifications"><a class="self-link" href="#biblio-notifications"></a>[NOTIFICATIONS]
+   <dd>John Gregg; Anne van Kesteren. <a href="http://www.w3.org/TR/notifications/">Web Notifications</a>. 22 October 2015. REC. URL: <a href="http://www.w3.org/TR/notifications/">http://www.w3.org/TR/notifications/</a>
    <dt id="biblio-powerful-features"><a class="self-link" href="#biblio-powerful-features"></a>[POWERFUL-FEATURES]
    <dd>Mike West; Yan Zhu. <a href="http://www.w3.org/TR/powerful-features/">Privileged Contexts</a>. 24 April 2015. WD. URL: <a href="http://www.w3.org/TR/powerful-features/">http://www.w3.org/TR/powerful-features/</a>
    <dt id="biblio-promises-guide"><a class="self-link" href="#biblio-promises-guide"></a>[PROMISES-GUIDE]
