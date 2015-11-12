@@ -2,7 +2,7 @@
 Title: Web Background Synchronization
 Status: CG-DRAFT
 ED: https://wicg.github.io/BackgroundSync/spec/
-Shortname: foreign-fetch
+Shortname: background-sync
 Level: 1
 Editor: Josh Karlin, Google, jkarlin@chromium.org
 Editor: Marijn Kruisselbrink, Google, mek@chromium.org
