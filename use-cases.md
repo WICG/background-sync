@@ -16,19 +16,6 @@ The above are from actual customers, but not naming names until they agree to be
 * If sync fails, reschedule it - `event.waitUntil` can be used to extend lifetime and indicate failure. We’ll want some kind of back-off for reschedules.
 * Multiple sync requests for the same name are coalesced into one sync event in the SW - allows multiple independent systems to add to an idb “outbox” and request an an outbox sync.
 
-## Approximately regular sync
-
-### Use-cases
-
-* **News site** - fetching daily news for quick display in the morning
-* **Social media** - periodic updates so initial display is content user hasn't seen, even if offline
-* **Blog updates** - Updated blog content without having to set up a push server
-* **RSS reader** - Check for updates across multiple origins
-
-These are either "I don't want to / can't set up push" or "updates are so frequent push doesn't make sense".
-
-Exact-time syncs are out-of scope, but may be investigated in the context of an alarms API in the future.
-
 # Concerns
 
 * **Location tracking** - an interval sync or failing one-off sync could lead to user tracking via IP
