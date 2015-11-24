@@ -33,7 +33,7 @@ Network status:
   }
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js', { scope: '/demo/' })
+    navigator.serviceWorker.register('sw.js', { scope: '/BackgroundSync/demo/' })
     .catch(function(err) {
       log('ServiceWorker failed to register. Are you visiting the HTTPS site?');
       log(err.message);
