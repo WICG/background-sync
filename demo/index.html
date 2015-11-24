@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Background Sync Demonstration</title>
+  <meta name=viewport content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+Network status:
+<div id="network" style="display:inline">
+</div>
+
+<p>
+  One-off background sync doesn't require permissions, but notifications do,
+  and that's how we're going to tell you it worked.
+</p>
+
+<button class="register">Register background sync</button>
+
+<div class="log"></div>
+<script>
+  var logEl = document.querySelector('.log');
+  function log(msg) {
+    var p = document.createElement('p');
+    p.textContent = msg;
+    logEl.appendChild(p);
+    console.log(msg);
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js', { scope: '/demo/' })
+    .catch(function(err) {
+      log('ServiceWorker failed to register. Are you visiting the HTTPS site?');
+      log(err.message);
+    });
+  }
+
+  function updateOnlineStatus(event) {
+    var online = navigator.onLine;
+    document.getElementById("network").innerHTML = online ? 'Online' : 'Offline';
+  }
+
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+
+  updateOnlineStatus();
+
+  document.querySelector('.register').addEventListener('click', function(event) {
+    event.preventDefault();
+    new Promise(function(resolve, reject) {
+      Notification.requestPermission(function(result) {
+        if (result !== 'granted') return reject(Error("Denied notification permission"));
+        resolve();
+      })
+    }).then(function() {
+      return navigator.serviceWorker.ready;
+    }).then(function(reg) {
+      return reg.sync.register('syncTest');
+    }).then(function() {
+      log('Sync registered');
+    }).catch(function(err) {
+      log('It broke');
+      log(err.message);
+    });
+  });
+</script>
+
+<br><br>
+<p>
+<small>
+    To use this site, run Chrome version >= 48 with the following flags: --enable-experimental-web-platform-features
+</small>
+</p>
+
+</body>
+</html>
