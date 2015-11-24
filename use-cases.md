@@ -29,7 +29,7 @@ These are either "I don't want to / can't set up push" or "updates are so freque
 
 ## Exact alarms
 
-Exact alarms are those that fire at a precise time, specified by the developer. Exact alarms are not supported by Background Sync.
+Exact alarms are those that fire at a precise time, specified by the developer. Exact alarms are not supported by Background Sync as it aggressively coalesces its sync events in an attempt to minimize resource usage (radio and battery) and exact syncs can't be effectively coalesced.
 
 # Concerns
 
