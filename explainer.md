@@ -18,21 +18,20 @@ We propose a new API that extends [Service Workers](https://github.com/slightlyo
 
 ```js
 navigator.serviceWorker.ready.then(function(registration) {
-  registration.sync.register({
-    tag: 'outbox' // default: ''
-  }).then(function(syncReg) {
-    // success
+  registration.sync.register('outbox');
+  }).then(function() {
+    // registration succeeded
   }, function() {
-    // failure
+    // registration failed
   })
 });
 ```
 
-* `tag`: This operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration.
+* The string argument to `register`, tag, operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration. 
 
 `navigator.serviceWorker.ready` resolves when the in-scope service worker registration gains an active worker, if you try to register for sync before this, `sync.register` will reject.
 
-The above is how a *page* would register for a one-off sync, although this can also be done within a service worker, as `self.registration` gives access to the service worker registration. Since the registration requires an active worker, this should only be attempted after your service worker has activated. Although you can register for sync from a service worker, if there's no active window open for the origin, registration will fail.
+The above is how a main frame *page* would register for a one-off sync, although this can also be done within a service worker, as `self.registration` gives access to the service worker registration. Since the registration requires an active worker, this should only be attempted after your service worker has activated. Although you can register for sync from a service worker, if there's no top-level window open for the origin, registration will fail.
 
 **To respond to a sync:**
 
@@ -40,7 +39,7 @@ Over in the service worker:
 
 ```js
 self.addEventListener('sync', function(event) {
-  if (event.registration.tag == 'outbox') {
+  if (event.tag == 'outbox') {
     event.waitUntil(sendEverythingInTheOutbox());
   }
 });
