@@ -25,9 +25,9 @@ dictionary SyncRegistrationOptions {
 };
 
 enum SyncPermissionState {
-  "default",
+  "granted",
   "denied",
-  "granted"
+  "prompt"
 };
 
 enum SyncNetworkState {
