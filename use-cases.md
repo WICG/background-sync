@@ -16,7 +16,7 @@ The above are from actual customers, but not naming names until they agree to be
 * If sync fails, reschedule it - `event.waitUntil` can be used to extend lifetime and indicate failure. We’ll want some kind of back-off for reschedules.
 * Multiple sync requests for the same name are coalesced into one sync event in the SW - allows multiple independent systems to add to an idb “outbox” and request an an outbox sync.
 
-## Approximately regular sync
+## Periodic sync
 
 ### Use-cases
 
@@ -27,7 +27,9 @@ The above are from actual customers, but not naming names until they agree to be
 
 These are either "I don't want to / can't set up push" or "updates are so frequent push doesn't make sense".
 
-Exact-time syncs are out-of scope, but may be investigated in the context of an alarms API in the future.
+## Exact alarms
+
+Exact alarms are those that fire at a precise time, specified by the developer. Exact alarms are not supported by Background Sync.
 
 # Concerns
 
