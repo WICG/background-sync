@@ -1,0 +1,21 @@
+{
+	"item_list": [
+		{
+			"id": 1,
+			"color": "#ff0000"
+		},
+		{
+			"id": 2,
+			"color": "orange"
+		},
+		{
+			"id": 3,
+			"color": "580nm"
+		},
+		{
+			"id": 4,
+			"color": "chartreuse"
+		}
+	],
+	"list_version": 1.2
+}
