@@ -18,12 +18,11 @@ We propose a new API that extends [Service Workers](https://github.com/slightlyo
 
 ```js
 navigator.serviceWorker.ready.then(function(registration) {
-  registration.sync.register('outbox');
-  }).then(function() {
+  registration.sync.register('outbox').then(function() {
     // registration succeeded
   }, function() {
     // registration failed
-  })
+  });
 });
 ```
 
