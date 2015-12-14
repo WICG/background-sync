@@ -50,6 +50,12 @@ Network status:
 
   updateOnlineStatus();
 
+  function displayErrorFromWorker(message) {
+    log("Error: " + message);
+  }
+
+  window.addEventListener('message', displayErrorFromWorker);
+
   document.querySelector('.register').addEventListener('click', function(event) {
     event.preventDefault();
     new Promise(function(resolve, reject) {
