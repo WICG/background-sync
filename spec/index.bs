@@ -68,11 +68,6 @@ spec: service-workers; urlPrefix: https://slightlyoff.github.io/ServiceWorker/sp
         text: ServiceWorkerGlobalScope; url: service-worker-global-scope-interface
         text: ServiceWorkerRegistration; url: service-worker-registration-interface
 
-spec: notifications; urlPrefix: https://notifications.spec.whatwg.org/#
-    type: dfn
-        text: notification; url: concept-notification
-        text: permission to show notifications; url: permission-model
-
 spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     type: exception
         text: AbortError; url: aborterror
@@ -330,8 +325,8 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
           }
         });
       </pre>
-      
-      The above example reacts to {{SyncEvent/lastChance}} by showing a <a>notification</a> to the user. This requires the origin to have <a>permission to show notifications</a>.
+
+      The above example reacts to {{SyncEvent/lastChance}} by showing a <a href="https://notifications.spec.whatwg.org/#concept-notification">notification</a> to the user. This requires the origin to have <a href="https://notifications.spec.whatwg.org/#permission-model">permission to show notifications</a>.
 
       In the above example <code>doImportantThing</code> is a developer-defined function.
     </div>

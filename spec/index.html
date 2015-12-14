@@ -1068,7 +1068,7 @@
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2015-11-12">12 November 2015</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2015-12-14">14 December 2015</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1284,8 +1284,8 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
 };
 </pre>
      <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#syncevent">SyncEvent</a></code> interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> attribute is true if the user agent will not make further attempts to try this sync after the current attempt.</p>
-     <div class="example" id="example-d5c30e79">
-      <a class="self-link" href="#example-d5c30e79"></a> Reacting to <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code>: 
+     <div class="example" id="example-5ccfc2cc">
+      <a class="self-link" href="#example-5ccfc2cc"></a> Reacting to <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code>: 
 <pre class="lang-js highlight"><span class="nx">self</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'sync'</span><span class="p">,</span> <span class="nx">event</span> <span class="o">=></span> <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">tag</span> <span class="o">==</span> <span class="s1">'important-thing'</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">event</span><span class="p">.</span><span class="nx">waitUntil</span><span class="p">(</span>
@@ -1298,7 +1298,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
     <span class="p">);</span>
   <span class="p">}</span>
 <span class="p">});</span></pre>
-      <p>The above example reacts to <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> by showing a <a data-link-type="dfn" href="https://notifications.spec.whatwg.org/#concept-notification">notification</a> to the user. This requires the origin to have <a data-link-type="dfn" href="https://notifications.spec.whatwg.org/#permission-model">permission to show notifications</a>.</p>
+      <p>The above example reacts to <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance">lastChance</a></code> by showing a <a href="https://notifications.spec.whatwg.org/#concept-notification">notification</a> to the user. This requires the origin to have <a href="https://notifications.spec.whatwg.org/#permission-model">permission to show notifications</a>.</p>
       <p>In the above example <code>doImportantThing</code> is a developer-defined function.</p>
      </div>
      <p>Whenever the user agent changes to <a data-link-type="dfn" href="#online">online</a>, the user agent SHOULD <a data-link-type="dfn" href="#fire-a-sync-event">fire a sync event</a> for each <a data-link-type="dfn" href="#sync-registration">sync registration</a> whose <a data-link-type="dfn" href="#registration-state">registration state</a> is <a data-link-type="dfn" href="#pending">pending</a>.</p>
@@ -1443,12 +1443,6 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
      <li><a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a>
     </ul>
    <li>
-    <a data-link-type="biblio" href="#biblio-notifications">[notifications]</a> defines the following terms:
-    <ul>
-     <li><a href="https://notifications.spec.whatwg.org/#concept-notification">notification</a>
-     <li><a href="https://notifications.spec.whatwg.org/#permission-model">permission to show notifications</a>
-    </ul>
-   <li>
     <a data-link-type="biblio" href="#biblio-powerful-features">[powerful-features]</a> defines the following terms:
     <ul>
      <li><a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure context</a>
@@ -1485,13 +1479,11 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
   <h3 class="no-num heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-ecma-262"><a class="self-link" href="#biblio-ecma-262"></a>[ECMA-262]
-   <dd><a href="https://tc39.github.io/ecma262/">ECMAScript Language Specification</a>. URL: <a href="https://tc39.github.io/ecma262/">https://tc39.github.io/ecma262/</a>
+   <dd>Allen Wirfs-Brock. <a href="http://www.ecma-international.org/ecma-262/6.0/">ECMA-262 6th Edition, The ECMAScript 2015 Language Specification</a>. June 2015. Standard. URL: <a href="http://www.ecma-international.org/ecma-262/6.0/">http://www.ecma-international.org/ecma-262/6.0/</a>
    <dt id="biblio-html"><a class="self-link" href="#biblio-html"></a>[HTML]
    <dd>Ian Hickson. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-webidl"><a class="self-link" href="#biblio-webidl"></a>[WebIDL]
    <dd>Cameron McCormack; Boris Zbarsky. <a href="http://www.w3.org/TR/WebIDL-1/">WebIDL Level 1</a>. 4 August 2015. WD. URL: <a href="http://www.w3.org/TR/WebIDL-1/">http://www.w3.org/TR/WebIDL-1/</a>
-   <dt id="biblio-notifications"><a class="self-link" href="#biblio-notifications"></a>[NOTIFICATIONS]
-   <dd>John Gregg; Anne van Kesteren. <a href="http://www.w3.org/TR/notifications/">Web Notifications</a>. 22 October 2015. REC. URL: <a href="http://www.w3.org/TR/notifications/">http://www.w3.org/TR/notifications/</a>
    <dt id="biblio-powerful-features"><a class="self-link" href="#biblio-powerful-features"></a>[POWERFUL-FEATURES]
    <dd>Mike West; Yan Zhu. <a href="http://www.w3.org/TR/powerful-features/">Privileged Contexts</a>. 24 April 2015. WD. URL: <a href="http://www.w3.org/TR/powerful-features/">http://www.w3.org/TR/powerful-features/</a>
    <dt id="biblio-promises-guide"><a class="self-link" href="#biblio-promises-guide"></a>[PROMISES-GUIDE]
