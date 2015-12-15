@@ -1068,7 +1068,7 @@
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2015-12-14">14 December 2015</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2015-12-15">15 December 2015</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1243,7 +1243,7 @@ interface <dfn class="idl-code" data-dfn-type="interface" data-export="" id="syn
        <ol>
         <li> If <var>client</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-service-worker-client-frame-type">frame type</a> is top-level or auxiliary, set <var>isBackground</var> to false. 
        </ol>
-      <li> If <var>isBackground</var> is false, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code> and abort these steps. 
+      <li> If <var>isBackground</var> is true, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code> and abort these steps. 
       <li> Let <var>currentRegistration</var> be the <a data-link-type="dfn" href="#sync-registration">registration</a> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-sync-registrations">list of sync registrations</a> whose <a data-link-type="dfn" href="#tag">tag</a> equals <var>tag</var> if it exists, else null. 
       <li>
         If <var>currentRegistration</var> is not null: 

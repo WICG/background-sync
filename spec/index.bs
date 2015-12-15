@@ -237,7 +237,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
         </ol>
       </li>
       <li>
-        If <var>isBackground</var> is false, <a>reject</a> <var>promise</var> with an {{InvalidAccessError}} and abort these steps.
+        If <var>isBackground</var> is true, <a>reject</a> <var>promise</var> with an {{InvalidAccessError}} and abort these steps.
       </li>
       <li>
         Let <var>currentRegistration</var> be the <a lt="sync registration">registration</a> in <var>serviceWorkerRegistration</var>'s <a>list of sync registrations</a> whose <a>tag</a> equals <var>tag</var> if it exists, else null.
