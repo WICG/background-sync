@@ -26,9 +26,7 @@ navigator.serviceWorker.ready.then(function(registration) {
 });
 ```
 
-* The string argument to `register`, tag, operates like a notification's tag. If you register a sync and an existing sync with the same tag is pending, it returns the existing registration. 
-
-`navigator.serviceWorker.ready` resolves when the in-scope service worker registration gains an active worker, if you try to register for sync before this, `sync.register` will reject.
+* The string argument to `register`, tag, operates like a notification's tag. It is passed to the service worker event.
 
 The above is how a main frame *page* would register for a one-off sync, although this can also be done within a service worker, as `self.registration` gives access to the service worker registration. Since the registration requires an active worker, this should only be attempted after your service worker has activated. Although you can register for sync from a service worker, if there's no top-level window open for the origin, registration will fail.
 
@@ -50,7 +48,7 @@ The promise passed to `waitUntil` is a signal to the UA that the sync event is o
 
 The UA may coalesce synchronizations to reduce the number of times the device, radio and browser need to wake up. The coalescing can be across origins, and even coalesced across the OS with native synchronizations. Although the event timings are coalesced, you still get an event per pending sync registration.
 
-## Periodic synchronization
+## Periodic synchronization (in design)
 
 Opening a news or social media app to find content you hadn't seen before - without going to the network, is a user experience currently limited to native apps.
 
@@ -111,19 +109,9 @@ The results of a sync running should be "beneficial" not "critical". If your use
 
 ## Getting pending sync details
 
-As seen in the previous code examples, `sync.register()` and `syncEvent.registration` expose a sync registration object. You can also fetch them using `sync.getRegistration`, `sync.getRegistrations`, and `periodicSync.getRegistration`, `periodicSync.getRegistrations`.
+As seen in the previous code examples,  `syncEvent.registration` exposes a sync registration object. You can also fetch them using `periodicSync.getRegistration`, `periodicSync.getRegistrations`.
 
-For example, to unregister a single one-off sync:
-
-```js
-navigator.serviceWorker.ready.then(function(registration) {
-  registration.sync.getRegistration('outbox').then(function(syncReg) {
-    syncReg.unregister();
-  });
-});
-```
-
-To unregister all periodic syncs, except "get-latest-news":
+For example, unregister all periodic syncs, except "get-latest-news":
 
 ```js
 navigator.serviceWorker.ready.then(function(registration) {
