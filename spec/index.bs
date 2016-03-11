@@ -72,6 +72,7 @@ spec: service-workers; urlPrefix: https://slightlyoff.github.io/ServiceWorker/sp
 spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     type: exception
         text: AbortError; url: aborterror
+        text: DOMException; url: idl-DOMException
         text: InvalidAccessError; url: invalidaccesserror
         text: InvalidStateError; url: invalidstateerror
     type: interface
@@ -167,6 +168,13 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
   <h2 id="privacy-considerations">Privacy Considerations</h2>
 
   <section>
+    <h3 id="permission">Permission</h3>
+    User agents MAY offer a way for the user to disable background sync.
+
+    Note: Background sync SHOULD be enabled by default. Having the permission denied is considered an exceptional case.
+  </section>
+
+  <section>
     <h3 id="location-tracking">Location Tracking</h3>
     Fetch requests within the onsync event while <a>in the background</a> may reveal the client's IP address to the server after the user left the page. The user agent SHOULD limit tracking by capping the number of retries and duration of sync events.
   </section>
@@ -224,6 +232,9 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
             Once <var>serviceWorkerRegistration</var>'s <a>active worker</a> is not null, proceed with the steps below.
           </li>
         </ol>
+      </li>
+      <li>
+        If the user has disabled background sync, <a>reject</a> <var>promise</var> with a <a>PermissionDeniedError</a> and abort these steps.
       </li>
       <li>
         Let <var>isBackground</var> be true.
@@ -443,4 +454,18 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     A user agent MAY impose a time limit on the lifetime extension and execution time of a {{SyncEvent}} which is stricter than the time limit imposed for {{ExtendableEvent}}s in general. In particular an event for which {{SyncEvent/lastChance}} is true MAY have a significantly shortened time limit.
 
     A user agent <dfn>will retry</dfn> a <a href="#sync-event">sync event</a> based on some user agent defined heuristics.
+</section>
+
+<section>
+  <h2 id="exceptions">
+    Exceptions
+  </h2>
+  <p>
+    Background sync uses the following {{DOMException}} names.
+  </p>
+  <ul>
+    <!-- TODO - Remove once PermissionDeniedError is part of WebIDL. See https://github.com/heycam/webidl/issues/95#issuecomment-192553183 -->
+    <li><code><dfn>PermissionDeniedError</dfn></code></li>
+    <p>The operation failed because the user denied permission to use background sync.</p>
+  </ul>
 </section>
