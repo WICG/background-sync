@@ -75,6 +75,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
         text: DOMException; url: idl-DOMException
         text: InvalidAccessError; url: invalidaccesserror
         text: InvalidStateError; url: invalidstateerror
+        text: NotAllowedError; url: notallowederror
     type: interface
         text: DOMString; url: idl-DOMString
         text: sequence; url: idl-sequence
@@ -234,7 +235,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
         </ol>
       </li>
       <li>
-        If the user has disabled background sync, <a>reject</a> <var>promise</var> with a <a>PermissionDeniedError</a> and abort these steps.
+        If the user has disabled background sync, <a>reject</a> <var>promise</var> with an {{NotAllowedError}} and abort these steps.
       </li>
       <li>
         Let <var>isBackground</var> be true.
@@ -454,18 +455,4 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     A user agent MAY impose a time limit on the lifetime extension and execution time of a {{SyncEvent}} which is stricter than the time limit imposed for {{ExtendableEvent}}s in general. In particular an event for which {{SyncEvent/lastChance}} is true MAY have a significantly shortened time limit.
 
     A user agent <dfn>will retry</dfn> a <a href="#sync-event">sync event</a> based on some user agent defined heuristics.
-</section>
-
-<section>
-  <h2 id="exceptions">
-    Exceptions
-  </h2>
-  <p>
-    Background sync uses the following {{DOMException}} names.
-  </p>
-  <ul>
-    <!-- TODO - Remove once PermissionDeniedError is part of WebIDL. See https://github.com/heycam/webidl/issues/95#issuecomment-192553183 -->
-    <li><code><dfn>PermissionDeniedError</dfn></code></li>
-    <p>The operation failed because the user denied permission to use background sync.</p>
-  </ul>
 </section>

@@ -10,7 +10,7 @@
  *
  * Indices
  *   - .toc for the Table of Contents (<ol class="toc">)
- *     -> <span class="secno"> for the section numbers
+ *     + <span class="secno"> for the section numbers
  *   - #toc for the Table of Contents (<nav id="toc">)
  *   - ul.index for Indices (<a href="#ref">term</a><span>, in §N.M</span>)
  *   - table.index for Index Tables (e.g. for properties or elements)
@@ -113,39 +113,36 @@
 
 	div.head h2 { margin-bottom: 1.5em;}
 
-	div.head .logo {
+/** W3C Logo ******************************************************************/
+
+	.head .logo {
 		float: right;
-		margin: 0;
+		margin: 0.4rem 0 0.2rem .4rem;
 	}
 
-	@media screen {
-		div.head .logo > a {
-			display: inline-block;
-			margin: 0.4rem 0 0.2rem .4rem;
-		}
-
-		div.head img[src*="logos/W3C"] {
-			display: block;
-			border: solid #1a5e9a;
-			border-width: .65rem .7rem .6rem;
-			border-radius: .4rem;
-			background: #1a5e9a;
-			color: white;
-			font-weight: bold;
-		}
-
-		div.head a:hover > img[src*="logos/W3C"],
-		div.head a:focus > img[src*="logos/W3C"] {
-			background: #457cad;
-			border-color: #457cad;
-		}
-
-		div.head a:active > img[src*="logos/W3C"] {
-			background: #c00;
-			border-color: #c00;
-		}
+	.head img[src*="logos/W3C"] {
+		display: block;
+		border: solid #1a5e9a;
+		border-width: .65rem .7rem .6rem;
+		border-radius: .4rem;
+		background: #1a5e9a;
+		color: white;
+		font-weight: bold;
 	}
 
+	.head a:hover > img[src*="logos/W3C"],
+	.head a:focus > img[src*="logos/W3C"] {
+		opacity: .8;
+	}
+
+	.head a:active > img[src*="logos/W3C"] {
+		background: #c00;
+		border-color: #c00;
+	}
+
+	/* see also additional rules in Link Styling section */
+
+/** Copyright *****************************************************************/
 
 	p.copyright,
 	p.copyright small { font-size: small }
@@ -331,6 +328,7 @@
 		font: 100% sans-serif;   /* Reset all font styling to clear out UA styles */
 		font-family: inherit;    /* Inherit the font family. */
 		line-height: 1.2;        /* Keep wrapped headings compact */
+		hyphens: manual;         /* Hyphenated headings look weird */
 	}
 
 	h2, h3, h4, h5, h6 {
@@ -534,9 +532,11 @@
 	}
 
 	/* Backout above styling for W3C logo */
-	.head > p:first-child > a {
+	.head .logo,
+	.head .logo a {
 		border: none;
 		text-decoration: none;
+		background: transparent;
 	}
 
 /******************************************************************************/
@@ -828,8 +828,8 @@
 	table.index {
 		margin: 1em auto;
 		border-collapse: collapse;
-		width: 100%;
 		border: hidden;
+		width: 100%;
 	}
 	table.data caption,
 	table.index caption {
@@ -936,7 +936,7 @@ Possible extra rowspan handling
 
 	.toc a {
 		/* More spacing; use padding to make it part of the click target. */
-		padding-top: 0.1em;
+		padding-top: 0.1rem;
 		/* Larger, more consistently-sized click target */
 		display: block;
 		/* Reverse color scheme */
@@ -967,19 +967,14 @@ Possible extra rowspan handling
 	.toc > li li li li li { font-style:  italic;
 	                        font-size:   85%;    }
 
-	.toc > li             { margin: 1.5em 0;     }
+	.toc > li             { margin: 1.5rem 0;    }
 	.toc > li li          { margin: 0.3rem 0;    }
-	.toc > li li li       { margin-left: 2em;
-	                        margin-left: 2rem;   }
+	.toc > li li li       { margin-left: 2rem;   }
 
 	/* Section numbers in a column of their own */
-	:not(li) > .toc {
-		margin-left: 5em;
-	}
-
 	.toc .secno {
 		float: left;
-		width: 4em;
+		width: 4rem;
 		white-space: nowrap;
 	}
 	.toc > li li li li .secno {
@@ -1027,7 +1022,7 @@ Possible extra rowspan handling
 /** Index *********************************************************************/
 
 	/* Index Lists: Layout */
-	ul.index       { margin-left: 0; columns: 15em; -webkit-columns: 15em; -moz-columns: 15em; text-indent: 1em hanging; }
+	ul.index       { margin-left: 0; columns: 15em; text-indent: 1em hanging; }
 	ul.index li    { margin-left: 0; list-style: none; break-inside: avoid; }
 	ul.index li li { margin-left: 1em }
 	ul.index dl    { margin-top: 0; }
@@ -1106,6 +1101,12 @@ Possible extra rowspan handling
 	.figure .caption, .sidefigure .caption, figcaption {
 		/* in case figure is overlarge, limit caption to 50em */
 		max-width: 50rem;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.overlarge > table {
+		/* limit preferred width of table */
+		max-width: 50em;
 		margin-left: auto;
 		margin-right: auto;
 	}
@@ -1293,7 +1294,7 @@ Possible extra rowspan handling
 
 
 /********************************************
- Remember to remove the logo section when copypasting freshly.
+ Remember to fix the logo section when copypasting freshly.
  */
 </style>
   <meta content="Bikeshed 1.0.0" name="generator">
@@ -1394,7 +1395,7 @@ Possible extra rowspan handling
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2016-03-11">11 March 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2016-03-21">21 March 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1447,7 +1448,6 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
       <li><a href="#sync-manager-interface"><span class="secno">5.2</span> <span class="content"><code class="idl"><span>SyncManager</span></code> interface</span></a>
       <li><a href="#sync-event"><span class="secno">5.3</span> <span class="content">The <span>sync</span> event</span></a>
      </ol>
-    <li><a href="#exceptions"><span class="secno">6</span> <span class="content"> Exceptions </span></a>
     <li><a href="#conformance"><span class="secno"></span> <span class="content"> Conformance</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
@@ -1570,7 +1570,7 @@ interface <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-expor
         <li> If <var>serviceWorkerRegistration</var> fails to activate either worker, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code> and abort these steps. 
         <li> Once <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-active-worker">active worker</a> is not null, proceed with the steps below. 
        </ol>
-      <li> If the user has disabled background sync, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with a <a data-link-type="dfn" href="#permissiondeniederror" id="ref-for-permissiondeniederror-1">PermissionDeniedError</a> and abort these steps. 
+      <li> If the user has disabled background sync, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#notallowederror">NotAllowedError</a></code> and abort these steps. 
       <li> Let <var>isBackground</var> be true. 
       <li>
         For each <var>client</var> in the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-service-worker-client">service worker clients</a> for the <var>serviceWorkerRegistration</var>’s origin: 
@@ -1694,14 +1694,6 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
      </ol>
      <p>A user agent MAY impose a time limit on the lifetime extension and execution time of a <code class="idl"><a data-link-type="idl" href="#syncevent" id="ref-for-syncevent-3">SyncEvent</a></code> which is stricter than the time limit imposed for <code class="idl"><a data-link-type="idl" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a></code>s in general. In particular an event for which <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance" id="ref-for-dom-syncevent-lastchance-6">lastChance</a></code> is true MAY have a significantly shortened time limit.</p>
      <p>A user agent <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="will retry" data-noexport="" id="will-retry">will retry<span class="dfn-panel" data-deco=""><b><a href="#will-retry">#will-retry</a></b><b>Referenced in:</b><span><a href="#ref-for-will-retry-1">5.3. The sync event</a></span></span></dfn> a <a href="#sync-event">sync event</a> based on some user agent defined heuristics.</p>
-    </section>
-    <section>
-     <h2 class="heading settled" data-level="6" id="exceptions"><span class="secno">6. </span><span class="content"> Exceptions </span><a class="self-link" href="#exceptions"></a></h2>
-     <p> Background sync uses the following <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException">DOMException</a></code> names. </p>
-     <ul>
-      <li><code><dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="PermissionDeniedError" data-noexport="" id="permissiondeniederror">PermissionDeniedError<span class="dfn-panel" data-deco=""><b><a href="#permissiondeniederror">#permissiondeniederror</a></b><b>Referenced in:</b><span><a href="#ref-for-permissiondeniederror-1">5.2. SyncManager interface</a></span></span></dfn></code>
-      <p>The operation failed because the user denied permission to use background sync.</p>
-     </ul>
     </section>
    </section>
   </main>
@@ -1868,7 +1860,6 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
    <li><a href="#online">online</a><span>, in §2</span>
    <li><a href="#dom-serviceworkerglobalscope-onsync">onsync</a><span>, in §5.3</span>
    <li><a href="#pending">pending</a><span>, in §3</span>
-   <li><a href="#permissiondeniederror">PermissionDeniedError</a><span>, in §6</span>
    <li><a href="#dom-syncmanager-register">register(tag)</a><span>, in §5.2</span>
    <li><a href="#registration-state">registration state</a><span>, in §3</span>
    <li><a href="#reregisteredwhilefiring">reregisteredWhileFiring</a><span>, in §3</span>
@@ -1899,9 +1890,9 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
    <li>
     <a data-link-type="biblio" href="#biblio-webidl">[WebIDL]</a> defines the following terms:
     <ul>
-     <li><a href="https://heycam.github.io/webidl/#idl-DOMException">DOMException</a>
      <li><a href="https://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a>
      <li><a href="https://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a>
+     <li><a href="https://heycam.github.io/webidl/#notallowederror">NotAllowedError</a>
      <li><a href="https://heycam.github.io/webidl/#idl-sequence">sequence</a>
     </ul>
    <li>
