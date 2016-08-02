@@ -331,7 +331,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
       };
     </pre>
 
-    Note: The {{SyncEvent}} interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The {{SyncEvent/lastChance}} attribute is true if the user agent will not make further attempts to try this sync after the current attempt.
+    Note: The {{SyncEvent}} interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run the event at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The {{SyncEvent/lastChance}} attribute is true if the user agent will not make further attempts to try this sync after the current attempt.
 
     <div class="example">
       Reacting to {{SyncEvent/lastChance}}:
@@ -356,7 +356,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
       In the above example <code>doImportantThing</code> is a developer-defined function.
     </div>
 
-    Whenever the user agent changes to <a>online</a>, the user agent SHOULD <a>fire a sync event</a> for each <a>sync registration</a> whose <a>registration state</a> is <a>pending</a>.
+    Whenever the user agent changes to <a>online</a>, the user agent SHOULD <a>fire a sync event</a> for each <a>sync registration</a> whose <a>registration state</a> is <a>pending</a>. The events may be fired in any order.
 
     To <dfn>fire a sync event</dfn> for a <a>sync registration</a> <var>registration</var>, the user agent MUST run the following steps:
     <ol>
