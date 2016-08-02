@@ -34,6 +34,7 @@
  *   - .note       for informative notes             (div, p, span, aside, details)
  *   - .example    for informative examples          (div, p, pre, span)
  *   - .issue      for issues                        (div, p, span)
+ *   - .assertion  for assertions                    (div, p, span)
  *   - .advisement for loud normative statements     (div, p, strong)
  *   - .annoying-warning for spec obsoletion notices (div, aside, details)
  *
@@ -48,9 +49,9 @@
  *   - ::before styled for CSS-generated issue/example/figure numbers:
  *     -> Documents wishing to use this only need to add
  *        figcaption::before,
- *        .caption::before { content: "Figure "  counter(figure);  }
- *        .example::before { content: "Example " counter(example); }
- *        .issue::before   { content: "Issue "   counter(issue);   }
+ *        .caption::before { content: "Figure "  counter(figure) " ";  }
+ *        .example::before { content: "Example " counter(example) " "; }
+ *        .issue::before   { content: "Issue "   counter(issue) " ";   }
  *
  * Header Stuff (ignore, just don't conflict with these classes)
  *   - .head for the header
@@ -408,15 +409,18 @@
 	}
 
 	/* Style for algorithms */
-	ol.algorithm ol:not(.algorithm) {
+	ol.algorithm ol:not(.algorithm),
+	.algorithm > ol ol:not(.algorithm) {
 	 border-left: 0.5em solid #DEF;
 	}
 
 	/* Style for switch/case <dl>s */
-	dl.switch > dd > ol.only {
+	dl.switch > dd > ol.only,
+	dl.switch > dd > .only > ol {
 	 margin-left: 0;
 	}
-	dl.switch > dd > ol.algorithm {
+	dl.switch > dd > ol.algorithm,
+	dl.switch > dd > .algorithm > ol {
 	 margin-left: -2em;
 	}
 	dl.switch {
@@ -594,7 +598,7 @@
 /*                             Colored Boxes                                  */
 /******************************************************************************/
 
-	.issue, .note, .example, .advisement, blockquote {
+	.issue, .note, .example, .assertion, .advisement, blockquote {
 		padding: .5em;
 		border: .5em;
 		border-left-style: solid;
@@ -609,6 +613,7 @@
 	.note,
 	.example,
 	.advisement,
+	.assertion,
 	blockquote {
 		margin: 1em auto;
 	}
@@ -641,7 +646,7 @@
 		padding-right: 1em;
 		text-transform: uppercase;
 	}
-	/* Add .issue::before { content: "Issue " counter(issue); } for autogen numbers,
+	/* Add .issue::before { content: "Issue " counter(issue) " "; } for autogen numbers,
 	   or use class="marker" to mark up the issue number in source. */
 
 /** Example *******************************************************************/
@@ -659,7 +664,7 @@
 		min-width: 7.5em;
 		display: block;
 	}
-	/* Add .example::before { content: "Example " counter(example); } for autogen numbers,
+	/* Add .example::before { content: "Example " counter(example) " "; } for autogen numbers,
 	   or use class="marker" to mark up the example number in source. */
 
 /** Non-normative Note ********************************************************/
@@ -686,6 +691,14 @@
 	}
 	details.note[open] > summary {
 		border-bottom: 1px silver solid;
+	}
+
+/** Assertion Box *************************************************************/
+	/*  for assertions in algorithms */
+
+	.assertion {
+		border-color: #AAA;
+		background: #EEE;
 	}
 
 /** Advisement Box ************************************************************/
@@ -962,10 +975,9 @@ Possible extra rowspan handling
 	/* ToC not indented until third level, but font style & margins show hierarchy */
 	.toc > li             { font-weight: bold;   }
 	.toc > li li          { font-weight: normal; }
-	.toc > li li li       { font-style:  italic; }
-	.toc > li li li li    { font-style:  normal; }
-	.toc > li li li li li { font-style:  italic;
-	                        font-size:   85%;    }
+	.toc > li li li       { font-size:   95%;    }
+	.toc > li li li li    { font-size:   90%;    }
+	.toc > li li li li li { font-size:   85%;    }
 
 	.toc > li             { margin: 1.5rem 0;    }
 	.toc > li li          { margin: 0.3rem 0;    }
@@ -1148,163 +1160,163 @@ Possible extra rowspan handling
 			*/
 		}
 	}
-
-/******************************************************************************/
-/*                                  Bikeshed                                  */
-/******************************************************************************/
-
-	/* Style for paragraphs I know are in MD-genned lists */
-	/* This is a weird hack for me not yet following the commonmark spec
-	   regarding paragraph and lists. */
-	[data-md] > :first-child {
-		margin-top: 0;
-	}
-	[data-md] > :last-child {
-		margin-bottom: 0;
-	}
-
-/** Inline CSS fragments ******************************************************/
-
-	.css.css, .property.property, .descriptor.descriptor {
-		color: #005a9c;
-		font-size: inherit;
-		font-family: inherit;
-	}
-	.css::before, .property::before, .descriptor::before {
-		content: "‘";
-	}
-	.css::after, .property::after, .descriptor::after {
-		content: "’";
-	}
-	.property, .descriptor {
-		/* Don't wrap property and descriptor names */
-		white-space: nowrap;
-	}
-	.type { /* CSS value <type> */
-		font-style: italic;
-	}
-	pre .property::before, pre .property::after {
-		content: "";
-	}
-
-/** Autolinks produced using Bikeshed *****************************************/
-
-	[data-link-type="property"]::before,
-	[data-link-type="propdesc"]::before,
-	[data-link-type="descriptor"]::before,
-	[data-link-type="value"]::before,
-	[data-link-type="function"]::before,
-	[data-link-type="at-rule"]::before,
-	[data-link-type="selector"]::before,
-	[data-link-type="maybe"]::before {
-		content: "‘";
-	}
-	[data-link-type="property"]::after,
-	[data-link-type="propdesc"]::after,
-	[data-link-type="descriptor"]::after,
-	[data-link-type="value"]::after,
-	[data-link-type="function"]::after,
-	[data-link-type="at-rule"]::after,
-	[data-link-type="selector"]::after,
-	[data-link-type="maybe"]::after {
-		content: "’";
-	}
-
-	[data-link-type].production::before,
-	[data-link-type].production::after,
-	.prod [data-link-type]::before,
-	.prod [data-link-type]::after {
-		content: "";
-	}
-
-	[data-link-type=element],
-	[data-link-type=element-attr] {
-		font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
-		font-size: .9em;
-	}
-	[data-link-type=element]::before { content: "<" }
-	[data-link-type=element]::after  { content: ">" }
-
-	[data-link-type=biblio] {
-		white-space: pre;
-	}
-
-/** Self-Links ****************************************************************/
-/* Auto-generated links from an element to its own anchor, for usability */
-
-	.heading, .issue, .note, .example, li, dt {
-		position: relative;
-	}
-	a.self-link {
-		position: absolute;
-		top: 0;
-		left: calc(-1 * (3.5rem - 26px));
-		width: calc(3.5rem - 26px);
-		height: 2em;
-		text-align: center;
-		border: none;
-		transition: opacity .2s;
-		opacity: .5;
-	}
-	a.self-link:hover {
-		opacity: 1;
-	}
-	.heading > a.self-link {
-		font-size: 83%;
-	}
-	dfn > a.self-link {
-		top: auto;
-		left: auto;
-		opacity: 0;
-		width: 1.5em;
-		height: 1.5em;
-		background: gray;
-		color: white;
-		font-style: normal;
-		transition: opacity .2s, background-color .2s, color .2s;
-	}
-	dfn:hover > a.self-link {
-		opacity: 1;
-	}
-	dfn > a.self-link:hover {
-		color: black;
-	}
-
-	a.self-link::before            { content: "¶"; }
-	.heading > a.self-link::before { content: "§"; }
-	dfn > a.self-link::before      { content: "#"; }
-
-/** Counters ******************************************************************/
-/* Adds the auto-genned issue/example counters,
-   until Bikeshed fills in manual ones. */
-	.issue:not(.no-marker)::before {
-		content: "Issue " counter(issue);
-	}
-
-	.example:not(.no-marker)::before {
-		content: "Example";
-		content: "Example " counter(example);
-	}
-	.invalid.example:not(.no-marker)::before,
-	.illegal.example:not(.no-marker)::before {
-		content: "Invalid Example";
-		content: "Invalid Example" counter(example);
-	}
-
-
-
-/********************************************
- Remember to fix the logo section when copypasting freshly.
- */
 </style>
   <meta content="Bikeshed 1.0.0" name="generator">
-<style>
+<style>/* style-md-lists */
+
+            /* This is a weird hack for me not yet following the commonmark spec
+               regarding paragraph and lists. */
+            [data-md] > :first-child {
+                margin-top: 0;
+            }
+            [data-md] > :last-child {
+                margin-bottom: 0;
+            }</style>
+<style>/* style-selflinks */
+
+            .heading, .issue, .note, .example, li, dt {
+                position: relative;
+            }
+            a.self-link {
+                position: absolute;
+                top: 0;
+                left: calc(-1 * (3.5rem - 26px));
+                width: calc(3.5rem - 26px);
+                height: 2em;
+                text-align: center;
+                border: none;
+                transition: opacity .2s;
+                opacity: .5;
+            }
+            a.self-link:hover {
+                opacity: 1;
+            }
+            .heading > a.self-link {
+                font-size: 83%;
+            }
+            li > a.self-link {
+                left: calc(-1 * (3.5rem - 26px) - 2em);
+            }
+            dfn > a.self-link {
+                top: auto;
+                left: auto;
+                opacity: 0;
+                width: 1.5em;
+                height: 1.5em;
+                background: gray;
+                color: white;
+                font-style: normal;
+                transition: opacity .2s, background-color .2s, color .2s;
+            }
+            dfn:hover > a.self-link {
+                opacity: 1;
+            }
+            dfn > a.self-link:hover {
+                color: black;
+            }
+
+            a.self-link::before            { content: "¶"; }
+            .heading > a.self-link::before { content: "§"; }
+            dfn > a.self-link::before      { content: "#"; }</style>
+<style>/* style-counters */
+
+            body {
+                counter-reset: example figure issue;
+            }
+            .issue {
+                counter-increment: issue;
+            }
+            .issue:not(.no-marker)::before {
+                content: "Issue " counter(issue);
+            }
+
+            .example {
+                counter-increment: example;
+            }
+            .example:not(.no-marker)::before {
+                content: "Example " counter(example);
+            }
+            .invalid.example:not(.no-marker)::before,
+            .illegal.example:not(.no-marker)::before {
+                content: "Invalid Example" counter(example);
+            }
+
+            figcaption {
+                counter-increment: figure;
+            }
+            figcaption:not(.no-marker)::before {
+                content: "Figure " counter(figure) " ";
+            }</style>
+<style>/* style-autolinks */
+
+            .css.css, .property.property, .descriptor.descriptor {
+                color: #005a9c;
+                font-size: inherit;
+                font-family: inherit;
+            }
+            .css::before, .property::before, .descriptor::before {
+                content: "‘";
+            }
+            .css::after, .property::after, .descriptor::after {
+                content: "’";
+            }
+            .property, .descriptor {
+                /* Don't wrap property and descriptor names */
+                white-space: nowrap;
+            }
+            .type { /* CSS value <type> */
+                font-style: italic;
+            }
+            pre .property::before, pre .property::after {
+                content: "";
+            }
+            [data-link-type="property"]::before,
+            [data-link-type="propdesc"]::before,
+            [data-link-type="descriptor"]::before,
+            [data-link-type="value"]::before,
+            [data-link-type="function"]::before,
+            [data-link-type="at-rule"]::before,
+            [data-link-type="selector"]::before,
+            [data-link-type="maybe"]::before {
+                content: "‘";
+            }
+            [data-link-type="property"]::after,
+            [data-link-type="propdesc"]::after,
+            [data-link-type="descriptor"]::after,
+            [data-link-type="value"]::after,
+            [data-link-type="function"]::after,
+            [data-link-type="at-rule"]::after,
+            [data-link-type="selector"]::after,
+            [data-link-type="maybe"]::after {
+                content: "’";
+            }
+
+            [data-link-type].production::before,
+            [data-link-type].production::after,
+            .prod [data-link-type]::before,
+            .prod [data-link-type]::after {
+                content: "";
+            }
+
+            [data-link-type=element],
+            [data-link-type=element-attr] {
+                font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
+                font-size: .9em;
+            }
+            [data-link-type=element]::before { content: "<" }
+            [data-link-type=element]::after  { content: ">" }
+
+            [data-link-type=biblio] {
+                white-space: pre;
+            }</style>
+<style>/* style-dfn-panel */
+
         .dfn-panel {
-            display: inline-block;
             position: absolute;
             z-index: 35;
             height: auto;
             width: -webkit-fit-content;
+            width: fit-content;
             max-width: 300px;
             max-height: 500px;
             overflow: auto;
@@ -1320,12 +1332,13 @@ Possible extra rowspan handling
         .dfn-panel a { color: black; }
         .dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
         .dfn-panel > b + b { margin-top: 0.25em; }
-        .dfn-panel > span { display: list-item; list-style: inside; }
+        .dfn-panel ul { padding: 0; }
+        .dfn-panel li { list-style: inside; }
         .dfn-panel.activated {
             display: inline-block;
             position: fixed;
             left: .5em;
-            bottom: .5em;
+            bottom: 2em;
             margin: 0 auto;
             max-width: calc(100vw - 1.5em - .4em - .5em);
             max-height: 30vh;
@@ -1333,69 +1346,69 @@ Possible extra rowspan handling
 
         .dfn-paneled { cursor: pointer; }
         </style>
-<style>.highlight .hll { background-color: #ffffcc }
-.highlight  { background: #ffffff; }
-.highlight .c { color: #708090 } /* Comment */
-.highlight .k { color: #990055 } /* Keyword */
-.highlight .l { color: #000000 } /* Literal */
-.highlight .n { color: #0077aa } /* Name */
-.highlight .o { color: #999999 } /* Operator */
-.highlight .p { color: #999999 } /* Punctuation */
-.highlight .cm { color: #708090 } /* Comment.Multiline */
-.highlight .cp { color: #708090 } /* Comment.Preproc */
-.highlight .c1 { color: #708090 } /* Comment.Single */
-.highlight .cs { color: #708090 } /* Comment.Special */
-.highlight .kc { color: #990055 } /* Keyword.Constant */
-.highlight .kd { color: #990055 } /* Keyword.Declaration */
-.highlight .kn { color: #990055 } /* Keyword.Namespace */
-.highlight .kp { color: #990055 } /* Keyword.Pseudo */
-.highlight .kr { color: #990055 } /* Keyword.Reserved */
-.highlight .kt { color: #990055 } /* Keyword.Type */
-.highlight .ld { color: #000000 } /* Literal.Date */
-.highlight .m { color: #000000 } /* Literal.Number */
-.highlight .s { color: #a67f59 } /* Literal.String */
-.highlight .na { color: #0077aa } /* Name.Attribute */
-.highlight .nc { color: #0077aa } /* Name.Class */
-.highlight .no { color: #0077aa } /* Name.Constant */
-.highlight .nd { color: #0077aa } /* Name.Decorator */
-.highlight .ni { color: #0077aa } /* Name.Entity */
-.highlight .ne { color: #0077aa } /* Name.Exception */
-.highlight .nf { color: #0077aa } /* Name.Function */
-.highlight .nl { color: #0077aa } /* Name.Label */
-.highlight .nn { color: #0077aa } /* Name.Namespace */
-.highlight .py { color: #0077aa } /* Name.Property */
-.highlight .nt { color: #669900 } /* Name.Tag */
-.highlight .nv { color: #0077aa } /* Name.Variable */
-.highlight .ow { color: #999999 } /* Operator.Word */
-.highlight .mb { color: #000000 } /* Literal.Number.Bin */
-.highlight .mf { color: #000000 } /* Literal.Number.Float */
-.highlight .mh { color: #000000 } /* Literal.Number.Hex */
-.highlight .mi { color: #000000 } /* Literal.Number.Integer */
-.highlight .mo { color: #000000 } /* Literal.Number.Oct */
-.highlight .sb { color: #a67f59 } /* Literal.String.Backtick */
-.highlight .sc { color: #a67f59 } /* Literal.String.Char */
-.highlight .sd { color: #a67f59 } /* Literal.String.Doc */
-.highlight .s2 { color: #a67f59 } /* Literal.String.Double */
-.highlight .se { color: #a67f59 } /* Literal.String.Escape */
-.highlight .sh { color: #a67f59 } /* Literal.String.Heredoc */
-.highlight .si { color: #a67f59 } /* Literal.String.Interpol */
-.highlight .sx { color: #a67f59 } /* Literal.String.Other */
-.highlight .sr { color: #a67f59 } /* Literal.String.Regex */
-.highlight .s1 { color: #a67f59 } /* Literal.String.Single */
-.highlight .ss { color: #a67f59 } /* Literal.String.Symbol */
-.highlight .vc { color: #0077aa } /* Name.Variable.Class */
-.highlight .vg { color: #0077aa } /* Name.Variable.Global */
-.highlight .vi { color: #0077aa } /* Name.Variable.Instance */
-.highlight .il { color: #000000 } /* Literal.Number.Integer.Long */
-        .highlight { background: hsl(24, 20%, 95%); }
+<style>/* style-syntax-highlighting */
+pre.idl.highlight { color: #708090; }
+        .highlight:not(.idl) { background: hsl(24, 20%, 95%); }
         code.highlight { padding: .1em; border-radius: .3em; }
         pre.highlight, pre > code.highlight { display: block; padding: 1em; margin: .5em 0; overflow: auto; border-radius: 0; }
+        .highlight .c { color: #708090 } /* Comment */
+        .highlight .k { color: #990055 } /* Keyword */
+        .highlight .l { color: #000000 } /* Literal */
+        .highlight .n { color: #0077aa } /* Name */
+        .highlight .o { color: #999999 } /* Operator */
+        .highlight .p { color: #999999 } /* Punctuation */
+        .highlight .cm { color: #708090 } /* Comment.Multiline */
+        .highlight .cp { color: #708090 } /* Comment.Preproc */
+        .highlight .c1 { color: #708090 } /* Comment.Single */
+        .highlight .cs { color: #708090 } /* Comment.Special */
+        .highlight .kc { color: #990055 } /* Keyword.Constant */
+        .highlight .kd { color: #990055 } /* Keyword.Declaration */
+        .highlight .kn { color: #990055 } /* Keyword.Namespace */
+        .highlight .kp { color: #990055 } /* Keyword.Pseudo */
+        .highlight .kr { color: #990055 } /* Keyword.Reserved */
+        .highlight .kt { color: #990055 } /* Keyword.Type */
+        .highlight .ld { color: #000000 } /* Literal.Date */
+        .highlight .m { color: #000000 } /* Literal.Number */
+        .highlight .s { color: #a67f59 } /* Literal.String */
+        .highlight .na { color: #0077aa } /* Name.Attribute */
+        .highlight .nc { color: #0077aa } /* Name.Class */
+        .highlight .no { color: #0077aa } /* Name.Constant */
+        .highlight .nd { color: #0077aa } /* Name.Decorator */
+        .highlight .ni { color: #0077aa } /* Name.Entity */
+        .highlight .ne { color: #0077aa } /* Name.Exception */
+        .highlight .nf { color: #0077aa } /* Name.Function */
+        .highlight .nl { color: #0077aa } /* Name.Label */
+        .highlight .nn { color: #0077aa } /* Name.Namespace */
+        .highlight .py { color: #0077aa } /* Name.Property */
+        .highlight .nt { color: #669900 } /* Name.Tag */
+        .highlight .nv { color: #222222 } /* Name.Variable */
+        .highlight .ow { color: #999999 } /* Operator.Word */
+        .highlight .mb { color: #000000 } /* Literal.Number.Bin */
+        .highlight .mf { color: #000000 } /* Literal.Number.Float */
+        .highlight .mh { color: #000000 } /* Literal.Number.Hex */
+        .highlight .mi { color: #000000 } /* Literal.Number.Integer */
+        .highlight .mo { color: #000000 } /* Literal.Number.Oct */
+        .highlight .sb { color: #a67f59 } /* Literal.String.Backtick */
+        .highlight .sc { color: #a67f59 } /* Literal.String.Char */
+        .highlight .sd { color: #a67f59 } /* Literal.String.Doc */
+        .highlight .s2 { color: #a67f59 } /* Literal.String.Double */
+        .highlight .se { color: #a67f59 } /* Literal.String.Escape */
+        .highlight .sh { color: #a67f59 } /* Literal.String.Heredoc */
+        .highlight .si { color: #a67f59 } /* Literal.String.Interpol */
+        .highlight .sx { color: #a67f59 } /* Literal.String.Other */
+        .highlight .sr { color: #a67f59 } /* Literal.String.Regex */
+        .highlight .s1 { color: #a67f59 } /* Literal.String.Single */
+        .highlight .ss { color: #a67f59 } /* Literal.String.Symbol */
+        .highlight .vc { color: #0077aa } /* Name.Variable.Class */
+        .highlight .vg { color: #0077aa } /* Name.Variable.Global */
+        .highlight .vi { color: #0077aa } /* Name.Variable.Instance */
+        .highlight .il { color: #000000 } /* Literal.Number.Integer.Long */
         </style>
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2016-03-21">21 March 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2016-08-02">2 August 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1471,7 +1484,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
     <p>As this API relies on service workers, functionality provided by this API is only available in a <a data-link-type="dfn" href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure context</a>.</p>
     <div class="example" id="example-36328b3d">
      <a class="self-link" href="#example-36328b3d"></a> Requesting a background sync opportunity from a <a data-link-type="dfn" href="https://html.spec.whatwg.org/#browsing-context">browsing context</a>: 
-<pre class="lang-js highlight"><span class="kd">function</span> <span class="nx">sendChatMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+<pre class="lang-js highlight"><span></span><span class="kd">function</span> <span class="nx">sendChatMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">return</span> <span class="nx">addChatMessageToOutbox</span><span class="p">(</span><span class="nx">message</span><span class="p">).</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=></span> <span class="p">{</span>
     <span class="c1">// Wait for the scoped service worker registration to get a</span>
     <span class="c1">// service worker with an active state</span>
@@ -1483,10 +1496,11 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
   <span class="p">}).</span><span class="k">catch</span><span class="p">(()</span> <span class="o">=></span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Sync registration failed :('</span><span class="p">);</span>
   <span class="p">});</span>
-<span class="p">}</span></pre>
+<span class="p">}</span>
+</pre>
      <p>In the above example <code>addChatMessageToOutbox</code> is a developer-defined function.</p>
      <p>Reacting to a sync event within a <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a>:</p>
-<pre class="lang-js highlight"><span class="nx">self</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'sync'</span><span class="p">,</span> <span class="nx">event</span> <span class="o">=></span> <span class="p">{</span>
+<pre class="lang-js highlight"><span></span><span class="nx">self</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'sync'</span><span class="p">,</span> <span class="nx">event</span> <span class="o">=></span> <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">tag</span> <span class="o">==</span> <span class="s1">'send-chats'</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">event</span><span class="p">.</span><span class="nx">waitUntil</span><span class="p">(</span>
       <span class="nx">getMessagesFromOutbox</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">messages</span> <span class="o">=></span> <span class="p">{</span>
@@ -1507,21 +1521,22 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
       <span class="p">})</span>
     <span class="p">);</span>
   <span class="p">}</span>
-<span class="p">});</span></pre>
+<span class="p">});</span>
+</pre>
      <p>In the above example <code>getMessagesFromOutbox</code> and <code>removeMessagesFromOutbox</code> are developer-defined functions.</p>
     </div>
    </section>
    <section>
     <h2 class="heading settled" data-level="2" id="concepts"><span class="secno">2. </span><span class="content">Concepts</span><a class="self-link" href="#concepts"></a></h2>
-    <p>The sync event is considered to run <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="in the background" data-noexport="" id="in-the-background">in the background<span class="dfn-panel" data-deco=""><b><a href="#in-the-background">#in-the-background</a></b><b>Referenced in:</b><span><a href="#ref-for-in-the-background-1">1. Introduction</a></span><span><a href="#ref-for-in-the-background-2">4.2. Location Tracking</a></span><span><a href="#ref-for-in-the-background-3">4.3. History Leaking</a></span></span></dfn> if no <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-service-worker-client">service worker clients</a> whose <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-service-worker-client-frame-type">frame type</a> is top-level or auxiliary exist for the origin of the corresponding service worker registration.</p>
-    <p>The user agent is considered to be <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="online" data-noexport="" id="online">online<span class="dfn-panel" data-deco=""><b><a href="#online">#online</a></b><b>Referenced in:</b><span><a href="#ref-for-online-1">2. Concepts</a></span><span><a href="#ref-for-online-2">5.2. SyncManager interface</a> <a href="#ref-for-online-3">(2)</a></span><span><a href="#ref-for-online-4">5.3. The sync event</a> <a href="#ref-for-online-5">(2)</a> <a href="#ref-for-online-6">(3)</a> <a href="#ref-for-online-7">(4)</a></span></span></dfn> if the user agent has established a network connection. A user agent MAY use a stricter definition of being <a data-link-type="dfn" href="#online" id="ref-for-online-1">online</a>. Such a stricter definition MAY take into account the particular <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a> or origin a <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-1">sync registration</a> is associated with.</p>
+    <p>The sync event is considered to run <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="in-the-background">in the background</dfn> if no <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-service-worker-client">service worker clients</a> whose <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#dfn-service-worker-client-frame-type">frame type</a> is top-level or auxiliary exist for the origin of the corresponding service worker registration.</p>
+    <p>The user agent is considered to be <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="online">online</dfn> if the user agent has established a network connection. A user agent MAY use a stricter definition of being <a data-link-type="dfn" href="#online" id="ref-for-online-1">online</a>. Such a stricter definition MAY take into account the particular <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-concept">service worker</a> or origin a <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-1">sync registration</a> is associated with.</p>
    </section>
    <section>
     <h2 class="heading settled" data-level="3" id="constructs"><span class="secno">3. </span><span class="content">Constructs</span><a class="self-link" href="#constructs"></a></h2>
-     A <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="list of sync registrations" data-noexport="" id="list-of-sync-registrations">list of sync registrations<span class="dfn-panel" data-deco=""><b><a href="#list-of-sync-registrations">#list-of-sync-registrations</a></b><b>Referenced in:</b><span><a href="#ref-for-list-of-sync-registrations-1">3. Constructs</a></span><span><a href="#ref-for-list-of-sync-registrations-2">5.2. SyncManager interface</a> <a href="#ref-for-list-of-sync-registrations-3">(2)</a> <a href="#ref-for-list-of-sync-registrations-4">(3)</a></span><span><a href="#ref-for-list-of-sync-registrations-5">5.3. The sync event</a> <a href="#ref-for-list-of-sync-registrations-6">(2)</a> <a href="#ref-for-list-of-sync-registrations-7">(3)</a></span></span></dfn> whose element type is a <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-2">sync registration</a>. 
-    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="sync registration" data-noexport="" id="sync-registration">sync registration<span class="dfn-panel" data-deco=""><b><a href="#sync-registration">#sync-registration</a></b><b>Referenced in:</b><span><a href="#ref-for-sync-registration-1">2. Concepts</a></span><span><a href="#ref-for-sync-registration-2">3. Constructs</a> <a href="#ref-for-sync-registration-3">(2)</a> <a href="#ref-for-sync-registration-4">(3)</a> <a href="#ref-for-sync-registration-5">(4)</a> <a href="#ref-for-sync-registration-6">(5)</a></span><span><a href="#ref-for-sync-registration-7">5.2. SyncManager interface</a> <a href="#ref-for-sync-registration-8">(2)</a></span><span><a href="#ref-for-sync-registration-9">5.3. The sync event</a> <a href="#ref-for-sync-registration-10">(2)</a></span></span></dfn> is a tuple consisting of a <a data-link-type="dfn" href="#tag" id="ref-for-tag-1">tag</a> and a <a data-link-type="dfn" href="#registration-state" id="ref-for-registration-state-1">state</a>.</p>
-    <p>A <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-3">sync registration</a> has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="tag" data-noexport="" id="tag">tag<span class="dfn-panel" data-deco=""><b><a href="#tag">#tag</a></b><b>Referenced in:</b><span><a href="#ref-for-tag-1">3. Constructs</a> <a href="#ref-for-tag-2">(2)</a></span><span><a href="#ref-for-tag-3">5.2. SyncManager interface</a> <a href="#ref-for-tag-4">(2)</a> <a href="#ref-for-tag-5">(3)</a></span><span><a href="#ref-for-tag-6">5.3. The sync event</a></span></span></dfn>, a DOMString.</p>
-    <p>A <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-4">sync registration</a> has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="registration state" data-noexport="" id="registration-state">registration state<span class="dfn-panel" data-deco=""><b><a href="#registration-state">#registration-state</a></b><b>Referenced in:</b><span><a href="#ref-for-registration-state-1">3. Constructs</a></span><span><a href="#ref-for-registration-state-2">5.2. SyncManager interface</a> <a href="#ref-for-registration-state-3">(2)</a> <a href="#ref-for-registration-state-4">(3)</a> <a href="#ref-for-registration-state-5">(4)</a> <a href="#ref-for-registration-state-6">(5)</a></span><span><a href="#ref-for-registration-state-7">5.3. The sync event</a> <a href="#ref-for-registration-state-8">(2)</a> <a href="#ref-for-registration-state-9">(3)</a> <a href="#ref-for-registration-state-10">(4)</a> <a href="#ref-for-registration-state-11">(5)</a> <a href="#ref-for-registration-state-12">(6)</a> <a href="#ref-for-registration-state-13">(7)</a></span></span></dfn>, which is one of <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="pending" data-noexport="" id="pending">pending<span class="dfn-panel" data-deco=""><b><a href="#pending">#pending</a></b><b>Referenced in:</b><span><a href="#ref-for-pending-1">3. Constructs</a></span><span><a href="#ref-for-pending-2">5.2. SyncManager interface</a> <a href="#ref-for-pending-3">(2)</a></span><span><a href="#ref-for-pending-4">5.3. The sync event</a> <a href="#ref-for-pending-5">(2)</a> <a href="#ref-for-pending-6">(3)</a> <a href="#ref-for-pending-7">(4)</a> <a href="#ref-for-pending-8">(5)</a></span></span></dfn>, <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="waiting" data-noexport="" id="waiting">waiting<span class="dfn-panel" data-deco=""><b><a href="#waiting">#waiting</a></b><b>Referenced in:</b><span><a href="#ref-for-waiting-1">5.2. SyncManager interface</a></span><span><a href="#ref-for-waiting-2">5.3. The sync event</a> <a href="#ref-for-waiting-3">(2)</a></span></span></dfn>, <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="firing" data-noexport="" id="firing">firing<span class="dfn-panel" data-deco=""><b><a href="#firing">#firing</a></b><b>Referenced in:</b><span><a href="#ref-for-firing-1">5.2. SyncManager interface</a></span><span><a href="#ref-for-firing-2">5.3. The sync event</a> <a href="#ref-for-firing-3">(2)</a></span></span></dfn>, or <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="reregisteredWhileFiring" data-noexport="" id="reregisteredwhilefiring">reregisteredWhileFiring<span class="dfn-panel" data-deco=""><b><a href="#reregisteredwhilefiring">#reregisteredwhilefiring</a></b><b>Referenced in:</b><span><a href="#ref-for-reregisteredwhilefiring-1">5.2. SyncManager interface</a></span><span><a href="#ref-for-reregisteredwhilefiring-2">5.3. The sync event</a> <a href="#ref-for-reregisteredwhilefiring-3">(2)</a></span></span></dfn>. It is initially set to <a data-link-type="dfn" href="#pending" id="ref-for-pending-1">pending</a>.</p>
+     A <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="list-of-sync-registrations">list of sync registrations</dfn> whose element type is a <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-2">sync registration</a>. 
+    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="sync-registration">sync registration</dfn> is a tuple consisting of a <a data-link-type="dfn" href="#tag" id="ref-for-tag-1">tag</a> and a <a data-link-type="dfn" href="#registration-state" id="ref-for-registration-state-1">state</a>.</p>
+    <p>A <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-3">sync registration</a> has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="tag">tag</dfn>, a DOMString.</p>
+    <p>A <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-4">sync registration</a> has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="registration-state">registration state</dfn>, which is one of <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="pending">pending</dfn>, <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="waiting">waiting</dfn>, <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="firing">firing</dfn>, or <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="reregisteredwhilefiring">reregisteredWhileFiring</dfn>. It is initially set to <a data-link-type="dfn" href="#pending" id="ref-for-pending-1">pending</a>.</p>
     <p>A <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-5">sync registration</a> has an associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. It is initially set to null.</p>
     <p>Within one <a data-link-type="dfn" href="#list-of-sync-registrations" id="ref-for-list-of-sync-registrations-1">list of sync registrations</a> each <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-6">sync registration</a> MUST have a unique <a data-link-type="dfn" href="#tag" id="ref-for-tag-2">tag</a>.</p>
    </section>
@@ -1545,21 +1560,21 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
     <h2 class="heading settled" data-level="5" id="api-description"><span class="secno">5. </span><span class="content">API Description</span><a class="self-link" href="#api-description"></a></h2>
     <section>
      <h3 class="heading settled" data-level="5.1" id="service-worker-registration-extensions"><span class="secno">5.1. </span><span class="content">Extensions to the <code class="idl"><a data-link-type="idl" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-interface">ServiceWorkerRegistration</a></code> interface</span><a class="self-link" href="#service-worker-registration-extensions"></a></h3>
-<pre class="idl def">partial interface <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-interface">ServiceWorkerRegistration</a> {
-  readonly attribute <a data-link-type="idl-name" href="#syncmanager" id="ref-for-syncmanager-1">SyncManager</a> <dfn class="idl-code" data-dfn-for="ServiceWorkerRegistration" data-dfn-type="attribute" data-export="" data-readonly="" data-type="SyncManager " id="dom-serviceworkerregistration-sync">sync<a class="self-link" href="#dom-serviceworkerregistration-sync"></a></dfn>;
+<pre class="idl highlight def"><span class="kt">partial</span> <span class="kt">interface</span> <a class="nv idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-interface">ServiceWorkerRegistration</a> {
+  <span class="kt">readonly</span> <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="#syncmanager" id="ref-for-syncmanager-1">SyncManager</a> <dfn class="nv idl-code" data-dfn-for="ServiceWorkerRegistration" data-dfn-type="attribute" data-export="" data-readonly="" data-type="SyncManager" id="dom-serviceworkerregistration-sync">sync<a class="self-link" href="#dom-serviceworkerregistration-sync"></a></dfn>;
 };
 </pre>
      <p>The <code><dfn class="idl-code" data-dfn-for="SyncManager" data-dfn-type="attribute" data-export="" id="dom-syncmanager-sync" title="sync">sync<a class="self-link" href="#dom-syncmanager-sync"></a></dfn></code> attribute exposes a <code class="idl"><a data-link-type="idl" href="#syncmanager" id="ref-for-syncmanager-2">SyncManager</a></code>, which has an associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a> represented by the <code class="idl"><a data-link-type="idl" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-interface">ServiceWorkerRegistration</a></code> on which the attribute is exposed.</p>
     </section>
     <section>
      <h3 class="heading settled" data-level="5.2" id="sync-manager-interface"><span class="secno">5.2. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#syncmanager" id="ref-for-syncmanager-3">SyncManager</a></code> interface</span><a class="self-link" href="#sync-manager-interface"></a></h3>
-<pre class="idl def">[Exposed=(Window,Worker)]
-interface <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export="" data-lt="SyncManager" id="syncmanager">SyncManager<span class="dfn-panel" data-deco=""><b><a href="#syncmanager">#syncmanager</a></b><b>Referenced in:</b><span><a href="#ref-for-syncmanager-1">5.1. Extensions to the ServiceWorkerRegistration interface</a> <a href="#ref-for-syncmanager-2">(2)</a></span><span><a href="#ref-for-syncmanager-3">5.2. SyncManager interface</a> <a href="#ref-for-syncmanager-4">(2)</a> <a href="#ref-for-syncmanager-5">(3)</a></span></span></dfn> {
-  Promise&lt;void> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-register" id="ref-for-dom-syncmanager-register-1">register</a>(DOMString <dfn class="idl-code" data-dfn-for="SyncManager/register(tag)" data-dfn-type="argument" data-export="" id="dom-syncmanager-register-tag-tag">tag<a class="self-link" href="#dom-syncmanager-register-tag-tag"></a></dfn>);
-  Promise&lt;sequence&lt;DOMString>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-gettags" id="ref-for-dom-syncmanager-gettags-1">getTags</a>();
+<pre class="idl highlight def">[<a class="nv idl-code" data-link-type="extended-attribute">Exposed</a>=(<span class="n">Window</span>,<span class="n">Worker</span>)]
+<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="syncmanager">SyncManager</dfn> {
+  <span class="kt">Promise</span>&lt;<span class="kt">void</span>> <a class="nv idl-code" data-link-type="method" href="#dom-syncmanager-register" id="ref-for-dom-syncmanager-register-1">register</a>(<span class="kt">DOMString</span> <dfn class="nv idl-code" data-dfn-for="SyncManager/register(tag)" data-dfn-type="argument" data-export="" id="dom-syncmanager-register-tag-tag">tag<a class="self-link" href="#dom-syncmanager-register-tag-tag"></a></dfn>);
+  <span class="kt">Promise</span>&lt;<span class="kt">sequence</span>&lt;<span class="kt">DOMString</span>>> <a class="nv idl-code" data-link-type="method" href="#dom-syncmanager-gettags" id="ref-for-dom-syncmanager-gettags-1">getTags</a>();
 };
 </pre>
-     <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" data-lt="register(tag)" id="dom-syncmanager-register" title="register(tag)">register(<var>tag</var>)<span class="dfn-panel" data-deco=""><b><a href="#dom-syncmanager-register">#dom-syncmanager-register</a></b><b>Referenced in:</b><span><a href="#ref-for-dom-syncmanager-register-1">5.2. SyncManager interface</a></span></span></dfn></code> method, when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
+     <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" id="dom-syncmanager-register" title="register(tag)">register(<var>tag</var>)</dfn></code> method, when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
      <ol>
       <li> Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#syncmanager" id="ref-for-syncmanager-4">SyncManager</a></code>'s associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. 
       <li>
@@ -1598,7 +1613,7 @@ interface <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-expor
         <li> If the user agent is currently <a data-link-type="dfn" href="#online" id="ref-for-online-3">online</a>, <a data-link-type="dfn" href="#fire-a-sync-event" id="ref-for-fire-a-sync-event-2">fire a sync event</a> for <var>newRegistration</var>. 
        </ol>
      </ol>
-     <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" data-lt="getTags()" id="dom-syncmanager-gettags" title="getTags()">getTags()<span class="dfn-panel" data-deco=""><b><a href="#dom-syncmanager-gettags">#dom-syncmanager-gettags</a></b><b>Referenced in:</b><span><a href="#ref-for-dom-syncmanager-gettags-1">5.2. SyncManager interface</a></span></span></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
+     <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="SyncManager" data-dfn-type="method" data-export="" id="dom-syncmanager-gettags" title="getTags()">getTags()</dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a> <var>promise</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
      <ol>
       <li> Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#syncmanager" id="ref-for-syncmanager-5">SyncManager</a></code>'s associated <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a>. 
       <li>Let <var>currentTags</var> be a new <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-sequence">sequence</a></code>.
@@ -1607,26 +1622,26 @@ interface <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-expor
      </ol>
     </section>
     <section>
-     <h3 class="heading settled" data-level="5.3" id="sync-event"><span class="secno">5.3. </span><span class="content">The <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="sync" data-noexport="" id="sync">sync<span class="dfn-panel" data-deco=""><b><a href="#sync">#sync</a></b><b>Referenced in:</b><span><a href="#ref-for-sync-1">5.3. The sync event</a></span></span></dfn> event</span><a class="self-link" href="#sync-event"></a></h3>
-<pre class="idl def">partial interface <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> {
-  attribute <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <dfn class="idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="attribute" data-export="" data-type="EventHandler " id="dom-serviceworkerglobalscope-onsync">onsync<a class="self-link" href="#dom-serviceworkerglobalscope-onsync"></a></dfn>;
+     <h3 class="heading settled" data-level="5.3" id="sync-event"><span class="secno">5.3. </span><span class="content">The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="sync">sync</dfn> event</span><a class="self-link" href="#sync-event"></a></h3>
+<pre class="idl highlight def"><span class="kt">partial</span> <span class="kt">interface</span> <a class="nv idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> {
+  <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <dfn class="nv idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="attribute" data-export="" data-type="EventHandler" id="dom-serviceworkerglobalscope-onsync">onsync<a class="self-link" href="#dom-serviceworkerglobalscope-onsync"></a></dfn>;
 };
 
-[<dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="constructor" data-export="" data-lt="SyncEvent(type, init)" id="dom-syncevent-syncevent">Constructor<a class="self-link" href="#dom-syncevent-syncevent"></a></dfn>(DOMString <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export="" id="dom-syncevent-syncevent-type-init-type">type<a class="self-link" href="#dom-syncevent-syncevent-type-init-type"></a></dfn>, <a data-link-type="idl-name" href="#dictdef-synceventinit" id="ref-for-dictdef-synceventinit-1">SyncEventInit</a> <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export="" id="dom-syncevent-syncevent-type-init-init">init<a class="self-link" href="#dom-syncevent-syncevent-type-init-init"></a></dfn>), Exposed=ServiceWorker]
-interface <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export="" data-lt="SyncEvent" id="syncevent">SyncEvent<span class="dfn-panel" data-deco=""><b><a href="#syncevent">#syncevent</a></b><b>Referenced in:</b><span><a href="#ref-for-syncevent-1">5.3. The sync event</a> <a href="#ref-for-syncevent-2">(2)</a> <a href="#ref-for-syncevent-3">(3)</a></span></span></dfn> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a> {
-  readonly attribute DOMString <dfn class="dfn-paneled idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export="" data-lt="tag" data-readonly="" data-type="DOMString " id="dom-syncevent-tag">tag<span class="dfn-panel" data-deco=""><b><a href="#dom-syncevent-tag">#dom-syncevent-tag</a></b><b>Referenced in:</b><span><a href="#ref-for-dom-syncevent-tag-1">5.3. The sync event</a></span></span></dfn>;
-  readonly attribute boolean <dfn class="dfn-paneled idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export="" data-lt="lastChance" data-readonly="" data-type="boolean " id="dom-syncevent-lastchance">lastChance<span class="dfn-panel" data-deco=""><b><a href="#dom-syncevent-lastchance">#dom-syncevent-lastchance</a></b><b>Referenced in:</b><span><a href="#ref-for-dom-syncevent-lastchance-1">5.3. The sync event</a> <a href="#ref-for-dom-syncevent-lastchance-2">(2)</a> <a href="#ref-for-dom-syncevent-lastchance-3">(3)</a> <a href="#ref-for-dom-syncevent-lastchance-4">(4)</a> <a href="#ref-for-dom-syncevent-lastchance-5">(5)</a> <a href="#ref-for-dom-syncevent-lastchance-6">(6)</a></span></span></dfn>;
+[<dfn class="nv idl-code" data-dfn-for="SyncEvent" data-dfn-type="constructor" data-export="" data-lt="SyncEvent(type, init)" id="dom-syncevent-syncevent">Constructor<a class="self-link" href="#dom-syncevent-syncevent"></a></dfn>(<span class="kt">DOMString</span> <dfn class="nv idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export="" id="dom-syncevent-syncevent-type-init-type">type<a class="self-link" href="#dom-syncevent-syncevent-type-init-type"></a></dfn>, <a class="n" data-link-type="idl-name" href="#dictdef-synceventinit" id="ref-for-dictdef-synceventinit-1">SyncEventInit</a> <dfn class="nv idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export="" id="dom-syncevent-syncevent-type-init-init">init<a class="self-link" href="#dom-syncevent-syncevent-type-init-init"></a></dfn>), <a class="nv idl-code" data-link-type="extended-attribute">Exposed</a>=<span class="n">ServiceWorker</span>]
+<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="syncevent">SyncEvent</dfn> : <a class="n" data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a> {
+  <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">DOMString</span> <dfn class="nv dfn-paneled idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export="" data-readonly="" data-type="DOMString" id="dom-syncevent-tag">tag</dfn>;
+  <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">boolean</span> <dfn class="nv dfn-paneled idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export="" data-readonly="" data-type="boolean" id="dom-syncevent-lastchance">lastChance</dfn>;
 };
 
-dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export="" data-lt="SyncEventInit" id="dictdef-synceventinit">SyncEventInit<span class="dfn-panel" data-deco=""><b><a href="#dictdef-synceventinit">#dictdef-synceventinit</a></b><b>Referenced in:</b><span><a href="#ref-for-dictdef-synceventinit-1">5.3. The sync event</a></span></span></dfn> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary">ExtendableEventInit</a> {
-  required DOMString <dfn class="idl-code" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="DOMString " id="dom-synceventinit-tag">tag<a class="self-link" href="#dom-synceventinit-tag"></a></dfn>;
-  boolean <dfn class="idl-code" data-default="false" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="boolean " id="dom-synceventinit-lastchance">lastChance<a class="self-link" href="#dom-synceventinit-lastchance"></a></dfn> = false;
+<span class="kt">dictionary</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-synceventinit">SyncEventInit</dfn> : <a class="n" data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary">ExtendableEventInit</a> {
+  <span class="kt">required</span> <span class="kt">DOMString</span> <dfn class="nv idl-code" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="DOMString " id="dom-synceventinit-tag">tag<a class="self-link" href="#dom-synceventinit-tag"></a></dfn>;
+  <span class="kt">boolean</span> <dfn class="nv idl-code" data-default="false" data-dfn-for="SyncEventInit" data-dfn-type="dict-member" data-export="" data-type="boolean " id="dom-synceventinit-lastchance">lastChance<a class="self-link" href="#dom-synceventinit-lastchance"></a></dfn> = <span class="kt">false</span>;
 };
 </pre>
-     <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#syncevent" id="ref-for-syncevent-1">SyncEvent</a></code> interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance" id="ref-for-dom-syncevent-lastchance-1">lastChance</a></code> attribute is true if the user agent will not make further attempts to try this sync after the current attempt.</p>
+     <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#syncevent" id="ref-for-syncevent-1">SyncEvent</a></code> interface represents a firing sync registration. If the page (or worker) that registered the event is running, the user agent will fire the sync event as soon as network connectivity is available. Otherwise, the user agent should run the event at the soonest convenience. If a sync event fails, the user agent may decide to retry it at a time of its choosing. The <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance" id="ref-for-dom-syncevent-lastchance-1">lastChance</a></code> attribute is true if the user agent will not make further attempts to try this sync after the current attempt.</p>
      <div class="example" id="example-5ccfc2cc">
       <a class="self-link" href="#example-5ccfc2cc"></a> Reacting to <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance" id="ref-for-dom-syncevent-lastchance-2">lastChance</a></code>: 
-<pre class="lang-js highlight"><span class="nx">self</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'sync'</span><span class="p">,</span> <span class="nx">event</span> <span class="o">=></span> <span class="p">{</span>
+<pre class="lang-js highlight"><span></span><span class="nx">self</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'sync'</span><span class="p">,</span> <span class="nx">event</span> <span class="o">=></span> <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">tag</span> <span class="o">==</span> <span class="s1">'important-thing'</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">event</span><span class="p">.</span><span class="nx">waitUntil</span><span class="p">(</span>
       <span class="nx">doImportantThing</span><span class="p">().</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=></span> <span class="p">{</span>
@@ -1637,12 +1652,13 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
       <span class="p">})</span>
     <span class="p">);</span>
   <span class="p">}</span>
-<span class="p">});</span></pre>
+<span class="p">});</span>
+</pre>
       <p>The above example reacts to <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance" id="ref-for-dom-syncevent-lastchance-3">lastChance</a></code> by showing a <a href="https://notifications.spec.whatwg.org/#concept-notification">notification</a> to the user. This requires the origin to have <a href="https://notifications.spec.whatwg.org/#permission-model">permission to show notifications</a>.</p>
       <p>In the above example <code>doImportantThing</code> is a developer-defined function.</p>
      </div>
-     <p>Whenever the user agent changes to <a data-link-type="dfn" href="#online" id="ref-for-online-4">online</a>, the user agent SHOULD <a data-link-type="dfn" href="#fire-a-sync-event" id="ref-for-fire-a-sync-event-3">fire a sync event</a> for each <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-9">sync registration</a> whose <a data-link-type="dfn" href="#registration-state" id="ref-for-registration-state-7">registration state</a> is <a data-link-type="dfn" href="#pending" id="ref-for-pending-4">pending</a>.</p>
-     <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="fire a sync event" data-noexport="" id="fire-a-sync-event">fire a sync event<span class="dfn-panel" data-deco=""><b><a href="#fire-a-sync-event">#fire-a-sync-event</a></b><b>Referenced in:</b><span><a href="#ref-for-fire-a-sync-event-1">5.2. SyncManager interface</a> <a href="#ref-for-fire-a-sync-event-2">(2)</a></span><span><a href="#ref-for-fire-a-sync-event-3">5.3. The sync event</a> <a href="#ref-for-fire-a-sync-event-4">(2)</a> <a href="#ref-for-fire-a-sync-event-5">(3)</a> <a href="#ref-for-fire-a-sync-event-6">(4)</a></span></span></dfn> for a <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-10">sync registration</a> <var>registration</var>, the user agent MUST run the following steps:</p>
+     <p>Whenever the user agent changes to <a data-link-type="dfn" href="#online" id="ref-for-online-4">online</a>, the user agent SHOULD <a data-link-type="dfn" href="#fire-a-sync-event" id="ref-for-fire-a-sync-event-3">fire a sync event</a> for each <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-9">sync registration</a> whose <a data-link-type="dfn" href="#registration-state" id="ref-for-registration-state-7">registration state</a> is <a data-link-type="dfn" href="#pending" id="ref-for-pending-4">pending</a>. The events may be fired in any order.</p>
+     <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="fire-a-sync-event">fire a sync event</dfn> for a <a data-link-type="dfn" href="#sync-registration" id="ref-for-sync-registration-10">sync registration</a> <var>registration</var>, the user agent MUST run the following steps:</p>
      <ol>
       <li> <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">Assert</a>: <var>registration</var>’s <a data-link-type="dfn" href="#registration-state" id="ref-for-registration-state-8">registration state</a> is <a data-link-type="dfn" href="#pending" id="ref-for-pending-5">pending</a>. 
       <li> Let <var>serviceWorkerRegistration</var> be the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-concept">service worker registration</a> associated with <var>registration</var>. 
@@ -1651,7 +1667,7 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
       <li>
         Invoke the <a data-link-type="dfn" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#handle-functional-event-algorithm">Handle Functional Event</a> algorithm with <var>registration</var> and the following substeps as arguments. 
        <ol>
-        <li> Let <var>globalObject</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#execution-context&apos;s-global-object">global object</a> these steps are called with. 
+        <li> Let <var>globalObject</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> these steps are called with. 
         <li> Create a <a data-link-type="dfn" href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code class="idl"><a data-link-type="idl" href="#syncevent" id="ref-for-syncevent-2">SyncEvent</a></code> interface, with the event type <a data-link-type="dfn" href="#sync" id="ref-for-sync-1">sync</a>, which does not bubble and has no default action. 
         <li> Let the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-tag" id="ref-for-dom-syncevent-tag-1">tag</a></code> attribute of <var>e</var> be initialized to the <a data-link-type="dfn" href="#tag" id="ref-for-tag-6">tag</a> associated with <var>registration</var>. 
         <li> Let the <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance" id="ref-for-dom-syncevent-lastchance-4">lastChance</a></code> attribute of <var>e</var> be initialized to false if the user agent <a data-link-type="dfn" href="#will-retry" id="ref-for-will-retry-1">will retry</a> this sync event if it fails, or true if no further attempts will be made after the current attempt. 
@@ -1693,7 +1709,7 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
        </ol>
      </ol>
      <p>A user agent MAY impose a time limit on the lifetime extension and execution time of a <code class="idl"><a data-link-type="idl" href="#syncevent" id="ref-for-syncevent-3">SyncEvent</a></code> which is stricter than the time limit imposed for <code class="idl"><a data-link-type="idl" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a></code>s in general. In particular an event for which <code class="idl"><a data-link-type="idl" href="#dom-syncevent-lastchance" id="ref-for-dom-syncevent-lastchance-6">lastChance</a></code> is true MAY have a significantly shortened time limit.</p>
-     <p>A user agent <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="will retry" data-noexport="" id="will-retry">will retry<span class="dfn-panel" data-deco=""><b><a href="#will-retry">#will-retry</a></b><b>Referenced in:</b><span><a href="#ref-for-will-retry-1">5.3. The sync event</a></span></span></dfn> a <a href="#sync-event">sync event</a> based on some user agent defined heuristics.</p>
+     <p>A user agent <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="will-retry">will retry</dfn> a <a href="#sync-event">sync event</a> based on some user agent defined heuristics.</p>
     </section>
    </section>
   </main>
@@ -1888,7 +1904,7 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
   <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
    <li>
-    <a data-link-type="biblio" href="#biblio-webidl">[WebIDL]</a> defines the following terms:
+    <a data-link-type="biblio">[WebIDL-1]</a> defines the following terms:
     <ul>
      <li><a href="https://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a>
      <li><a href="https://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a>
@@ -1896,26 +1912,26 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
      <li><a href="https://heycam.github.io/webidl/#idl-sequence">sequence</a>
     </ul>
    <li>
-    <a data-link-type="biblio" href="#biblio-ecma-262">[ECMA-262]</a> defines the following terms:
+    <a data-link-type="biblio">[ECMASCRIPT]</a> defines the following terms:
     <ul>
      <li><a href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">assert</a>
     </ul>
    <li>
-    <a data-link-type="biblio" href="#biblio-html">[HTML]</a> defines the following terms:
+    <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a>
      <li><a href="https://html.spec.whatwg.org/#browsing-context">browsing context</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#execution-context&apos;s-global-object">global object</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>
      <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>
      <li><a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a>
     </ul>
    <li>
-    <a data-link-type="biblio" href="#biblio-powerful-features">[powerful-features]</a> defines the following terms:
+    <a data-link-type="biblio">[secure-contexts]</a> defines the following terms:
     <ul>
      <li><a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure context</a>
     </ul>
    <li>
-    <a data-link-type="biblio" href="#biblio-promises-guide">[promises-guide]</a> defines the following terms:
+    <a data-link-type="biblio">[promises-guide]</a> defines the following terms:
     <ul>
      <li><a href="https://www.w3.org/2001/tag/doc/promises-guide#a-new-promise">a new promise</a>
      <li><a href="https://www.w3.org/2001/tag/doc/promises-guide#reject-promise">reject</a>
@@ -1925,7 +1941,7 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
      <li><a href="https://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all</a>
     </ul>
    <li>
-    <a data-link-type="biblio" href="#biblio-service-workers">[service-workers]</a> defines the following terms:
+    <a data-link-type="biblio">[service-workers]</a> defines the following terms:
     <ul>
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a>
      <li><a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary">ExtendableEventInit</a>
@@ -1946,60 +1962,202 @@ dictionary <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-exp
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
-   <dt id="biblio-ecma-262">[ECMA-262]
+   <dt id="biblio-ecmascript">[ECMASCRIPT]
    <dd><a href="https://tc39.github.io/ecma262/">ECMAScript Language Specification</a>. URL: <a href="https://tc39.github.io/ecma262/">https://tc39.github.io/ecma262/</a>
    <dt id="biblio-html">[HTML]
    <dd>Ian Hickson. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
-   <dt id="biblio-powerful-features">[POWERFUL-FEATURES]
-   <dd>Mike West; Yan Zhu. <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/">Privileged Contexts</a>. 24 April 2015. WD. URL: <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/">https://w3c.github.io/webappsec/specs/powerfulfeatures/</a>
    <dt id="biblio-promises-guide">[PROMISES-GUIDE]
    <dd><a href="https://www.w3.org/2001/tag/doc/promises-guide">Writing Promise-Using Specifications</a>. 24 July 2015. Finding of the W3C TAG. URL: <a href="https://www.w3.org/2001/tag/doc/promises-guide">https://www.w3.org/2001/tag/doc/promises-guide</a>
    <dt id="biblio-rfc2119">[RFC2119]
    <dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119">https://tools.ietf.org/html/rfc2119</a>
+   <dt id="biblio-secure-contexts">[SECURE-CONTEXTS]
+   <dd>Mike West. <a href="https://w3c.github.io/webappsec-secure-contexts/">Secure Contexts</a>. 19 July 2016. WD. URL: <a href="https://w3c.github.io/webappsec-secure-contexts/">https://w3c.github.io/webappsec-secure-contexts/</a>
    <dt id="biblio-service-workers">[SERVICE-WORKERS]
    <dd>Alex Russell; Jungkee Song; Jake Archibald. <a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/">Service Workers</a>. 25 June 2015. WD. URL: <a href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/">https://slightlyoff.github.io/ServiceWorker/spec/service_worker/</a>
-   <dt id="biblio-webidl">[WebIDL]
+   <dt id="biblio-webidl-1">[WebIDL-1]
    <dd>Cameron McCormack; Boris Zbarsky. <a href="https://heycam.github.io/webidl/">WebIDL Level 1</a>. 8 March 2016. CR. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
   </dl>
   <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
-<pre class="idl def">partial interface <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-interface">ServiceWorkerRegistration</a> {
-  readonly attribute <a data-link-type="idl-name" href="#syncmanager">SyncManager</a> <a data-readonly="" data-type="SyncManager " href="#dom-serviceworkerregistration-sync">sync</a>;
+<pre class="idl def"><span class="kt">partial</span> <span class="kt">interface</span> <a class="nv idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-interface">ServiceWorkerRegistration</a> {
+  <span class="kt">readonly</span> <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="#syncmanager">SyncManager</a> <a class="nv" data-readonly="" data-type="SyncManager" href="#dom-serviceworkerregistration-sync">sync</a>;
 };
 
-[Exposed=(Window,Worker)]
-interface <a href="#syncmanager">SyncManager</a> {
-  Promise&lt;void> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-register">register</a>(DOMString <a href="#dom-syncmanager-register-tag-tag">tag</a>);
-  Promise&lt;sequence&lt;DOMString>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-gettags">getTags</a>();
+[<a class="nv idl-code" data-link-type="extended-attribute">Exposed</a>=(<span class="n">Window</span>,<span class="n">Worker</span>)]
+<span class="kt">interface</span> <a class="nv" href="#syncmanager">SyncManager</a> {
+  <span class="kt">Promise</span>&lt;<span class="kt">void</span>> <a class="nv idl-code" data-link-type="method" href="#dom-syncmanager-register">register</a>(<span class="kt">DOMString</span> <a class="nv" href="#dom-syncmanager-register-tag-tag">tag</a>);
+  <span class="kt">Promise</span>&lt;<span class="kt">sequence</span>&lt;<span class="kt">DOMString</span>>> <a class="nv idl-code" data-link-type="method" href="#dom-syncmanager-gettags">getTags</a>();
 };
 
-partial interface <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> {
-  attribute <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a data-type="EventHandler " href="#dom-serviceworkerglobalscope-onsync">onsync</a>;
+<span class="kt">partial</span> <span class="kt">interface</span> <a class="nv idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> {
+  <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a class="nv" data-type="EventHandler" href="#dom-serviceworkerglobalscope-onsync">onsync</a>;
 };
 
-[<a href="#dom-syncevent-syncevent">Constructor</a>(DOMString <a href="#dom-syncevent-syncevent-type-init-type">type</a>, <a data-link-type="idl-name" href="#dictdef-synceventinit">SyncEventInit</a> <a href="#dom-syncevent-syncevent-type-init-init">init</a>), Exposed=ServiceWorker]
-interface <a href="#syncevent">SyncEvent</a> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a> {
-  readonly attribute DOMString <a data-readonly="" data-type="DOMString " href="#dom-syncevent-tag">tag</a>;
-  readonly attribute boolean <a data-readonly="" data-type="boolean " href="#dom-syncevent-lastchance">lastChance</a>;
+[<a class="nv" href="#dom-syncevent-syncevent">Constructor</a>(<span class="kt">DOMString</span> <a class="nv" href="#dom-syncevent-syncevent-type-init-type">type</a>, <a class="n" data-link-type="idl-name" href="#dictdef-synceventinit">SyncEventInit</a> <a class="nv" href="#dom-syncevent-syncevent-type-init-init">init</a>), <a class="nv idl-code" data-link-type="extended-attribute">Exposed</a>=<span class="n">ServiceWorker</span>]
+<span class="kt">interface</span> <a class="nv" href="#syncevent">SyncEvent</a> : <a class="n" data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface">ExtendableEvent</a> {
+  <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">DOMString</span> <a class="nv" data-readonly="" data-type="DOMString" href="#dom-syncevent-tag">tag</a>;
+  <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">boolean</span> <a class="nv" data-readonly="" data-type="boolean" href="#dom-syncevent-lastchance">lastChance</a>;
 };
 
-dictionary <a href="#dictdef-synceventinit">SyncEventInit</a> : <a data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary">ExtendableEventInit</a> {
-  required DOMString <a data-type="DOMString " href="#dom-synceventinit-tag">tag</a>;
-  boolean <a data-default="false" data-type="boolean " href="#dom-synceventinit-lastchance">lastChance</a> = false;
+<span class="kt">dictionary</span> <a class="nv" href="#dictdef-synceventinit">SyncEventInit</a> : <a class="n" data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary">ExtendableEventInit</a> {
+  <span class="kt">required</span> <span class="kt">DOMString</span> <a class="nv" data-type="DOMString " href="#dom-synceventinit-tag">tag</a>;
+  <span class="kt">boolean</span> <a class="nv" data-default="false" data-type="boolean " href="#dom-synceventinit-lastchance">lastChance</a> = <span class="kt">false</span>;
 };
 
 </pre>
-<script>
+  <aside class="dfn-panel" data-for="in-the-background">
+   <b><a href="#in-the-background">#in-the-background</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-in-the-background-1">1. Introduction</a>
+    <li><a href="#ref-for-in-the-background-2">4.2. Location Tracking</a>
+    <li><a href="#ref-for-in-the-background-3">4.3. History Leaking</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="online">
+   <b><a href="#online">#online</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-online-1">2. Concepts</a>
+    <li><a href="#ref-for-online-2">5.2. SyncManager interface</a> <a href="#ref-for-online-3">(2)</a>
+    <li><a href="#ref-for-online-4">5.3. The sync event</a> <a href="#ref-for-online-5">(2)</a> <a href="#ref-for-online-6">(3)</a> <a href="#ref-for-online-7">(4)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="list-of-sync-registrations">
+   <b><a href="#list-of-sync-registrations">#list-of-sync-registrations</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-list-of-sync-registrations-1">3. Constructs</a>
+    <li><a href="#ref-for-list-of-sync-registrations-2">5.2. SyncManager interface</a> <a href="#ref-for-list-of-sync-registrations-3">(2)</a> <a href="#ref-for-list-of-sync-registrations-4">(3)</a>
+    <li><a href="#ref-for-list-of-sync-registrations-5">5.3. The sync event</a> <a href="#ref-for-list-of-sync-registrations-6">(2)</a> <a href="#ref-for-list-of-sync-registrations-7">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="sync-registration">
+   <b><a href="#sync-registration">#sync-registration</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-sync-registration-1">2. Concepts</a>
+    <li><a href="#ref-for-sync-registration-2">3. Constructs</a> <a href="#ref-for-sync-registration-3">(2)</a> <a href="#ref-for-sync-registration-4">(3)</a> <a href="#ref-for-sync-registration-5">(4)</a> <a href="#ref-for-sync-registration-6">(5)</a>
+    <li><a href="#ref-for-sync-registration-7">5.2. SyncManager interface</a> <a href="#ref-for-sync-registration-8">(2)</a>
+    <li><a href="#ref-for-sync-registration-9">5.3. The sync event</a> <a href="#ref-for-sync-registration-10">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="tag">
+   <b><a href="#tag">#tag</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-tag-1">3. Constructs</a> <a href="#ref-for-tag-2">(2)</a>
+    <li><a href="#ref-for-tag-3">5.2. SyncManager interface</a> <a href="#ref-for-tag-4">(2)</a> <a href="#ref-for-tag-5">(3)</a>
+    <li><a href="#ref-for-tag-6">5.3. The sync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="registration-state">
+   <b><a href="#registration-state">#registration-state</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-registration-state-1">3. Constructs</a>
+    <li><a href="#ref-for-registration-state-2">5.2. SyncManager interface</a> <a href="#ref-for-registration-state-3">(2)</a> <a href="#ref-for-registration-state-4">(3)</a> <a href="#ref-for-registration-state-5">(4)</a> <a href="#ref-for-registration-state-6">(5)</a>
+    <li><a href="#ref-for-registration-state-7">5.3. The sync event</a> <a href="#ref-for-registration-state-8">(2)</a> <a href="#ref-for-registration-state-9">(3)</a> <a href="#ref-for-registration-state-10">(4)</a> <a href="#ref-for-registration-state-11">(5)</a> <a href="#ref-for-registration-state-12">(6)</a> <a href="#ref-for-registration-state-13">(7)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="pending">
+   <b><a href="#pending">#pending</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-pending-1">3. Constructs</a>
+    <li><a href="#ref-for-pending-2">5.2. SyncManager interface</a> <a href="#ref-for-pending-3">(2)</a>
+    <li><a href="#ref-for-pending-4">5.3. The sync event</a> <a href="#ref-for-pending-5">(2)</a> <a href="#ref-for-pending-6">(3)</a> <a href="#ref-for-pending-7">(4)</a> <a href="#ref-for-pending-8">(5)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="waiting">
+   <b><a href="#waiting">#waiting</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-waiting-1">5.2. SyncManager interface</a>
+    <li><a href="#ref-for-waiting-2">5.3. The sync event</a> <a href="#ref-for-waiting-3">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="firing">
+   <b><a href="#firing">#firing</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-firing-1">5.2. SyncManager interface</a>
+    <li><a href="#ref-for-firing-2">5.3. The sync event</a> <a href="#ref-for-firing-3">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="reregisteredwhilefiring">
+   <b><a href="#reregisteredwhilefiring">#reregisteredwhilefiring</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-reregisteredwhilefiring-1">5.2. SyncManager interface</a>
+    <li><a href="#ref-for-reregisteredwhilefiring-2">5.3. The sync event</a> <a href="#ref-for-reregisteredwhilefiring-3">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="syncmanager">
+   <b><a href="#syncmanager">#syncmanager</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-syncmanager-1">5.1. Extensions to the ServiceWorkerRegistration interface</a> <a href="#ref-for-syncmanager-2">(2)</a>
+    <li><a href="#ref-for-syncmanager-3">5.2. SyncManager interface</a> <a href="#ref-for-syncmanager-4">(2)</a> <a href="#ref-for-syncmanager-5">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-syncmanager-register">
+   <b><a href="#dom-syncmanager-register">#dom-syncmanager-register</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-syncmanager-register-1">5.2. SyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-syncmanager-gettags">
+   <b><a href="#dom-syncmanager-gettags">#dom-syncmanager-gettags</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-syncmanager-gettags-1">5.2. SyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="sync">
+   <b><a href="#sync">#sync</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-sync-1">5.3. The sync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="syncevent">
+   <b><a href="#syncevent">#syncevent</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-syncevent-1">5.3. The sync event</a> <a href="#ref-for-syncevent-2">(2)</a> <a href="#ref-for-syncevent-3">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-syncevent-tag">
+   <b><a href="#dom-syncevent-tag">#dom-syncevent-tag</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-syncevent-tag-1">5.3. The sync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-syncevent-lastchance">
+   <b><a href="#dom-syncevent-lastchance">#dom-syncevent-lastchance</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-syncevent-lastchance-1">5.3. The sync event</a> <a href="#ref-for-dom-syncevent-lastchance-2">(2)</a> <a href="#ref-for-dom-syncevent-lastchance-3">(3)</a> <a href="#ref-for-dom-syncevent-lastchance-4">(4)</a> <a href="#ref-for-dom-syncevent-lastchance-5">(5)</a> <a href="#ref-for-dom-syncevent-lastchance-6">(6)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dictdef-synceventinit">
+   <b><a href="#dictdef-synceventinit">#dictdef-synceventinit</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-synceventinit-1">5.3. The sync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="fire-a-sync-event">
+   <b><a href="#fire-a-sync-event">#fire-a-sync-event</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-fire-a-sync-event-1">5.2. SyncManager interface</a> <a href="#ref-for-fire-a-sync-event-2">(2)</a>
+    <li><a href="#ref-for-fire-a-sync-event-3">5.3. The sync event</a> <a href="#ref-for-fire-a-sync-event-4">(2)</a> <a href="#ref-for-fire-a-sync-event-5">(3)</a> <a href="#ref-for-fire-a-sync-event-6">(4)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="will-retry">
+   <b><a href="#will-retry">#will-retry</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-will-retry-1">5.3. The sync event</a>
+   </ul>
+  </aside>
+<script>/* script-dfn-panel */
+
         document.body.addEventListener("click", function(e) {
             var queryAll = function(sel) { return [].slice.call(document.querySelectorAll(sel)); }
             // Find the dfn element or panel, if any, that was clicked on.
             var el = e.target;
             var target;
+            var hitALink = false;
             while(el.parentElement) {
-                if(el.tagName == "DFN") {
-                    target = "dfn";
-                    break;
+                if(el.tagName == "A") {
+                    // Clicking on a link in a <dfn> shouldn't summon the panel
+                    hitALink = true;
                 }
-                if(/H\d/.test(el.tagName) && el.getAttribute('data-dfn-type') != null) {
+                if(el.classList.contains("dfn-paneled")) {
                     target = "dfn";
                     break;
                 }
@@ -2016,15 +2174,29 @@ dictionary <a href="#dictdef-synceventinit">SyncEventInit</a> : <a data-link-typ
                     el.classList.remove("activated");
                 });
             }
-            if(target == "dfn") {
+            if(target == "dfn" && !hitALink) {
                 // open the panel
-                var dfnPanel = el.querySelector(".dfn-panel");
+                var dfnPanel = document.querySelector(".dfn-panel[data-for='" + el.id + "']");
                 if(dfnPanel) {
+                    console.log(dfnPanel);
                     dfnPanel.classList.add("on");
+                    var rect = el.getBoundingClientRect();
+                    dfnPanel.style.left = window.scrollX + rect.right + 5 + "px";
+                    dfnPanel.style.top = window.scrollY + rect.top + "px";
+                    var panelRect = dfnPanel.getBoundingClientRect();
+                    var panelWidth = panelRect.right - panelRect.left;
+                    if(panelRect.right > document.body.scrollWidth && (rect.left - (panelWidth + 5)) > 0) {
+                        // Reposition, because the panel is overflowing
+                        dfnPanel.style.left = window.scrollX + rect.left - (panelWidth + 5) + "px";
+                    }
+                } else {
+                    console.log("Couldn't find .dfn-panel[data-for='" + el.id + "']");
                 }
             } else if(target == "dfn-panel") {
                 // Switch it to "activated" state, which pins it.
                 el.classList.add("activated");
+                el.style.left = null;
+                el.style.top = null;
             }
 
         });
