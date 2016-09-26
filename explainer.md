@@ -1,6 +1,6 @@
 # Background synchronization explained
 
-This is a specification that brings both one-off and periodic synchronization to the web, in the form of [Service Workers](https://github.com/slightlyoff/ServiceWorker) events.
+This is a specification that brings both one-off and periodic synchronization to the web, in the form of [service workers](https://github.com/slightlyoff/ServiceWorker) events.
 
 ## One-off synchronization
 
@@ -10,7 +10,7 @@ Unfortunately, on the web, that outbox can only be processed while the site is d
 
 Native application platforms provide [job scheduling](https://developer.android.com/reference/android/app/job/JobScheduler.html) APIs that enable developers to collaborate with the system to ensure low power usage and background-driven processing. The web platform needs capabilities like this too.
 
-We propose a new API that extends [Service Workers](https://github.com/slightlyoff/ServiceWorker) with a `sync` event and an API for signalling the desire for this event to fire.
+We propose a new API that extends [service workers](https://github.com/slightlyoff/ServiceWorker) with a `sync` event and an API for signalling the desire for this event to fire.
 
 ### The API
 
@@ -139,7 +139,7 @@ navigator.serviceWorker.ready.then(function(registration) {
 
 ## Notes
 
-* Since Service Workers are a requirement for sync, and since Service Workers are limited to HTTPS origins, that restriction applies here too.
+* Since service workers are a requirement for sync, and since service workers are limited to HTTPS origins, that restriction applies here too.
 * All fetches during sync events must be HTTPS. HTTP fetches will be rejected.
 * Sync may not be available to all web applications, not even all apps served over SSL. Browsers may choose to limit the set of applications which can register for synchronization based on quality signals that aren't a part of the visible API. This is especially true of periodic sync.
-* Like all ServiceWorker events, 'sync' and 'periodicsync' may be terminated if they're taking an unreasonable amount of time or CPU. This is not a tool for distributed bitcoin mining :)
+* Like all service worker events, 'sync' and 'periodicsync' may be terminated if they're taking an unreasonable amount of time or CPU. This is not a tool for distributed bitcoin mining :)
