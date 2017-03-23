@@ -69,6 +69,6 @@ function updateSyncTime(db, syncType, syncTime) {
 function postErrorToClients(err) {
   clients.matchAll({includeUncontrolled: true})
   .then(clientList => {
-     clientList.forEeach(client => client.postMessage(err.message));
+     clientList.forEach(client => client.postMessage(err.message));
   });
 }
