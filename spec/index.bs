@@ -218,21 +218,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
         Let <var>serviceWorkerRegistration</var> be the {{SyncManager}}'s associated <a>service worker registration</a>.
       </li>
       <li>
-        If <var>serviceWorkerRegistration</var>'s <a>active worker</a> is null:
-        <ol>
-          <li>
-            If <var>serviceWorkerRegistration</var>'s <a>installing worker</a> is null and <var>serviceWorkerRegistration</var>'s <a>waiting worker</a> is null, <a>reject</a> <var>promise</var> with an {{InvalidStateError}} and abort these steps.
-          </li>
-          <li>
-            Wait for the <a>installing worker</a> or the <a>waiting worker</a> of <var>serviceWorkerRegistration</var> to become its <a>active worker</a>.
-          </li>
-          <li>
-            If <var>serviceWorkerRegistration</var> fails to activate either worker, <a>reject</a> <var>promise</var> with an {{InvalidStateError}} and abort these steps.
-          </li>
-          <li>
-            Once <var>serviceWorkerRegistration</var>'s <a>active worker</a> is not null, proceed with the steps below.
-          </li>
-        </ol>
+        If |serviceWorkerRegistration|'s [=active worker=] is null, [=reject=] |promise| with an {{InvalidStateError}} and abort these steps.
       </li>
       <li>
         If the user has disabled background sync, <a>reject</a> <var>promise</var> with an {{NotAllowedError}} and abort these steps.
