@@ -1215,7 +1215,7 @@ Possible extra rowspan handling
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version ee4d7efc3ed6155392d49e10a542e2351fd5792d" name="generator">
   <link href="https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html" rel="canonical">
-  <meta content="0bb234d152387981a7645e32d888d524259c6d9c" name="document-revision">
+  <meta content="02d05f781151845ec398d371156d418a97f52f03" name="document-revision">
 <style>/* style-md-lists */
 
 /* This is a weird hack for me not yet following the commonmark spec
@@ -1401,7 +1401,7 @@ pre .property::before, pre .property::after {
 .dfn-paneled { cursor: pointer; }
 </style>
 <style>/* style-syntax-highlighting */
-
+pre.idl.highlight { color: #708090; }
 .highlight:not(.idl) { background: hsl(24, 20%, 95%); }
 code.highlight { padding: .1em; border-radius: .3em; }
 pre.highlight, pre > code.highlight { display: block; padding: 1em; margin: .5em 0; overflow: auto; border-radius: 0; }
@@ -1462,7 +1462,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Periodic Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-11-12">12 November 2019</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-11-25">25 November 2019</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1503,7 +1503,40 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
       <li><a href="#example"><span class="secno">1.1</span> <span class="content">Example</span></a>
      </ol>
     <li><a href="#concepts"><span class="secno">2</span> <span class="content">Concepts</span></a>
-    <li><a href="#constructs"><span class="secno">3</span> <span class="content">Constructs</span></a>
+    <li>
+     <a href="#constructs"><span class="secno">3</span> <span class="content">Constructs</span></a>
+     <ol class="toc">
+      <li><a href="#periodic-sync-registration"><span class="secno">3.1</span> <span class="content">PeriodicSync Registration</span></a>
+      <li><a href="#constants"><span class="secno">3.2</span> <span class="content">Constants</span></a>
+      <li><a href="#global-state"><span class="secno">3.3</span> <span class="content">Global State</span></a>
+     </ol>
+    <li>
+     <a href="#privacy"><span class="secno">4</span> <span class="content">Privacy Considerations</span></a>
+     <ol class="toc">
+      <li><a href="#permission"><span class="secno">4.1</span> <span class="content">Permission</span></a>
+      <li><a href="#location-tracking"><span class="secno">4.2</span> <span class="content">Location Tracking</span></a>
+      <li><a href="#history-leaking"><span class="secno">4.3</span> <span class="content">History Leaking</span></a>
+     </ol>
+    <li><a href="#resources"><span class="secno">5</span> <span class="content">Resource Usage</span></a>
+    <li>
+     <a href="#algorithms"><span class="secno">6</span> <span class="content">Algorithms</span></a>
+     <ol class="toc">
+      <li><a href="#caculate-time-to-fire"><span class="secno">6.1</span> <span class="content"><span>Calculate a time to fire</span></span></a>
+      <li><a href="#schedule-delayed-processing"><span class="secno">6.2</span> <span class="content"><span>Schedule processing</span></span></a>
+     </ol>
+    <li>
+     <a href="#api-description"><span class="secno">7</span> <span class="content">API Description</span></a>
+     <ol class="toc">
+      <li><a href="#extensions-to-serviceworkerglobalscope"><span class="secno">7.1</span> <span class="content">Extensions to the <code class="idl"><span>ServiceWorkerGlobalScope</span></code> interface</span></a>
+      <li><a href="#extensions-to-serviceworkerregistration"><span class="secno">7.2</span> <span class="content">Extensions to the <code class="idl"><span>ServiceWorkerRegistration</span></code> interface</span></a>
+      <li><a href="#periodicsyncmanager-interface"><span class="secno">7.3</span> <span class="content"><code class="idl"><span>PeriodicSyncManager</span></code> interface</span></a>
+      <li>
+       <a href="#periodicSync-event"><span class="secno">7.4</span> <span class="content">The <span>periodicSync event</span></span></a>
+       <ol class="toc">
+        <li><a href="#firing-periodicsync-events"><span class="secno">7.4.1</span> <span class="content">Firing periodicSync events</span></a>
+        <li><a href="#firing-a-periodicsync-event"><span class="secno">7.4.2</span> <span class="content"><span>Fire a periodicSync event</span></span></a>
+       </ol>
+     </ol>
     <li><a href="#conformance"><span class="secno"></span> <span class="content"> Conformance</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
@@ -1516,6 +1549,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
      <ol class="toc">
       <li><a href="#normative"><span class="secno"></span> <span class="content">Normative References</span></a>
      </ol>
+    <li><a href="#idl-index"><span class="secno"></span> <span class="content">IDL Index</span></a>
    </ol>
   </nav>
   <main>
@@ -1538,24 +1572,274 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
   <c- p>}</c->
 <c- p>}</c->
 </pre>
-   <p>Reacting to a <code>periodicsync</code> event within a <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker">service worker</a>:</p>
+   <p>Reacting to a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event">periodicSync event</a> within a <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker">service worker</a>:</p>
 <pre class="lang-js highlight">self<c- p>.</c->addEventListener<c- p>(</c-><c- t>'periodicsync'</c-><c- p>,</c-> event <c- p>=></c-> <c- p>{</c->
   event<c- p>.</c->waitUntil<c- p>(</c->fetchAndCacheLatestNews<c- p>());</c->
 <c- p>});</c->
 </pre>
    <p>In the above example <code>fetchAndCacheLatestNews</code> is a developer-defined function is a developer-defined function that fetches the latest news articles from a server and stores them locally, for example using the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#cache" id="ref-for-cache">Cache</a></code> API, for offline consumption.</p>
    <h2 class="heading settled" data-level="2" id="concepts"><span class="secno">2. </span><span class="content">Concepts</span><a class="self-link" href="#concepts"></a></h2>
-   <p>The <code>periodicsync</code> event is considered to run <dfn data-dfn-type="dfn" data-noexport id="in-the-background">in the background<a class="self-link" href="#in-the-background"></a></dfn> if no <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client" id="ref-for-dfn-service-worker-client">service worker clients</a> whose <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client-frame-type" id="ref-for-dfn-service-worker-client-frame-type">frame type</a> is top-level or auxiliary exist for the origin of the corresponding service worker registration.</p>
+   <p>The <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①">periodicSync event</a> is considered to run <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="in-the-background">in the background</dfn> if no <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client" id="ref-for-dfn-service-worker-client">service worker clients</a> whose <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client-frame-type" id="ref-for-dfn-service-worker-client-frame-type">frame type</a> is top-level or auxiliary exist for the origin of the corresponding service worker registration.</p>
    <p>The user agent is considered to be <a data-link-type="dfn" href="https://wicg.github.io/BackgroundSync/spec/#online" id="ref-for-online">online</a> if the user agent has established a network connection. A user agent MAY use a stricter definition of being <a data-link-type="dfn" href="https://wicg.github.io/BackgroundSync/spec/#online" id="ref-for-online①">online</a>. Such a stricter definition MAY take into account the particular <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker①">service worker</a> or origin a <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration">periodicsync registration</a> is associated with.</p>
-   <p>#TODO: link to PeriodicSyncManager.register().
-A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodic-background-sync-opportunity">periodic Background Sync opportunity</dfn> allows periodic synchronization between the server and the web app, the exact interval of which is decided by the user agent.</p>
+   <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodic-background-sync-opportunity">periodic Background Sync opportunity</dfn> allows periodic synchronization between the server and the web app, the exact interval of which is decided by the user agent. This can be requested through <code class="idl"><a data-link-type="idl" href="#dom-periodicsyncmanager-register" id="ref-for-dom-periodicsyncmanager-register">register()</a></code>.</p>
    <h2 class="heading settled" data-level="3" id="constructs"><span class="secno">3. </span><span class="content">Constructs</span><a class="self-link" href="#constructs"></a></h2>
+    The user agent has a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodicsync-processing-queue">periodicsync processing queue</dfn> (a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#parallel-queue" id="ref-for-parallel-queue">parallel queue</a>), initially the result of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#starting-a-new-parallel-queue" id="ref-for-starting-a-new-parallel-queue">starting a new parallel queue</a>. 
    <p>A <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="list-of-periodicsync-registrations">list of periodicsync registrations</dfn> whose element type is a <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①">periodicsync registration</a>.</p>
-   <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodicsync-registration">periodicsync registration</dfn> is a tuple consisting of a <a data-link-type="dfn" href="#tag" id="ref-for-tag">tag</a>, a dictionary of options, and a <a data-link-type="dfn" href="#registration-state" id="ref-for-registration-state">registration state</a>.</p>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="tag">tag</dfn> is a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString">DOMString</a></code>. Within one <a data-link-type="dfn" href="#list-of-periodicsync-registrations" id="ref-for-list-of-periodicsync-registrations">list of periodicsync registrations</a> each <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration②">periodicsync registration</a> MUST have a unique <a data-link-type="dfn" href="#tag" id="ref-for-tag①">tag</a>. Periodic Background Sync doesn’t share namespace with Background Sync, so an origin can have registrations of both types with the same tag.</p>
-   <p>The options are a dictionary containing <a data-link-type="dfn" href="#mininterval" id="ref-for-mininterval">minInterval</a>, a long long. <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="mininterval">minInterval</dfn> is used to specify the minimum interval, in milliseconds, at which the periodic synchronization should happen. <a data-link-type="dfn" href="#mininterval" id="ref-for-mininterval①">minInterval</a> is a suggestion to the user agent. The actual interval at which <code>periodicsync</code> events are fired MUST be greater than or equal to this.
-Enclosing options in a dictionary allows this spec to be extended with more options in the future without adversely affecting existing usage.</p>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="registration-state">registration state</dfn> is one of <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="pending">pending</dfn>, <dfn data-dfn-type="dfn" data-noexport id="waiting">waiting<a class="self-link" href="#waiting"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport id="firing">firing<a class="self-link" href="#firing"></a></dfn>, or <dfn data-dfn-type="dfn" data-noexport id="reregisteredwhilefiring">reregisteredWhileFiring<a class="self-link" href="#reregisteredwhilefiring"></a></dfn>. It is initially set to <a data-link-type="dfn" href="#pending" id="ref-for-pending">pending</a>.</p>
+   <h3 class="heading settled" data-level="3.1" id="periodic-sync-registration"><span class="secno">3.1. </span><span class="content">PeriodicSync Registration</span><a class="self-link" href="#periodic-sync-registration"></a></h3>
+    A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodicsync-registration">periodicsync registration</dfn> is a tuple consisting of: 
+   <div>
+     A <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-service-worker-registration">service worker registration</dfn>, which is the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration①">service worker registration</a> associated with the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object">context object</a> the <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager">PeriodicSyncManager</a></code> belongs to. 
+    <p>A <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-tag">tag</dfn>, which is a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString">DOMString</a></code>. Within one <a data-link-type="dfn" href="#list-of-periodicsync-registrations" id="ref-for-list-of-periodicsync-registrations">list of periodicsync registrations</a> each <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration②">periodicsync registration</a> MUST have a unique <a data-link-type="dfn" href="#periodicsync-registration-tag" id="ref-for-periodicsync-registration-tag">tag</a>. Periodic Background Sync doesn’t share namespace with Background Sync, so an <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#service-worker-client-origin" id="ref-for-service-worker-client-origin">origin</a> can have registrations of both types with the same tag.</p>
+    <p><dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-options">options</dfn>, which is a dictionary containing <a data-link-type="dfn" href="#options-mininterval" id="ref-for-options-mininterval">minInterval</a>.  Enclosing <a data-link-type="dfn" href="#periodicsync-registration-options" id="ref-for-periodicsync-registration-options">options</a> in a dictionary allows this spec to be extended with more <a data-link-type="dfn" href="#periodicsync-registration-options" id="ref-for-periodicsync-registration-options①">options</a> in the future without adversely affecting existing usage.</p>
+    <div><dfn class="dfn-paneled" data-dfn-for="options" data-dfn-type="dfn" data-noexport id="options-mininterval">minInterval</dfn> (a long long), which is used to specify the minimum interval, in milliseconds, at which the periodic synchronization should happen. <a data-link-type="dfn" href="#options-mininterval" id="ref-for-options-mininterval①">minInterval</a> is a suggestion to the user agent. The actual interval at which <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event②">periodicSync events</a> are fired MUST be greater than or equal to this.</div>
+    <p>A <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-time-to-fire">time to fire</dfn> (a timestamp), which is the soonest time <a data-link-type="dfn" href="#calculate-a-time-to-fire" id="ref-for-calculate-a-time-to-fire"> calculated</a> by the user agent at which it is appropriate to fire the next <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event③">periodicSync event</a> for the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration③">periodicsync registration</a>.</p>
+    <p>A <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-count-of-retries">count of retries</dfn> (a number), which is the number of retries attempted for the most recent <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event④">periodicSync event</a> for the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration④">periodicsync registration</a>.</p>
+    <p>A <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-registration-state">registration state</dfn>, which is one of <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-pending">pending</dfn>, <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-firing">firing</dfn>, or <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-reregisteredwhilefiring">reregisteredWhileFiring</dfn>. It is initially set to <a data-link-type="dfn" href="#periodicsync-registration-pending" id="ref-for-periodicsync-registration-pending">pending</a>.</p>
+   </div>
+   <h3 class="heading settled" data-level="3.2" id="constants"><span class="secno">3.2. </span><span class="content">Constants</span><a class="self-link" href="#constants"></a></h3>
+    As recommended in <a href="#privacy">§4 Privacy Considerations</a> and <a href="#resources">§5 Resource Usage</a>, the user agent SHOULD also define: 
+   <ul>
+    <li data-md>
+     <p><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="minimum-interval-for-any-origin">minimum interval for any origin</dfn>, a long long, that represents the minimum gap between <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event⑤">periodicSync events</a> for any given origin, and,</p>
+    <li data-md>
+     <p><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="minimum-interval-across-origins">minimum interval across origins</dfn>, a long long, that represents the minimum gap between <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event⑥">periodicSync events</a> across all origins.</p>
+   </ul>
+   <p>The user agent MAY define a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="maximum-number-of-retries">maximum number of retries</dfn>, a number, allowed for each <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event⑦">periodicSync event</a>. In choosing this, the user agent SHOULD ensure that the time needed to attempt the <a data-link-type="dfn" href="#maximum-number-of-retries" id="ref-for-maximum-number-of-retries">maximum number of retries</a> is an order of magnitude smaller than the <a data-link-type="dfn" href="#minimum-interval-for-any-origin" id="ref-for-minimum-interval-for-any-origin">minimum interval for any origin</a>.</p>
+   <h3 class="heading settled" data-level="3.3" id="global-state"><span class="secno">3.3. </span><span class="content">Global State</span><a class="self-link" href="#global-state"></a></h3>
+    A user agent SHOULD keep track of the <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="time the last periodicSync event was fired" data-noexport id="time-the-last-periodicsync-event-was-fired">time the last <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event⑧">periodicSync event</a> was fired</dfn>, a timestamp representing the time a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event⑨">periodicSync event</a> was fired for any <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration⑤">periodicsync registration</a>. 
+   <h2 class="heading settled" data-level="4" id="privacy"><span class="secno">4. </span><span class="content">Privacy Considerations</span><a class="self-link" href="#privacy"></a></h2>
+   <h3 class="heading settled" data-level="4.1" id="permission"><span class="secno">4.1. </span><span class="content">Permission</span><a class="self-link" href="#permission"></a></h3>
+    Periodic Background Sync is only available if the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#enumdef-permissionstate" id="ref-for-enumdef-permissionstate">PermissionState</a></code> for a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dictdef-permissiondescriptor" id="ref-for-dictdef-permissiondescriptor">PermissionDescriptor</a></code> with <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissiondescriptor-name" id="ref-for-dom-permissiondescriptor-name">name</a></code> <code>"periodic-background-sync"</code> is <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissionstate-granted" id="ref-for-dom-permissionstate-granted">granted</a></code>. In addition, user agents SHOULD offer a way for the user to disable Periodic Background Sync. 
+   <h3 class="heading settled" data-level="4.2" id="location-tracking"><span class="secno">4.2. </span><span class="content">Location Tracking</span><a class="self-link" href="#location-tracking"></a></h3>
+    Fetch requests within the <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①⓪">periodicSync event</a> while <a data-link-type="dfn" href="#in-the-background" id="ref-for-in-the-background">in the background</a> may reveal the client’s IP address to the server after the user has left the page. The user agent SHOULD limit tracking by capping the number of retries and duration of <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①①">periodicSync event</a>s, to reduce the amount of time the user’s location can be tracked by the website. Further, the user agent SHOULD limit persistent location tracking by capping the frequency of <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①②">periodicSync event</a>s, both for an <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#service-worker-client-origin" id="ref-for-service-worker-client-origin①">origin</a>, and across <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#service-worker-client-origin" id="ref-for-service-worker-client-origin②">origins</a>. 
+   <h3 class="heading settled" data-level="4.3" id="history-leaking"><span class="secno">4.3. </span><span class="content">History Leaking</span><a class="self-link" href="#history-leaking"></a></h3>
+    Fetch requests within the <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①③">periodicSync event</a> while <a data-link-type="dfn" href="#in-the-background" id="ref-for-in-the-background①">in the background</a> may reveal something about the client’s navigation history to middleboxes on networks different from the one used to create the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration⑥">periodicsync registration</a>. For instance, the client might visit site https://example.com, which registers a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①④">periodicSync event</a>, but based on the implementation, might not fire until after the user has navigated away from the page and changed networks. Middleboxes on the new network may see the fetch requests that the <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①⑤">periodicSync event</a> makes. The fetch requests are HTTPS so the request contents will not be leaked but the domain may be (via DNS lookups and IP address of the request). To prevent this leakage of browsing history, the user agent MAY choose to only fire <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①⑥">periodicSync event</a>s on the network the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration⑦">periodicsync registration</a> was made on, with the understanding that it will reduce usability by not allowing synchronization opportunistically. 
+   <h2 class="heading settled" data-level="5" id="resources"><span class="secno">5. </span><span class="content">Resource Usage</span><a class="self-link" href="#resources"></a></h2>
+   <p><em>This section is non-normative.</em></p>
+   <p>A website will most likely download resources from the network when processing a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①⑦">periodicsync event</a>. The underlying operating system may launch the user agent to dispatch these events, and may keep it awake for a pre-defined duration to allow processing of the events. Both cause battery drain.
+The user agent should cap the duration and frequency of these events to limit resource usage by websites when the user has navigated away.</p>
+   <p>Large resources should be downloaded by registering a <a data-link-type="dfn" href="https://wicg.github.io/background-fetch/#background-fetch" id="ref-for-background-fetch">background fetch</a> via the <code class="idl"><a data-link-type="idl" href="https://wicg.github.io/background-fetch/#backgroundfetchmanager" id="ref-for-backgroundfetchmanager">BackgroundFetchManager</a></code> interface.</p>
+   <p>In addition, the user agent should consider other factors such as user engagement with the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#service-worker-client-origin" id="ref-for-service-worker-client-origin③">origin</a>, and any user indications to temporarily reduce data consumption, such as a Data Saving Mode, to adjust the frequency of <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①⑧">periodicSync events</a>.</p>
+   <h2 class="heading settled" data-level="6" id="algorithms"><span class="secno">6. </span><span class="content">Algorithms</span><a class="self-link" href="#algorithms"></a></h2>
+   <h3 class="heading settled" data-level="6.1" id="caculate-time-to-fire"><span class="secno">6.1. </span><span class="content"><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="calculate-a-time-to-fire">Calculate a time to fire</dfn></span><a class="self-link" href="#caculate-time-to-fire"></a></h3>
+    This section describes how a user agent can calculate the <a data-link-type="dfn" href="#periodicsync-registration-time-to-fire" id="ref-for-periodicsync-registration-time-to-fire">time to fire</a> for a <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration⑧">periodicsync registration</a>, <var>registration</var>. The time interval between <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event①⑨">periodicSync events</a> for <var>registration</var> MUST be greater than or equal to <var>registration</var>’s <a data-link-type="dfn" href="#options-mininterval" id="ref-for-options-mininterval②">minInterval</a> value. 
+   <p>The user agent MAY include factors such as user engagement with the origin to decide this time interval, allowing origins with high user engagement to update their web apps more often. The user agent SHOULD also ensure this time interval conforms to the caps asserted by <a data-link-type="dfn" href="#minimum-interval-for-any-origin" id="ref-for-minimum-interval-for-any-origin①">minimum interval for any origin</a> and the <a data-link-type="dfn" href="#minimum-interval-across-origins" id="ref-for-minimum-interval-across-origins">minimum interval across origins</a>.</p>
+   <p>The user agent MAY also decide to <a data-link-type="dfn" href="#retry" id="ref-for-retry">retry</a> each failed <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event②⓪">periodicSync event</a> , with the count of retries capped to <a data-link-type="dfn" href="#maximum-number-of-retries" id="ref-for-maximum-number-of-retries①">maximum number of retries</a>.</p>
+   <p>A possible algorithm to calculate the <a data-link-type="dfn" href="#periodicsync-registration-time-to-fire" id="ref-for-periodicsync-registration-time-to-fire①">time to fire</a>, <var>timeToFire</var> for <var>registration</var> would involve running these steps:</p>
+   <ol>
+    <li data-md>
+     <p>If <a data-link-type="dfn" href="#periodicsync-registration-count-of-retries" id="ref-for-periodicsync-registration-count-of-retries">count of retries</a> for <var>registration</var> is 0, <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="calculate-the-time-to-fire-of-the-first-attempt-of">calculate the time to fire of the first attempt of</dfn> the <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event②①">periodicSync event</a> :</p>
+     <ol>
+      <li data-md>
+       <p>Let <var>now</var>, a timestmap, represent the current time.</p>
+      <li data-md>
+       <p>Let <var>origin</var> represent <a data-link-type="dfn" href="#periodicsync-registration-service-worker-registration" id="ref-for-periodicsync-registration-service-worker-registration">service worker registration</a>'s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#service-worker-client-origin" id="ref-for-service-worker-client-origin④">origin</a>. Let <var>penalty</var> be a user agent defined penalty to account for the level of user engagement with the origin. Calculate <var>minimumIntervalForOrigin</var> as <var>penalty</var>*<a data-link-type="dfn" href="#minimum-interval-for-any-origin" id="ref-for-minimum-interval-for-any-origin②">minimum interval for any origin</a>.</p>
+      <li data-md>
+       <p>Set <var>delayForOrigin</var> to the multiple of <var>minimumIntervalForOrigin</var> greater than or equal to <a data-link-type="dfn" href="#options-mininterval" id="ref-for-options-mininterval③">minInterval</a>.</p>
+      <li data-md>
+       <p>Let <var>timeTillScheduledEventForOrigin</var>, a number, be the time till the next scheduled <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event②②">periodicSync event</a> for <var>origin</var>, if any, null otherwise.</p>
+      <li data-md>
+       <p>If <var>timeTillScheduledEventForOrigin</var> is not null:</p>
+       <ol>
+        <li data-md>
+         <p>If <var>timeTillScheduledEventForOrigin</var> - <var>delayForOrigin</var> is greater than or equal to <var>minIntervalForOrigin</var>, abort these substeps.</p>
+        <li data-md>
+         <p>If <var>delayForOrigin</var> is less than or equal to <var>timeTillScheduledEventForOrigin</var>, set <var>delayForOrigin</var> to <var>timeTillScheduledEventForOrigin</var> and abort these substeps.</p>
+        <li data-md>
+         <p>If <var>delayForOrigin</var> is less than or equal to <var>timeTillScheduledEventForOrigin</var> + <var>minIntervalForOrigin</var>, set <var>delayForOrigin</var> to <var>timeTillScheduledEventForOrigin</var> + <var>minIntervalForOrigin</var>.</p>
+       </ol>
+      <li data-md>
+       <p>Let <var>timeSinceLastPeriodicSync</var> be null if <a data-link-type="dfn" href="#time-the-last-periodicsync-event-was-fired" id="ref-for-time-the-last-periodicsync-event-was-fired">time the last periodicSync event was fired</a> is null, else <var>now</var> - <a data-link-type="dfn" href="#time-the-last-periodicsync-event-was-fired" id="ref-for-time-the-last-periodicsync-event-was-fired①">time the last periodicSync event was fired</a>.</p>
+      <li data-md>
+       <p>If <var>timeSinceLastPeriodicSync</var> is null, set <var>timeToFire</var> to <var>delayForOrigin</var> + <var>now</var>.</p>
+      <li data-md>
+       <p>Else:</p>
+       <ol>
+        <li data-md>
+         <p>If <var>timeSinceLastPeriodicSync</var> is greater than equal to <a data-link-type="dfn" href="#minimum-interval-across-origins" id="ref-for-minimum-interval-across-origins①">minimum interval across origins</a>, set <var>timeToFire</var> to <var>delayForOrigin</var> + <var>now</var>.</p>
+        <li data-md>
+         <p>Else, set <var>timeTillNextAllowedPeriodicSync</var> to <a data-link-type="dfn" href="#minimum-interval-across-origins" id="ref-for-minimum-interval-across-origins②">minimum interval across origins</a> - <var>timeSinceLastPeriodicSync</var>. Set <var>timeToFire</var> to the maximum of <var>delayForOrigin</var> + <var>now</var>, and <var>timeTillNextAllowedPeriodicSync</var> + <var>now</var>.</p>
+       </ol>
+      <li data-md>
+       <p>Set the <a data-link-type="dfn" href="#periodicsync-registration-time-to-fire" id="ref-for-periodicsync-registration-time-to-fire②">time to fire</a> of <var>registration</var> to <var>timeToFire</var>.</p>
+     </ol>
+    <li data-md>
+     <p>Else:</p>
+     <ol>
+      <li data-md>
+       <p>Increment <a data-link-type="dfn" href="#periodicsync-registration-count-of-retries" id="ref-for-periodicsync-registration-count-of-retries①">count of retries</a>.</p>
+      <li data-md>
+       <p>If <a data-link-type="dfn" href="#periodicsync-registration-count-of-retries" id="ref-for-periodicsync-registration-count-of-retries②">count of retries</a> is greater than the <a data-link-type="dfn" href="#maximum-number-of-retries" id="ref-for-maximum-number-of-retries②">maximum number of retries</a> allowed, set <a data-link-type="dfn" href="#periodicsync-registration-count-of-retries" id="ref-for-periodicsync-registration-count-of-retries③">count of retries</a> to 0 and follow the steps to <a data-link-type="dfn" href="#calculate-the-time-to-fire-of-the-first-attempt-of" id="ref-for-calculate-the-time-to-fire-of-the-first-attempt-of">calculate the time to fire of the first attempt of</a> the periodicSync event.</p>
+      <li data-md>
+       <p>Else, Set the <a data-link-type="dfn" href="#periodicsync-registration-time-to-fire" id="ref-for-periodicsync-registration-time-to-fire③">time to fire</a> of <var>registration</var> to <var>now</var> + a small back-off that is exponentially proportional to <a data-link-type="dfn" href="#periodicsync-registration-count-of-retries" id="ref-for-periodicsync-registration-count-of-retries④">count of retries</a>.</p>
+     </ol>
+   </ol>
+   <h3 class="heading settled" data-level="6.2" id="schedule-delayed-processing"><span class="secno">6.2. </span><span class="content"><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="schedule-processing">Schedule processing</dfn></span><a class="self-link" href="#schedule-delayed-processing"></a></h3>
+    To <a data-link-type="dfn" href="#schedule-processing" id="ref-for-schedule-processing">schedule processing</a> of a <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration⑨">periodicSync registration</a> <var>registration</var>, run the following steps: 
+   <ol>
+    <li data-md>
+     <p class="assertion">Assert: <var>registration</var>’s associated <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state">registration state</a> is <a data-link-type="dfn" href="#periodicsync-registration-pending" id="ref-for-periodicsync-registration-pending①">pending</a>.</p>
+    <li data-md>
+     <p>Schedule <a data-link-type="dfn" href="#fire-a-periodicsync-event" id="ref-for-fire-a-periodicsync-event">firing a periodicSync event</a> for <var>registration</var> as soon as the the device is online at or after <var>registration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-time-to-fire" id="ref-for-periodicsync-registration-time-to-fire④">time to fire</a>.</p>
+   </ol>
+   <h2 class="heading settled" data-level="7" id="api-description"><span class="secno">7. </span><span class="content">API Description</span><a class="self-link" href="#api-description"></a></h2>
+   <h3 class="heading settled" data-level="7.1" id="extensions-to-serviceworkerglobalscope"><span class="secno">7.1. </span><span class="content">Extensions to the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope">ServiceWorkerGlobalScope</a></code> interface</span><a class="self-link" href="#extensions-to-serviceworkerglobalscope"></a></h3>
+<pre class="idl highlight def"><c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://w3c.github.io/ServiceWorker/#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope①"><c- g>ServiceWorkerGlobalScope</c-></a> {
+    <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler"><c- n>EventHandler</c-></a> <dfn class="idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="attribute" data-export data-type="EventHandler" id="dom-serviceworkerglobalscope-onperiodicsync"><code><c- g>onperiodicsync</c-></code><a class="self-link" href="#dom-serviceworkerglobalscope-onperiodicsync"></a></dfn>;
+};
+</pre>
+   <h3 class="heading settled" data-level="7.2" id="extensions-to-serviceworkerregistration"><span class="secno">7.2. </span><span class="content">Extensions to the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#serviceworkerregistration" id="ref-for-serviceworkerregistration">ServiceWorkerRegistration</a></code> interface</span><a class="self-link" href="#extensions-to-serviceworkerregistration"></a></h3>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+<c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://w3c.github.io/ServiceWorker/#serviceworkerregistration" id="ref-for-serviceworkerregistration①"><c- g>ServiceWorkerRegistration</c-></a> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager①"><c- n>PeriodicSyncManager</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="PeriodicSyncManager" href="#dom-serviceworkerregistration-periodicsync" id="ref-for-dom-serviceworkerregistration-periodicsync"><c- g>periodicSync</c-></a>;
+};
+</pre>
+   <div>
+     A <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#serviceworkerregistration" id="ref-for-serviceworkerregistration②">ServiceWorkerRegistration</a></code> has a <dfn class="dfn-paneled" data-dfn-for="ServiceWorkerRegistration" data-dfn-type="dfn" data-noexport id="serviceworkerregistration-periodic-sync-manager">periodic sync manager</dfn> (a <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager②">PeriodicSyncManager</a></code>), initially a new <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager③">PeriodicSyncManager</a></code> whose <code class="idl"><a data-link-type="idl" href="#dom-periodicsyncmanager-service-worker-registration" id="ref-for-dom-periodicsyncmanager-service-worker-registration">service worker registration</a></code> is the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object①">context object</a>'s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration②">service worker registration</a>. 
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerRegistration" data-dfn-type="attribute" data-export id="dom-serviceworkerregistration-periodicsync"><code>periodicSync</code></dfn> attribute’s getter must return the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object②">context object</a>'s <a data-link-type="dfn" href="#serviceworkerregistration-periodic-sync-manager" id="ref-for-serviceworkerregistration-periodic-sync-manager">periodic sync manager</a>.</p>
+   </div>
+   <h3 class="heading settled" data-level="7.3" id="periodicsyncmanager-interface"><span class="secno">7.3. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager④">PeriodicSyncManager</a></code> interface</span><a class="self-link" href="#periodicsyncmanager-interface"></a></h3>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="periodicsyncmanager"><code><c- g>PeriodicSyncManager</c-></code></dfn> {
+    <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-register" id="ref-for-dom-periodicsyncmanager-register①"><c- g>register</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncManager/register(tag, options), PeriodicSyncManager/register(tag)" data-dfn-type="argument" data-export id="dom-periodicsyncmanager-register-tag-options-tag"><code><c- g>tag</c-></code><a class="self-link" href="#dom-periodicsyncmanager-register-tag-options-tag"></a></dfn>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-backgroundsyncoptions" id="ref-for-dictdef-backgroundsyncoptions"><c- n>BackgroundSyncOptions</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncManager/register(tag, options), PeriodicSyncManager/register(tag)" data-dfn-type="argument" data-export id="dom-periodicsyncmanager-register-tag-options-options"><code><c- g>options</c-></code><a class="self-link" href="#dom-periodicsyncmanager-register-tag-options-options"></a></dfn>);
+    <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-gettags" id="ref-for-dom-periodicsyncmanager-gettags"><c- g>getTags</c-></a>();
+    <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-unregister" id="ref-for-dom-periodicsyncmanager-unregister"><c- g>unregister</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString③"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncManager/unregister(tag)" data-dfn-type="argument" data-export id="dom-periodicsyncmanager-unregister-tag-tag"><code><c- g>tag</c-></code><a class="self-link" href="#dom-periodicsyncmanager-unregister-tag-tag"></a></dfn>);
+};
+
+<c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-backgroundsyncoptions"><code><c- g>BackgroundSyncOptions</c-></code></dfn> {
+    [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#EnforceRange" id="ref-for-EnforceRange"><c- g>EnforceRange</c-></a>] <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-unsigned-long-long" id="ref-for-idl-unsigned-long-long"><c- b>unsigned</c-> <c- b>long</c-> <c- b>long</c-></a> <dfn class="idl-code" data-default="0" data-dfn-for="BackgroundSyncOptions" data-dfn-type="dict-member" data-export data-type="unsigned long long " id="dom-backgroundsyncoptions-mininterval"><code><c- g>minInterval</c-></code><a class="self-link" href="#dom-backgroundsyncoptions-mininterval"></a></dfn> = 0;
+};
+</pre>
+   <p>A <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager⑤">PeriodicSyncManager</a></code> has a <dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="attribute" data-export id="dom-periodicsyncmanager-service-worker-registration"><code>service worker registration</code></dfn> (a <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration③">service worker registration</a>).</p>
+   <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export data-lt="register(tag, options)|register(tag)" id="dom-periodicsyncmanager-register" title="register(tag, options)"><code>register(<var>tag</var>, <var>options</var>)</code></dfn></code> method, when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise" id="ref-for-a-new-promise">a new promise</a> <var>promise</var> and run the following steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager⑥">PeriodicSyncManager</a></code>'s associated <code class="idl"><a data-link-type="idl" href="#dom-periodicsyncmanager-service-worker-registration" id="ref-for-dom-periodicsyncmanager-service-worker-registration①">service worker registration</a></code>.</p>
+    <li data-md>
+     <p>If <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-active-worker" id="ref-for-dfn-active-worker">active worker</a> is null, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise" id="ref-for-reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror">InvalidStateError</a></code> and abort these steps.</p>
+    <li data-md>
+     <p>Else, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue">periodicsync processing queue</a>:</p>
+     <ol>
+      <li data-md>
+       <p>If the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#enumdef-permissionstate" id="ref-for-enumdef-permissionstate①">PermissionState</a></code> for a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dictdef-permissiondescriptor" id="ref-for-dictdef-permissiondescriptor①">PermissionDescriptor</a></code> with <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissiondescriptor-name" id="ref-for-dom-permissiondescriptor-name①">name</a></code> <code>"periodic-background-sync"</code> is not <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissionstate-granted" id="ref-for-dom-permissionstate-granted①">granted</a></code>, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise" id="ref-for-reject-promise①">reject</a> <var>promise</var> with a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#notallowederror" id="ref-for-notallowederror">NotAllowedError</a></code> and abort these steps.</p>
+      <li data-md>
+       <p>Let <var>currentRegistration</var> be the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①⓪">periodicsync registration</a> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-periodicsync-registrations" id="ref-for-list-of-periodicsync-registrations①">list of periodicsync registrations</a> whose <a data-link-type="dfn" href="#periodicsync-registration-tag" id="ref-for-periodicsync-registration-tag①">tag</a> equals <var>tag</var> if it exists, else null.</p>
+      <li data-md>
+       <p>If <var>currentRegistration</var> is null:</p>
+       <ol>
+        <li data-md>
+         <p>Let <var>newRegistration</var> be a new <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①①">periodicsync registration</a>.</p>
+        <li data-md>
+         <p>Set <var>newRegistration</var>’s associated <a data-link-type="dfn" href="#periodicsync-registration-tag" id="ref-for-periodicsync-registration-tag②">tag</a> to <var>tag</var>.</p>
+        <li data-md>
+         <p>Set <var>newRegistration</var>’s associated <a data-link-type="dfn" href="#periodicsync-registration-options" id="ref-for-periodicsync-registration-options②">options</a> to <var>options</var>.</p>
+        <li data-md>
+         <p>Set <var>newRegistration</var>’s associated <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state①">registration state</a> to <a data-link-type="dfn" href="#periodicsync-registration-pending" id="ref-for-periodicsync-registration-pending②">pending</a>.</p>
+        <li data-md>
+         <p>Set <var>newRegistration</var>’s associated <a data-link-type="dfn" href="#periodicsync-registration-service-worker-registration" id="ref-for-periodicsync-registration-service-worker-registration①">service worker registration</a> to <var>serviceWorkerRegistration</var>.</p>
+        <li data-md>
+         <p>Add <var>newRegistration</var> to <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-periodicsync-registrations" id="ref-for-list-of-periodicsync-registrations②">list of periodicsync registrations</a>.</p>
+        <li data-md>
+         <p><a data-link-type="dfn" href="#calculate-a-time-to-fire" id="ref-for-calculate-a-time-to-fire①">Calculate a time to fire</a> for <var>newRegistration</var>.</p>
+        <li data-md>
+         <p><a data-link-type="dfn" href="#schedule-processing" id="ref-for-schedule-processing①">Schedule processing</a> for <var>registration</var>.</p>
+        <li data-md>
+         <p><a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise" id="ref-for-resolve-promise">Resolve</a> <var>promise</var>.</p>
+       </ol>
+      <li data-md>
+       <p>Else:</p>
+       <ol>
+        <li data-md>
+         <p>If the <var>currentRegistration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-options" id="ref-for-periodicsync-registration-options③">options</a> is different from <var>options</var>:</p>
+         <ol>
+          <li data-md>
+           <p>Set <var>currentRegistration</var>’s associated <a data-link-type="dfn" href="#periodicsync-registration-options" id="ref-for-periodicsync-registration-options④">options</a> to <var>options</var>.</p>
+          <li data-md>
+           <p><a data-link-type="dfn" href="#calculate-a-time-to-fire" id="ref-for-calculate-a-time-to-fire②">Calculate a time to fire</a> for <var>newRegistration</var>.</p>
+          <li data-md>
+           <p>Set <var>currentRegistration</var>’s associated <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state②">registration state</a> to <a data-link-type="dfn" href="#periodicsync-registration-pending" id="ref-for-periodicsync-registration-pending③">pending</a>.</p>
+         </ol>
+        <li data-md>
+         <p>Else, if <var>currentRegistration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state③">registration state</a> is <a data-link-type="dfn" href="#periodicsync-registration-firing" id="ref-for-periodicsync-registration-firing">firing</a>, set <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state④">registration state</a> to <a data-link-type="dfn" href="#periodicsync-registration-reregisteredwhilefiring" id="ref-for-periodicsync-registration-reregisteredwhilefiring">reregisteredWhileFiring</a>.</p>
+        <li data-md>
+         <p><a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise" id="ref-for-resolve-promise①">Resolve</a> <var>promise</var>.</p>
+       </ol>
+     </ol>
+   </ol>
+   <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export id="dom-periodicsyncmanager-gettags" title="getTags()"><code>getTags()</code></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise" id="ref-for-a-new-promise①">a new promise</a> <var>promise</var> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps①">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue①">periodicsync processing queue</a>:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager⑦">PeriodicSyncManager</a></code>'s associated <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration④">service worker registration</a>.</p>
+    <li data-md>
+     <p>Let <var>currentTags</var> be a new <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list">list</a>.</p>
+    <li data-md>
+     <p>For each <var>registration</var> of <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-periodicsync-registrations" id="ref-for-list-of-periodicsync-registrations③">list of periodicsync registrations</a>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append">append</a> <var>registration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-tag" id="ref-for-periodicsync-registration-tag③">tag</a> to <var>currentTags</var>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise" id="ref-for-resolve-promise②">Resolve</a> <var>promise</var> with <var>currentTags</var>.</p>
+   </ol>
+   <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export id="dom-periodicsyncmanager-unregister" title="unregister(tag)"><code>unregister(tag)</code></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise" id="ref-for-a-new-promise②">a new promise</a> <var>promise</var> and run the following steps:</p>
+   <ol>
+    <li data-md>
+     <p>Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager⑧">PeriodicSyncManager</a></code>'s associated <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration⑤">service worker registration</a>.</p>
+    <li data-md>
+     <p>If <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-active-worker" id="ref-for-dfn-active-worker①">active worker</a> is null, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise" id="ref-for-reject-promise②">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror①">InvalidStateError</a></code> and abort these steps.</p>
+    <li data-md>
+     <p>Else, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps②">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue②">periodicsync processing queue</a>:</p>
+     <ol>
+      <li data-md>
+       <p>Let <var>currentRegistration</var> be the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①②">periodicsync registration</a> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-periodicsync-registrations" id="ref-for-list-of-periodicsync-registrations④">list of periodicsync registrations</a> whose <a data-link-type="dfn" href="#periodicsync-registration-tag" id="ref-for-periodicsync-registration-tag④">tag</a> equals <var>tag</var> if it exists, else null.</p>
+      <li data-md>
+       <p>If <var>currentRegistration</var> is not null, remove <var>registration</var> from <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-periodicsync-registrations" id="ref-for-list-of-periodicsync-registrations⑤">list of periodicsync registrations</a>.</p>
+      <li data-md>
+       <p>Resolve <var>promise</var>.</p>
+     </ol>
+   </ol>
+   <h3 class="heading settled" data-level="7.4" id="periodicSync-event"><span class="secno">7.4. </span><span class="content">The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodicsync-event">periodicSync event</dfn></span><a class="self-link" href="#periodicSync-event"></a></h3>
+<pre class="idl highlight def"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-periodicsynceventinit"><code><c- g>PeriodicSyncEventInit</c-></code></dfn> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#dictdef-extendableeventinit" id="ref-for-dictdef-extendableeventinit"><c- n>ExtendableEventInit</c-></a> {
+    <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString④"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncEventInit" data-dfn-type="dict-member" data-export data-type="DOMString " id="dom-periodicsynceventinit-tag"><code><c- g>tag</c-></code><a class="self-link" href="#dom-periodicsynceventinit-tag"></a></dfn>;
+};
+
+[
+    <dfn class="idl-code" data-dfn-for="PeriodicSyncEvent" data-dfn-type="constructor" data-export data-lt="PeriodicSyncEvent(type, init)" id="dom-periodicsyncevent-periodicsyncevent"><code><c- g>Constructor</c-></code><a class="self-link" href="#dom-periodicsyncevent-periodicsyncevent"></a></dfn>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑤"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncEvent/PeriodicSyncEvent(type, init)" data-dfn-type="argument" data-export id="dom-periodicsyncevent-periodicsyncevent-type-init-type"><code><c- g>type</c-></code><a class="self-link" href="#dom-periodicsyncevent-periodicsyncevent-type-init-type"></a></dfn>, <a class="n" data-link-type="idl-name" href="#dictdef-periodicsynceventinit" id="ref-for-dictdef-periodicsynceventinit"><c- n>PeriodicSyncEventInit</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncEvent/PeriodicSyncEvent(type, init)" data-dfn-type="argument" data-export id="dom-periodicsyncevent-periodicsyncevent-type-init-init"><code><c- g>init</c-></code><a class="self-link" href="#dom-periodicsyncevent-periodicsyncevent-type-init-init"></a></dfn>),
+    <a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->
+] <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="periodicsyncevent"><code><c- g>PeriodicSyncEvent</c-></code></dfn> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent"><c- n>ExtendableEvent</c-></a> {
+    <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑥"><c- b>DOMString</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncEvent" data-dfn-type="attribute" data-export data-readonly data-type="DOMString" id="dom-periodicsyncevent-tag"><code><c- g>tag</c-></code></dfn>;
+  };
+</pre>
+   <p>The <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent">PeriodicSyncEvent</a></code> interface represents a <a data-link-type="dfn" href="#periodicsync-registration-firing" id="ref-for-periodicsync-registration-firing①">firing</a> <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①③">periodicsync registration</a>.</p>
+   <h4 class="heading settled" data-level="7.4.1" id="firing-periodicsync-events"><span class="secno">7.4.1. </span><span class="content">Firing periodicSync events</span><a class="self-link" href="#firing-periodicsync-events"></a></h4>
+    Whenever the user agent changes to <a data-link-type="dfn" href="https://wicg.github.io/BackgroundSync/spec/#online" id="ref-for-online②">online</a>, it SHOULD <a data-link-type="dfn" href="#fire-a-periodicsync-event" id="ref-for-fire-a-periodicsync-event①">fire a periodicSync event</a> for each <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①④">periodicsync registration</a> whose <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state⑤">registration state</a> is <a data-link-type="dfn" href="#periodicsync-registration-pending" id="ref-for-periodicsync-registration-pending④">pending</a> and <a data-link-type="dfn" href="#periodicsync-registration-time-to-fire" id="ref-for-periodicsync-registration-time-to-fire⑤">time to fire</a> is now or in the past. 
+   <h4 class="heading settled" data-level="7.4.2" id="firing-a-periodicsync-event"><span class="secno">7.4.2. </span><span class="content"><a data-link-type="dfn" href="#fire-a-periodicsync-event" id="ref-for-fire-a-periodicsync-event②">Fire a periodicSync event</a></span><a class="self-link" href="#firing-a-periodicsync-event"></a></h4>
+    The user agent will fire a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event②③">periodicSync event</a> for a <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①⑤">periodicsync registration</a> as soon as network connectivity is available, at or after the <a data-link-type="dfn" href="#periodicsync-registration-time-to-fire" id="ref-for-periodicsync-registration-time-to-fire⑥">time to fire</a> of the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①⑥">periodicsync registration</a>.
+If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event②④">periodicSync event</a> fails, the user agent MAY <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="retry">retry</dfn> it one or more times at a time of its choosing, based on some user agent defined heuristics. 
+   <p>A user agent MAY impose a time limit on the lifetime extension and execution time of a <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent①">PeriodicSyncEvent</a></code> which is stricter than the time limit imposed for <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent①">ExtendableEvent</a></code>s in general. In particular, any retries of the <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent②">PeriodicSyncEvent</a></code> MAY have a significantly shortened time limit.</p>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="fire-a-periodicsync-event">fire a periodicSync event</dfn> for a <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①⑦">periodicsync registration</a> <var>registration</var>, the user agent MUST <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps③">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue③">periodicsync processing queue</a>:</p>
+   <ol>
+    <li data-md>
+     <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert">Assert</a>: <var>registration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state⑥">registration state</a> is <a data-link-type="dfn" href="#periodicsync-registration-pending" id="ref-for-periodicsync-registration-pending⑤">pending</a>.</p>
+    <li data-md>
+     <p>Let <var>serviceWorkerRegistration</var> be <var>registration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-service-worker-registration" id="ref-for-periodicsync-registration-service-worker-registration②">service worker registration</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert①">Assert</a>: <var>registration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-time-to-fire" id="ref-for-periodicsync-registration-time-to-fire⑦">time to fire</a> is equal to the current time or in the past.</p>
+    <li data-md>
+     <p>Set <var>registration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state⑦">registration state</a> to <a data-link-type="dfn" href="#periodicsync-registration-firing" id="ref-for-periodicsync-registration-firing②">firing</a>.</p>
+    <li data-md>
+     <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel">In parallel</a>, <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#fire-functional-event" id="ref-for-fire-functional-event">fire functional event</a> "<code>periodicSync</code>" using <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent③">PeriodicSyncEvent</a></code> on <var>serviceWorkerRegistration</var> with <code class="idl"><a data-link-type="idl" href="#dom-periodicsyncevent-tag" id="ref-for-dom-periodicsyncevent-tag">tag</a></code> set to <var>registration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-tag" id="ref-for-periodicsync-registration-tag⑤">tag</a>. Let <var>dispatchedEvent</var>, an <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent②">ExtendableEvent</a></code>, represent the dispatched <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event②⑤">periodicSync event</a>, and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps④">enqueue the following steps</a> on the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue④">periodicsync processing queue</a>:</p>
+     <ol>
+      <li data-md>
+       <p>Let <var>waitUntilPromise</var> be the result of <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#waiting-for-all" id="ref-for-waiting-for-all">waiting for all</a> of <var>dispatchedEvent</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises">extend lifetime promises</a>.</p>
+      <li data-md>
+       <p><a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#upon-fulfillment" id="ref-for-upon-fulfillment">Upon fulfillment</a> or <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#upon-rejection" id="ref-for-upon-rejection">rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#terminate-service-worker" id="ref-for-terminate-service-worker">termination</a> of the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker②">service worker</a> of <var>waitUntilPromise</var>, run the following steps:</p>
+       <ol>
+        <li data-md>
+         <p>Set <var>registration</var>’s state to <a data-link-type="dfn" href="#periodicsync-registration-pending" id="ref-for-periodicsync-registration-pending⑥">pending</a>.</p>
+        <li data-md>
+         <p><a data-link-type="dfn" href="#calculate-a-time-to-fire" id="ref-for-calculate-a-time-to-fire③">Calculate a time to fire</a> for <var>registration</var>.</p>
+        <li data-md>
+         <p><a data-link-type="dfn" href="#schedule-processing" id="ref-for-schedule-processing②">Schedule processing</a> for <var>registration</var>.</p>
+       </ol>
+     </ol>
+   </ol>
   </main>
   <div data-fill-with="conformance">
    <h2 class="no-ref no-num heading settled" id="conformance"><span class="content"> Conformance</span><a class="self-link" href="#conformance"></a></h2>
@@ -1706,22 +1990,196 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
-   <li><a href="#firing">firing</a><span>, in §3</span>
+   <li><a href="#dictdef-backgroundsyncoptions">BackgroundSyncOptions</a><span>, in §7.3</span>
+   <li><a href="#calculate-a-time-to-fire">Calculate a time to fire</a><span>, in §6.1</span>
+   <li><a href="#calculate-the-time-to-fire-of-the-first-attempt-of">calculate the time to fire of the first attempt of</a><span>, in §6.1</span>
+   <li><a href="#periodicsync-registration-count-of-retries">count of retries</a><span>, in §3.1</span>
+   <li><a href="#fire-a-periodicsync-event">fire a periodicSync event</a><span>, in §7.4.2</span>
+   <li><a href="#periodicsync-registration-firing">firing</a><span>, in §3.1</span>
+   <li><a href="#dom-periodicsyncmanager-gettags">getTags()</a><span>, in §7.3</span>
    <li><a href="#in-the-background">in the background</a><span>, in §2</span>
    <li><a href="#list-of-periodicsync-registrations">list of periodicsync registrations</a><span>, in §3</span>
-   <li><a href="#mininterval">minInterval</a><span>, in §3</span>
-   <li><a href="#pending">pending</a><span>, in §3</span>
+   <li><a href="#maximum-number-of-retries">maximum number of retries</a><span>, in §3.2</span>
+   <li><a href="#minimum-interval-across-origins">minimum interval across origins</a><span>, in §3.2</span>
+   <li><a href="#minimum-interval-for-any-origin">minimum interval for any origin</a><span>, in §3.2</span>
+   <li>
+    minInterval
+    <ul>
+     <li><a href="#options-mininterval">dfn for options</a><span>, in §3.1</span>
+     <li><a href="#dom-backgroundsyncoptions-mininterval">dict-member for BackgroundSyncOptions</a><span>, in §7.3</span>
+    </ul>
+   <li><a href="#dom-serviceworkerglobalscope-onperiodicsync">onperiodicsync</a><span>, in §7.1</span>
+   <li><a href="#periodicsync-registration-options">options</a><span>, in §3.1</span>
+   <li><a href="#periodicsync-registration-pending">pending</a><span>, in §3.1</span>
    <li><a href="#periodic-background-sync-opportunity">periodic Background Sync opportunity</a><span>, in §2</span>
-   <li><a href="#periodicsync-registration">periodicsync registration</a><span>, in §3</span>
-   <li><a href="#registration-state">registration state</a><span>, in §3</span>
-   <li><a href="#reregisteredwhilefiring">reregisteredWhileFiring</a><span>, in §3</span>
-   <li><a href="#tag">tag</a><span>, in §3</span>
-   <li><a href="#waiting">waiting</a><span>, in §3</span>
+   <li><a href="#dom-serviceworkerregistration-periodicsync">periodicSync</a><span>, in §7.2</span>
+   <li><a href="#periodicsync-event">periodicSync event</a><span>, in §7.4</span>
+   <li><a href="#periodicsyncevent">PeriodicSyncEvent</a><span>, in §7.4</span>
+   <li><a href="#dictdef-periodicsynceventinit">PeriodicSyncEventInit</a><span>, in §7.4</span>
+   <li><a href="#dom-periodicsyncevent-periodicsyncevent">PeriodicSyncEvent(type, init)</a><span>, in §7.4</span>
+   <li><a href="#serviceworkerregistration-periodic-sync-manager">periodic sync manager</a><span>, in §7.2</span>
+   <li><a href="#periodicsyncmanager">PeriodicSyncManager</a><span>, in §7.3</span>
+   <li><a href="#periodicsync-processing-queue">periodicsync processing queue</a><span>, in §3</span>
+   <li><a href="#periodicsync-registration">periodicsync registration</a><span>, in §3.1</span>
+   <li><a href="#dom-periodicsyncmanager-register">register(tag)</a><span>, in §7.3</span>
+   <li><a href="#dom-periodicsyncmanager-register">register(tag, options)</a><span>, in §7.3</span>
+   <li><a href="#periodicsync-registration-registration-state">registration state</a><span>, in §3.1</span>
+   <li><a href="#periodicsync-registration-reregisteredwhilefiring">reregisteredWhileFiring</a><span>, in §3.1</span>
+   <li><a href="#retry">retry</a><span>, in §7.4.2</span>
+   <li><a href="#schedule-processing">Schedule processing</a><span>, in §6.2</span>
+   <li>
+    service worker registration
+    <ul>
+     <li><a href="#dom-periodicsyncmanager-service-worker-registration">attribute for PeriodicSyncManager</a><span>, in §7.3</span>
+     <li><a href="#periodicsync-registration-service-worker-registration">dfn for periodicsync registration</a><span>, in §3.1</span>
+    </ul>
+   <li>
+    tag
+    <ul>
+     <li><a href="#dom-periodicsyncevent-tag">attribute for PeriodicSyncEvent</a><span>, in §7.4</span>
+     <li><a href="#periodicsync-registration-tag">dfn for periodicsync registration</a><span>, in §3.1</span>
+     <li><a href="#dom-periodicsynceventinit-tag">dict-member for PeriodicSyncEventInit</a><span>, in §7.4</span>
+    </ul>
+   <li><a href="#time-the-last-periodicsync-event-was-fired">time the last periodicSync event was fired</a><span>, in §3.3</span>
+   <li><a href="#periodicsync-registration-time-to-fire">time to fire</a><span>, in §3.1</span>
+   <li><a href="#dom-periodicsyncmanager-unregister">unregister(tag)</a><span>, in §7.3</span>
   </ul>
+  <aside class="dfn-panel" data-for="term-for-backgroundfetchmanager">
+   <a href="https://wicg.github.io/background-fetch/#backgroundfetchmanager">https://wicg.github.io/background-fetch/#backgroundfetchmanager</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-backgroundfetchmanager">5. Resource Usage</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-background-fetch">
+   <a href="https://wicg.github.io/background-fetch/#background-fetch">https://wicg.github.io/background-fetch/#background-fetch</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-background-fetch">5. Resource Usage</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-context-object">
+   <a href="https://dom.spec.whatwg.org/#context-object">https://dom.spec.whatwg.org/#context-object</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-context-object">3.1. PeriodicSync Registration</a>
+    <li><a href="#ref-for-context-object①">7.2. Extensions to the ServiceWorkerRegistration interface</a> <a href="#ref-for-context-object②">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-eventhandler">
+   <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-eventhandler">7.1. Extensions to the ServiceWorkerGlobalScope interface</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-browsing-context">
    <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">https://html.spec.whatwg.org/multipage/browsers.html#browsing-context</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-browsing-context">1.1. Example</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-enqueue-the-following-steps">
+   <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps">https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-enqueue-the-following-steps">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-enqueue-the-following-steps①">(2)</a> <a href="#ref-for-enqueue-the-following-steps②">(3)</a>
+    <li><a href="#ref-for-enqueue-the-following-steps③">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-enqueue-the-following-steps④">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-in-parallel">
+   <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-in-parallel">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-parallel-queue">
+   <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#parallel-queue">https://html.spec.whatwg.org/multipage/infrastructure.html#parallel-queue</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-parallel-queue">3. Constructs</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-starting-a-new-parallel-queue">
+   <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#starting-a-new-parallel-queue">https://html.spec.whatwg.org/multipage/infrastructure.html#starting-a-new-parallel-queue</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-starting-a-new-parallel-queue">3. Constructs</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-list-append">
+   <a href="https://infra.spec.whatwg.org/#list-append">https://infra.spec.whatwg.org/#list-append</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-list-append">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-assert">
+   <a href="https://infra.spec.whatwg.org/#assert">https://infra.spec.whatwg.org/#assert</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-assert">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-assert①">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-list">
+   <a href="https://infra.spec.whatwg.org/#list">https://infra.spec.whatwg.org/#list</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-list">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-dom-permissionstate-granted">
+   <a href="https://w3c.github.io/permissions/#dom-permissionstate-granted">https://w3c.github.io/permissions/#dom-permissionstate-granted</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-permissionstate-granted">4.1. Permission</a>
+    <li><a href="#ref-for-dom-permissionstate-granted①">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-dictdef-permissiondescriptor">
+   <a href="https://w3c.github.io/permissions/#dictdef-permissiondescriptor">https://w3c.github.io/permissions/#dictdef-permissiondescriptor</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-permissiondescriptor">4.1. Permission</a>
+    <li><a href="#ref-for-dictdef-permissiondescriptor①">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-enumdef-permissionstate">
+   <a href="https://w3c.github.io/permissions/#enumdef-permissionstate">https://w3c.github.io/permissions/#enumdef-permissionstate</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-enumdef-permissionstate">4.1. Permission</a>
+    <li><a href="#ref-for-enumdef-permissionstate①">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-dom-permissiondescriptor-name">
+   <a href="https://w3c.github.io/permissions/#dom-permissiondescriptor-name">https://w3c.github.io/permissions/#dom-permissiondescriptor-name</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-permissiondescriptor-name">4.1. Permission</a>
+    <li><a href="#ref-for-dom-permissiondescriptor-name①">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-a-new-promise">
+   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise">https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-a-new-promise">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-a-new-promise①">(2)</a> <a href="#ref-for-a-new-promise②">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-reject-promise">
+   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise">https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-reject-promise">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-reject-promise①">(2)</a> <a href="#ref-for-reject-promise②">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-resolve-promise">
+   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise">https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-resolve-promise">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-resolve-promise①">(2)</a> <a href="#ref-for-resolve-promise②">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-upon-fulfillment">
+   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#upon-fulfillment">https://www.w3.org/2001/tag/doc/promises-guide/#upon-fulfillment</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-upon-fulfillment">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-upon-rejection">
+   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#upon-rejection">https://www.w3.org/2001/tag/doc/promises-guide/#upon-rejection</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-upon-rejection">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-waiting-for-all">
+   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#waiting-for-all">https://www.w3.org/2001/tag/doc/promises-guide/#waiting-for-all</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-waiting-for-all">7.4.2. Fire a periodicSync event</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-secure-contexts">
@@ -1736,10 +2194,62 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
     <li><a href="#ref-for-cache">1.1. Example</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-extendableevent">
+   <a href="https://w3c.github.io/ServiceWorker/#extendableevent">https://w3c.github.io/ServiceWorker/#extendableevent</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-extendableevent">7.4. The periodicSync event</a>
+    <li><a href="#ref-for-extendableevent①">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-extendableevent②">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-dictdef-extendableeventinit">
+   <a href="https://w3c.github.io/ServiceWorker/#dictdef-extendableeventinit">https://w3c.github.io/ServiceWorker/#dictdef-extendableeventinit</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-extendableeventinit">7.4. The periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-serviceworkerglobalscope">
+   <a href="https://w3c.github.io/ServiceWorker/#serviceworkerglobalscope">https://w3c.github.io/ServiceWorker/#serviceworkerglobalscope</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-serviceworkerglobalscope">7.1. Extensions to the ServiceWorkerGlobalScope interface</a> <a href="#ref-for-serviceworkerglobalscope①">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-serviceworkerregistration">
+   <a href="https://w3c.github.io/ServiceWorker/#serviceworkerregistration">https://w3c.github.io/ServiceWorker/#serviceworkerregistration</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-serviceworkerregistration">7.2. Extensions to the ServiceWorkerRegistration interface</a> <a href="#ref-for-serviceworkerregistration①">(2)</a> <a href="#ref-for-serviceworkerregistration②">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-dfn-active-worker">
+   <a href="https://w3c.github.io/ServiceWorker/#dfn-active-worker">https://w3c.github.io/ServiceWorker/#dfn-active-worker</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dfn-active-worker">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-dfn-active-worker①">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-extendableevent-extend-lifetime-promises">
+   <a href="https://w3c.github.io/ServiceWorker/#extendableevent-extend-lifetime-promises">https://w3c.github.io/ServiceWorker/#extendableevent-extend-lifetime-promises</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-extendableevent-extend-lifetime-promises">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-fire-functional-event">
+   <a href="https://w3c.github.io/ServiceWorker/#fire-functional-event">https://w3c.github.io/ServiceWorker/#fire-functional-event</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-fire-functional-event">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-dfn-service-worker-client-frame-type">
    <a href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client-frame-type">https://w3c.github.io/ServiceWorker/#dfn-service-worker-client-frame-type</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-service-worker-client-frame-type">2. Concepts</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-service-worker-client-origin">
+   <a href="https://w3c.github.io/ServiceWorker/#service-worker-client-origin">https://w3c.github.io/ServiceWorker/#service-worker-client-origin</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-service-worker-client-origin">3.1. PeriodicSync Registration</a>
+    <li><a href="#ref-for-service-worker-client-origin①">4.2. Location Tracking</a> <a href="#ref-for-service-worker-client-origin②">(2)</a>
+    <li><a href="#ref-for-service-worker-client-origin③">5. Resource Usage</a>
+    <li><a href="#ref-for-service-worker-client-origin④">6.1. Calculate a time to fire</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dfn-service-worker">
@@ -1747,6 +2257,7 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
    <ul>
     <li><a href="#ref-for-dfn-service-worker">1.1. Example</a>
     <li><a href="#ref-for-dfn-service-worker①">2. Concepts</a>
+    <li><a href="#ref-for-dfn-service-worker②">7.4.2. Fire a periodicSync event</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dfn-service-worker-client">
@@ -1759,26 +2270,111 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
    <a href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration">https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-service-worker-registration">3. Constructs</a>
+    <li><a href="#ref-for-dfn-service-worker-registration①">3.1. PeriodicSync Registration</a>
+    <li><a href="#ref-for-dfn-service-worker-registration②">7.2. Extensions to the ServiceWorkerRegistration interface</a>
+    <li><a href="#ref-for-dfn-service-worker-registration③">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-dfn-service-worker-registration④">(2)</a> <a href="#ref-for-dfn-service-worker-registration⑤">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-terminate-service-worker">
+   <a href="https://w3c.github.io/ServiceWorker/#terminate-service-worker">https://w3c.github.io/ServiceWorker/#terminate-service-worker</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-terminate-service-worker">7.4.2. Fire a periodicSync event</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-online">
    <a href="https://wicg.github.io/BackgroundSync/spec/#online">https://wicg.github.io/BackgroundSync/spec/#online</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-online">2. Concepts</a> <a href="#ref-for-online①">(2)</a>
+    <li><a href="#ref-for-online②">7.4.1. Firing periodicSync events</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-idl-DOMString">
    <a href="https://heycam.github.io/webidl/#idl-DOMString">https://heycam.github.io/webidl/#idl-DOMString</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-idl-DOMString">3. Constructs</a>
+    <li><a href="#ref-for-idl-DOMString">3.1. PeriodicSync Registration</a>
+    <li><a href="#ref-for-idl-DOMString①">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-idl-DOMString②">(2)</a> <a href="#ref-for-idl-DOMString③">(3)</a>
+    <li><a href="#ref-for-idl-DOMString④">7.4. The periodicSync event</a> <a href="#ref-for-idl-DOMString⑤">(2)</a> <a href="#ref-for-idl-DOMString⑥">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-EnforceRange">
+   <a href="https://heycam.github.io/webidl/#EnforceRange">https://heycam.github.io/webidl/#EnforceRange</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-EnforceRange">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-Exposed">
+   <a href="https://heycam.github.io/webidl/#Exposed">https://heycam.github.io/webidl/#Exposed</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-Exposed">7.2. Extensions to the ServiceWorkerRegistration interface</a>
+    <li><a href="#ref-for-Exposed①">7.3. PeriodicSyncManager interface</a>
+    <li><a href="#ref-for-Exposed②">7.4. The periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-invalidstateerror">
+   <a href="https://heycam.github.io/webidl/#invalidstateerror">https://heycam.github.io/webidl/#invalidstateerror</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-invalidstateerror">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-invalidstateerror①">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-notallowederror">
+   <a href="https://heycam.github.io/webidl/#notallowederror">https://heycam.github.io/webidl/#notallowederror</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-notallowederror">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-idl-unsigned-long-long">
+   <a href="https://heycam.github.io/webidl/#idl-unsigned-long-long">https://heycam.github.io/webidl/#idl-unsigned-long-long</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-idl-unsigned-long-long">7.3. PeriodicSyncManager interface</a>
    </ul>
   </aside>
   <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
    <li>
+    <a data-link-type="biblio">[BACKGROUND-FETCH]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="term-for-backgroundfetchmanager" style="color:initial">BackgroundFetchManager</span>
+     <li><span class="dfn-paneled" id="term-for-background-fetch" style="color:initial">background fetch</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[DOM]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="term-for-context-object" style="color:initial">context object</span>
+    </ul>
+   <li>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
+     <li><span class="dfn-paneled" id="term-for-eventhandler" style="color:initial">EventHandler</span>
      <li><span class="dfn-paneled" id="term-for-browsing-context" style="color:initial">browsing context</span>
+     <li><span class="dfn-paneled" id="term-for-enqueue-the-following-steps" style="color:initial">enqueue the following steps</span>
+     <li><span class="dfn-paneled" id="term-for-in-parallel" style="color:initial">in parallel</span>
+     <li><span class="dfn-paneled" id="term-for-parallel-queue" style="color:initial">parallel queue</span>
+     <li><span class="dfn-paneled" id="term-for-starting-a-new-parallel-queue" style="color:initial">starting a new parallel queue</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[INFRA]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="term-for-list-append" style="color:initial">append</span>
+     <li><span class="dfn-paneled" id="term-for-assert" style="color:initial">assert</span>
+     <li><span class="dfn-paneled" id="term-for-list" style="color:initial">list</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[permissions]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="term-for-dom-permissionstate-granted" style="color:initial">"granted"</span>
+     <li><span class="dfn-paneled" id="term-for-dictdef-permissiondescriptor" style="color:initial">PermissionDescriptor</span>
+     <li><span class="dfn-paneled" id="term-for-enumdef-permissionstate" style="color:initial">PermissionState</span>
+     <li><span class="dfn-paneled" id="term-for-dom-permissiondescriptor-name" style="color:initial">name</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[promises-guide]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="term-for-a-new-promise" style="color:initial">a new promise</span>
+     <li><span class="dfn-paneled" id="term-for-reject-promise" style="color:initial">reject</span>
+     <li><span class="dfn-paneled" id="term-for-resolve-promise" style="color:initial">resolve</span>
+     <li><span class="dfn-paneled" id="term-for-upon-fulfillment" style="color:initial">upon fulfillment</span>
+     <li><span class="dfn-paneled" id="term-for-upon-rejection" style="color:initial">upon rejection</span>
+     <li><span class="dfn-paneled" id="term-for-waiting-for-all" style="color:initial">waiting for all</span>
     </ul>
    <li>
     <a data-link-type="biblio">[secure-contexts]</a> defines the following terms:
@@ -1789,10 +2385,19 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
     <a data-link-type="biblio">[service-workers-1]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="term-for-cache" style="color:initial">Cache</span>
+     <li><span class="dfn-paneled" id="term-for-extendableevent" style="color:initial">ExtendableEvent</span>
+     <li><span class="dfn-paneled" id="term-for-dictdef-extendableeventinit" style="color:initial">ExtendableEventInit</span>
+     <li><span class="dfn-paneled" id="term-for-serviceworkerglobalscope" style="color:initial">ServiceWorkerGlobalScope</span>
+     <li><span class="dfn-paneled" id="term-for-serviceworkerregistration" style="color:initial">ServiceWorkerRegistration</span>
+     <li><span class="dfn-paneled" id="term-for-dfn-active-worker" style="color:initial">active worker</span>
+     <li><span class="dfn-paneled" id="term-for-extendableevent-extend-lifetime-promises" style="color:initial">extend lifetime promises</span>
+     <li><span class="dfn-paneled" id="term-for-fire-functional-event" style="color:initial">fire functional event</span>
      <li><span class="dfn-paneled" id="term-for-dfn-service-worker-client-frame-type" style="color:initial">frame type</span>
+     <li><span class="dfn-paneled" id="term-for-service-worker-client-origin" style="color:initial">origin</span>
      <li><span class="dfn-paneled" id="term-for-dfn-service-worker" style="color:initial">service worker</span>
      <li><span class="dfn-paneled" id="term-for-dfn-service-worker-client" style="color:initial">service worker client</span>
      <li><span class="dfn-paneled" id="term-for-dfn-service-worker-registration" style="color:initial">service worker registration</span>
+     <li><span class="dfn-paneled" id="term-for-terminate-service-worker" style="color:initial">terminate service worker</span>
     </ul>
    <li>
     <a data-link-type="biblio">[WEB-BACKGROUND-SYNC]</a> defines the following terms:
@@ -1803,13 +2408,28 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
     <a data-link-type="biblio">[WebIDL]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="term-for-idl-DOMString" style="color:initial">DOMString</span>
+     <li><span class="dfn-paneled" id="term-for-EnforceRange" style="color:initial">EnforceRange</span>
+     <li><span class="dfn-paneled" id="term-for-Exposed" style="color:initial">Exposed</span>
+     <li><span class="dfn-paneled" id="term-for-invalidstateerror" style="color:initial">InvalidStateError</span>
+     <li><span class="dfn-paneled" id="term-for-notallowederror" style="color:initial">NotAllowedError</span>
+     <li><span class="dfn-paneled" id="term-for-idl-unsigned-long-long" style="color:initial">unsigned long long</span>
     </ul>
   </ul>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
+   <dt id="biblio-background-fetch">[BACKGROUND-FETCH]
+   <dd><a href="https://wicg.github.io/background-fetch/">Background Fetch</a>. Living Standard. URL: <a href="https://wicg.github.io/background-fetch/">https://wicg.github.io/background-fetch/</a>
+   <dt id="biblio-dom">[DOM]
+   <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/">DOM Standard</a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
    <dt id="biblio-html">[HTML]
    <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dt id="biblio-infra">[INFRA]
+   <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/">Infra Standard</a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
+   <dt id="biblio-permissions">[PERMISSIONS]
+   <dd>Mounir Lamouri; Marcos Caceres; Jeffrey Yasskin. <a href="https://www.w3.org/TR/permissions/">Permissions</a>. 25 September 2017. WD. URL: <a href="https://www.w3.org/TR/permissions/">https://www.w3.org/TR/permissions/</a>
+   <dt id="biblio-promises-guide">[PROMISES-GUIDE]
+   <dd>Domenic Denicola. <a href="https://www.w3.org/2001/tag/doc/promises-guide">Writing Promise-Using Specifications</a>. 16 February 2016. TAG Finding. URL: <a href="https://www.w3.org/2001/tag/doc/promises-guide">https://www.w3.org/2001/tag/doc/promises-guide</a>
    <dt id="biblio-rfc2119">[RFC2119]
    <dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119">https://tools.ietf.org/html/rfc2119</a>
    <dt id="biblio-secure-contexts">[SECURE-CONTEXTS]
@@ -1821,47 +2441,306 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
    <dt id="biblio-webidl">[WebIDL]
    <dd>Boris Zbarsky. <a href="https://heycam.github.io/webidl/">Web IDL</a>. 15 December 2016. ED. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
   </dl>
+  <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
+<pre class="idl highlight def"><c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://w3c.github.io/ServiceWorker/#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope①①"><c- g>ServiceWorkerGlobalScope</c-></a> {
+    <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler①"><c- n>EventHandler</c-></a> <a data-type="EventHandler" href="#dom-serviceworkerglobalscope-onperiodicsync"><code><c- g>onperiodicsync</c-></code></a>;
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed③"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+<c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://w3c.github.io/ServiceWorker/#serviceworkerregistration" id="ref-for-serviceworkerregistration①①"><c- g>ServiceWorkerRegistration</c-></a> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager①①"><c- n>PeriodicSyncManager</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="PeriodicSyncManager" href="#dom-serviceworkerregistration-periodicsync" id="ref-for-dom-serviceworkerregistration-periodicsync①"><c- g>periodicSync</c-></a>;
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+<c- b>interface</c-> <a href="#periodicsyncmanager"><code><c- g>PeriodicSyncManager</c-></code></a> {
+    <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-register" id="ref-for-dom-periodicsyncmanager-register①①"><c- g>register</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①①"><c- b>DOMString</c-></a> <a href="#dom-periodicsyncmanager-register-tag-options-tag"><code><c- g>tag</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-backgroundsyncoptions" id="ref-for-dictdef-backgroundsyncoptions①"><c- n>BackgroundSyncOptions</c-></a> <a href="#dom-periodicsyncmanager-register-tag-options-options"><code><c- g>options</c-></code></a>);
+    <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②①"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-gettags" id="ref-for-dom-periodicsyncmanager-gettags①"><c- g>getTags</c-></a>();
+    <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-unregister" id="ref-for-dom-periodicsyncmanager-unregister①"><c- g>unregister</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString③①"><c- b>DOMString</c-></a> <a href="#dom-periodicsyncmanager-unregister-tag-tag"><code><c- g>tag</c-></code></a>);
+};
+
+<c- b>dictionary</c-> <a href="#dictdef-backgroundsyncoptions"><code><c- g>BackgroundSyncOptions</c-></code></a> {
+    [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#EnforceRange" id="ref-for-EnforceRange①"><c- g>EnforceRange</c-></a>] <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-unsigned-long-long" id="ref-for-idl-unsigned-long-long①"><c- b>unsigned</c-> <c- b>long</c-> <c- b>long</c-></a> <a data-default="0" data-type="unsigned long long " href="#dom-backgroundsyncoptions-mininterval"><code><c- g>minInterval</c-></code></a> = 0;
+};
+
+<c- b>dictionary</c-> <a href="#dictdef-periodicsynceventinit"><code><c- g>PeriodicSyncEventInit</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#dictdef-extendableeventinit" id="ref-for-dictdef-extendableeventinit①"><c- n>ExtendableEventInit</c-></a> {
+    <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString④①"><c- b>DOMString</c-></a> <a data-type="DOMString " href="#dom-periodicsynceventinit-tag"><code><c- g>tag</c-></code></a>;
+};
+
+[
+    <a href="#dom-periodicsyncevent-periodicsyncevent"><code><c- g>Constructor</c-></code></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑤①"><c- b>DOMString</c-></a> <a href="#dom-periodicsyncevent-periodicsyncevent-type-init-type"><code><c- g>type</c-></code></a>, <a class="n" data-link-type="idl-name" href="#dictdef-periodicsynceventinit" id="ref-for-dictdef-periodicsynceventinit①"><c- n>PeriodicSyncEventInit</c-></a> <a href="#dom-periodicsyncevent-periodicsyncevent-type-init-init"><code><c- g>init</c-></code></a>),
+    <a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②①"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->
+] <c- b>interface</c-> <a href="#periodicsyncevent"><code><c- g>PeriodicSyncEvent</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent③"><c- n>ExtendableEvent</c-></a> {
+    <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑥①"><c- b>DOMString</c-></a> <a data-readonly data-type="DOMString" href="#dom-periodicsyncevent-tag"><code><c- g>tag</c-></code></a>;
+  };
+
+</pre>
+  <aside class="dfn-panel" data-for="in-the-background">
+   <b><a href="#in-the-background">#in-the-background</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-in-the-background">4.2. Location Tracking</a>
+    <li><a href="#ref-for-in-the-background①">4.3. History Leaking</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="periodic-background-sync-opportunity">
    <b><a href="#periodic-background-sync-opportunity">#periodic-background-sync-opportunity</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-periodic-background-sync-opportunity">1.1. Example</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="periodicsync-processing-queue">
+   <b><a href="#periodicsync-processing-queue">#periodicsync-processing-queue</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsync-processing-queue">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-periodicsync-processing-queue①">(2)</a> <a href="#ref-for-periodicsync-processing-queue②">(3)</a>
+    <li><a href="#ref-for-periodicsync-processing-queue③">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-periodicsync-processing-queue④">(2)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="list-of-periodicsync-registrations">
    <b><a href="#list-of-periodicsync-registrations">#list-of-periodicsync-registrations</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-list-of-periodicsync-registrations">3. Constructs</a>
+    <li><a href="#ref-for-list-of-periodicsync-registrations">3.1. PeriodicSync Registration</a>
+    <li><a href="#ref-for-list-of-periodicsync-registrations①">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-list-of-periodicsync-registrations②">(2)</a> <a href="#ref-for-list-of-periodicsync-registrations③">(3)</a> <a href="#ref-for-list-of-periodicsync-registrations④">(4)</a> <a href="#ref-for-list-of-periodicsync-registrations⑤">(5)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="periodicsync-registration">
    <b><a href="#periodicsync-registration">#periodicsync-registration</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-periodicsync-registration">2. Concepts</a>
-    <li><a href="#ref-for-periodicsync-registration①">3. Constructs</a> <a href="#ref-for-periodicsync-registration②">(2)</a>
+    <li><a href="#ref-for-periodicsync-registration①">3. Constructs</a>
+    <li><a href="#ref-for-periodicsync-registration②">3.1. PeriodicSync Registration</a> <a href="#ref-for-periodicsync-registration③">(2)</a> <a href="#ref-for-periodicsync-registration④">(3)</a>
+    <li><a href="#ref-for-periodicsync-registration⑤">3.3. Global State</a>
+    <li><a href="#ref-for-periodicsync-registration⑥">4.3. History Leaking</a> <a href="#ref-for-periodicsync-registration⑦">(2)</a>
+    <li><a href="#ref-for-periodicsync-registration⑧">6.1. Calculate a time to fire</a>
+    <li><a href="#ref-for-periodicsync-registration⑨">6.2. Schedule processing</a>
+    <li><a href="#ref-for-periodicsync-registration①⓪">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-periodicsync-registration①①">(2)</a> <a href="#ref-for-periodicsync-registration①②">(3)</a>
+    <li><a href="#ref-for-periodicsync-registration①③">7.4. The periodicSync event</a>
+    <li><a href="#ref-for-periodicsync-registration①④">7.4.1. Firing periodicSync events</a>
+    <li><a href="#ref-for-periodicsync-registration①⑤">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-periodicsync-registration①⑥">(2)</a> <a href="#ref-for-periodicsync-registration①⑦">(3)</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="tag">
-   <b><a href="#tag">#tag</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="periodicsync-registration-service-worker-registration">
+   <b><a href="#periodicsync-registration-service-worker-registration">#periodicsync-registration-service-worker-registration</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-tag">3. Constructs</a> <a href="#ref-for-tag①">(2)</a>
+    <li><a href="#ref-for-periodicsync-registration-service-worker-registration">6.1. Calculate a time to fire</a>
+    <li><a href="#ref-for-periodicsync-registration-service-worker-registration①">7.3. PeriodicSyncManager interface</a>
+    <li><a href="#ref-for-periodicsync-registration-service-worker-registration②">7.4.2. Fire a periodicSync event</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="mininterval">
-   <b><a href="#mininterval">#mininterval</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="periodicsync-registration-tag">
+   <b><a href="#periodicsync-registration-tag">#periodicsync-registration-tag</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-mininterval">3. Constructs</a> <a href="#ref-for-mininterval①">(2)</a>
+    <li><a href="#ref-for-periodicsync-registration-tag">3.1. PeriodicSync Registration</a>
+    <li><a href="#ref-for-periodicsync-registration-tag①">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-periodicsync-registration-tag②">(2)</a> <a href="#ref-for-periodicsync-registration-tag③">(3)</a> <a href="#ref-for-periodicsync-registration-tag④">(4)</a>
+    <li><a href="#ref-for-periodicsync-registration-tag⑤">7.4.2. Fire a periodicSync event</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="registration-state">
-   <b><a href="#registration-state">#registration-state</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="periodicsync-registration-options">
+   <b><a href="#periodicsync-registration-options">#periodicsync-registration-options</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-registration-state">3. Constructs</a>
+    <li><a href="#ref-for-periodicsync-registration-options">3.1. PeriodicSync Registration</a> <a href="#ref-for-periodicsync-registration-options①">(2)</a>
+    <li><a href="#ref-for-periodicsync-registration-options②">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-periodicsync-registration-options③">(2)</a> <a href="#ref-for-periodicsync-registration-options④">(3)</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="pending">
-   <b><a href="#pending">#pending</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="options-mininterval">
+   <b><a href="#options-mininterval">#options-mininterval</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-pending">3. Constructs</a>
+    <li><a href="#ref-for-options-mininterval">3.1. PeriodicSync Registration</a> <a href="#ref-for-options-mininterval①">(2)</a>
+    <li><a href="#ref-for-options-mininterval②">6.1. Calculate a time to fire</a> <a href="#ref-for-options-mininterval③">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="periodicsync-registration-time-to-fire">
+   <b><a href="#periodicsync-registration-time-to-fire">#periodicsync-registration-time-to-fire</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsync-registration-time-to-fire">6.1. Calculate a time to fire</a> <a href="#ref-for-periodicsync-registration-time-to-fire①">(2)</a> <a href="#ref-for-periodicsync-registration-time-to-fire②">(3)</a> <a href="#ref-for-periodicsync-registration-time-to-fire③">(4)</a>
+    <li><a href="#ref-for-periodicsync-registration-time-to-fire④">6.2. Schedule processing</a>
+    <li><a href="#ref-for-periodicsync-registration-time-to-fire⑤">7.4.1. Firing periodicSync events</a>
+    <li><a href="#ref-for-periodicsync-registration-time-to-fire⑥">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-periodicsync-registration-time-to-fire⑦">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="periodicsync-registration-count-of-retries">
+   <b><a href="#periodicsync-registration-count-of-retries">#periodicsync-registration-count-of-retries</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsync-registration-count-of-retries">6.1. Calculate a time to fire</a> <a href="#ref-for-periodicsync-registration-count-of-retries①">(2)</a> <a href="#ref-for-periodicsync-registration-count-of-retries②">(3)</a> <a href="#ref-for-periodicsync-registration-count-of-retries③">(4)</a> <a href="#ref-for-periodicsync-registration-count-of-retries④">(5)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="periodicsync-registration-registration-state">
+   <b><a href="#periodicsync-registration-registration-state">#periodicsync-registration-registration-state</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsync-registration-registration-state">6.2. Schedule processing</a>
+    <li><a href="#ref-for-periodicsync-registration-registration-state①">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-periodicsync-registration-registration-state②">(2)</a> <a href="#ref-for-periodicsync-registration-registration-state③">(3)</a> <a href="#ref-for-periodicsync-registration-registration-state④">(4)</a>
+    <li><a href="#ref-for-periodicsync-registration-registration-state⑤">7.4.1. Firing periodicSync events</a>
+    <li><a href="#ref-for-periodicsync-registration-registration-state⑥">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-periodicsync-registration-registration-state⑦">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="periodicsync-registration-pending">
+   <b><a href="#periodicsync-registration-pending">#periodicsync-registration-pending</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsync-registration-pending">3.1. PeriodicSync Registration</a>
+    <li><a href="#ref-for-periodicsync-registration-pending①">6.2. Schedule processing</a>
+    <li><a href="#ref-for-periodicsync-registration-pending②">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-periodicsync-registration-pending③">(2)</a>
+    <li><a href="#ref-for-periodicsync-registration-pending④">7.4.1. Firing periodicSync events</a>
+    <li><a href="#ref-for-periodicsync-registration-pending⑤">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-periodicsync-registration-pending⑥">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="periodicsync-registration-firing">
+   <b><a href="#periodicsync-registration-firing">#periodicsync-registration-firing</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsync-registration-firing">7.3. PeriodicSyncManager interface</a>
+    <li><a href="#ref-for-periodicsync-registration-firing①">7.4. The periodicSync event</a>
+    <li><a href="#ref-for-periodicsync-registration-firing②">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="periodicsync-registration-reregisteredwhilefiring">
+   <b><a href="#periodicsync-registration-reregisteredwhilefiring">#periodicsync-registration-reregisteredwhilefiring</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsync-registration-reregisteredwhilefiring">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="minimum-interval-for-any-origin">
+   <b><a href="#minimum-interval-for-any-origin">#minimum-interval-for-any-origin</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-minimum-interval-for-any-origin">3.2. Constants</a>
+    <li><a href="#ref-for-minimum-interval-for-any-origin①">6.1. Calculate a time to fire</a> <a href="#ref-for-minimum-interval-for-any-origin②">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="minimum-interval-across-origins">
+   <b><a href="#minimum-interval-across-origins">#minimum-interval-across-origins</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-minimum-interval-across-origins">6.1. Calculate a time to fire</a> <a href="#ref-for-minimum-interval-across-origins①">(2)</a> <a href="#ref-for-minimum-interval-across-origins②">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="maximum-number-of-retries">
+   <b><a href="#maximum-number-of-retries">#maximum-number-of-retries</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-maximum-number-of-retries">3.2. Constants</a>
+    <li><a href="#ref-for-maximum-number-of-retries①">6.1. Calculate a time to fire</a> <a href="#ref-for-maximum-number-of-retries②">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="time-the-last-periodicsync-event-was-fired">
+   <b><a href="#time-the-last-periodicsync-event-was-fired">#time-the-last-periodicsync-event-was-fired</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-time-the-last-periodicsync-event-was-fired">6.1. Calculate a time to fire</a> <a href="#ref-for-time-the-last-periodicsync-event-was-fired①">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="calculate-a-time-to-fire">
+   <b><a href="#calculate-a-time-to-fire">#calculate-a-time-to-fire</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-calculate-a-time-to-fire">3.1. PeriodicSync Registration</a>
+    <li><a href="#ref-for-calculate-a-time-to-fire①">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-calculate-a-time-to-fire②">(2)</a>
+    <li><a href="#ref-for-calculate-a-time-to-fire③">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="calculate-the-time-to-fire-of-the-first-attempt-of">
+   <b><a href="#calculate-the-time-to-fire-of-the-first-attempt-of">#calculate-the-time-to-fire-of-the-first-attempt-of</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-calculate-the-time-to-fire-of-the-first-attempt-of">6.1. Calculate a time to fire</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="schedule-processing">
+   <b><a href="#schedule-processing">#schedule-processing</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-schedule-processing">6.2. Schedule processing</a>
+    <li><a href="#ref-for-schedule-processing①">7.3. PeriodicSyncManager interface</a>
+    <li><a href="#ref-for-schedule-processing②">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="serviceworkerregistration-periodic-sync-manager">
+   <b><a href="#serviceworkerregistration-periodic-sync-manager">#serviceworkerregistration-periodic-sync-manager</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-serviceworkerregistration-periodic-sync-manager">7.2. Extensions to the ServiceWorkerRegistration interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-serviceworkerregistration-periodicsync">
+   <b><a href="#dom-serviceworkerregistration-periodicsync">#dom-serviceworkerregistration-periodicsync</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-serviceworkerregistration-periodicsync">7.2. Extensions to the ServiceWorkerRegistration interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="periodicsyncmanager">
+   <b><a href="#periodicsyncmanager">#periodicsyncmanager</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsyncmanager">3.1. PeriodicSync Registration</a>
+    <li><a href="#ref-for-periodicsyncmanager①">7.2. Extensions to the ServiceWorkerRegistration interface</a> <a href="#ref-for-periodicsyncmanager②">(2)</a> <a href="#ref-for-periodicsyncmanager③">(3)</a>
+    <li><a href="#ref-for-periodicsyncmanager④">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-periodicsyncmanager⑤">(2)</a> <a href="#ref-for-periodicsyncmanager⑥">(3)</a> <a href="#ref-for-periodicsyncmanager⑦">(4)</a> <a href="#ref-for-periodicsyncmanager⑧">(5)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dictdef-backgroundsyncoptions">
+   <b><a href="#dictdef-backgroundsyncoptions">#dictdef-backgroundsyncoptions</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-backgroundsyncoptions">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-periodicsyncmanager-service-worker-registration">
+   <b><a href="#dom-periodicsyncmanager-service-worker-registration">#dom-periodicsyncmanager-service-worker-registration</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-periodicsyncmanager-service-worker-registration">7.2. Extensions to the ServiceWorkerRegistration interface</a>
+    <li><a href="#ref-for-dom-periodicsyncmanager-service-worker-registration①">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-periodicsyncmanager-register">
+   <b><a href="#dom-periodicsyncmanager-register">#dom-periodicsyncmanager-register</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-periodicsyncmanager-register">2. Concepts</a>
+    <li><a href="#ref-for-dom-periodicsyncmanager-register①">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-periodicsyncmanager-gettags">
+   <b><a href="#dom-periodicsyncmanager-gettags">#dom-periodicsyncmanager-gettags</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-periodicsyncmanager-gettags">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-periodicsyncmanager-unregister">
+   <b><a href="#dom-periodicsyncmanager-unregister">#dom-periodicsyncmanager-unregister</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-periodicsyncmanager-unregister">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="periodicsync-event">
+   <b><a href="#periodicsync-event">#periodicsync-event</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsync-event">1.1. Example</a>
+    <li><a href="#ref-for-periodicsync-event①">2. Concepts</a>
+    <li><a href="#ref-for-periodicsync-event②">3.1. PeriodicSync Registration</a> <a href="#ref-for-periodicsync-event③">(2)</a> <a href="#ref-for-periodicsync-event④">(3)</a>
+    <li><a href="#ref-for-periodicsync-event⑤">3.2. Constants</a> <a href="#ref-for-periodicsync-event⑥">(2)</a> <a href="#ref-for-periodicsync-event⑦">(3)</a>
+    <li><a href="#ref-for-periodicsync-event⑧">3.3. Global State</a> <a href="#ref-for-periodicsync-event⑨">(2)</a>
+    <li><a href="#ref-for-periodicsync-event①⓪">4.2. Location Tracking</a> <a href="#ref-for-periodicsync-event①①">(2)</a> <a href="#ref-for-periodicsync-event①②">(3)</a>
+    <li><a href="#ref-for-periodicsync-event①③">4.3. History Leaking</a> <a href="#ref-for-periodicsync-event①④">(2)</a> <a href="#ref-for-periodicsync-event①⑤">(3)</a> <a href="#ref-for-periodicsync-event①⑥">(4)</a>
+    <li><a href="#ref-for-periodicsync-event①⑦">5. Resource Usage</a> <a href="#ref-for-periodicsync-event①⑧">(2)</a>
+    <li><a href="#ref-for-periodicsync-event①⑨">6.1. Calculate a time to fire</a> <a href="#ref-for-periodicsync-event②⓪">(2)</a> <a href="#ref-for-periodicsync-event②①">(3)</a> <a href="#ref-for-periodicsync-event②②">(4)</a>
+    <li><a href="#ref-for-periodicsync-event②③">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-periodicsync-event②④">(2)</a> <a href="#ref-for-periodicsync-event②⑤">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dictdef-periodicsynceventinit">
+   <b><a href="#dictdef-periodicsynceventinit">#dictdef-periodicsynceventinit</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-periodicsynceventinit">7.4. The periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="periodicsyncevent">
+   <b><a href="#periodicsyncevent">#periodicsyncevent</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-periodicsyncevent">7.4. The periodicSync event</a>
+    <li><a href="#ref-for-periodicsyncevent①">7.4.2. Fire a periodicSync event</a> <a href="#ref-for-periodicsyncevent②">(2)</a> <a href="#ref-for-periodicsyncevent③">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-periodicsyncevent-tag">
+   <b><a href="#dom-periodicsyncevent-tag">#dom-periodicsyncevent-tag</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-periodicsyncevent-tag">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="retry">
+   <b><a href="#retry">#retry</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-retry">6.1. Calculate a time to fire</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="fire-a-periodicsync-event">
+   <b><a href="#fire-a-periodicsync-event">#fire-a-periodicsync-event</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-fire-a-periodicsync-event">6.2. Schedule processing</a>
+    <li><a href="#ref-for-fire-a-periodicsync-event①">7.4.1. Firing periodicSync events</a>
+    <li><a href="#ref-for-fire-a-periodicsync-event②">7.4.2. Fire a periodicSync event</a>
    </ul>
   </aside>
 <script>/* script-dfn-panel */
