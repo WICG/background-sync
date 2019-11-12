@@ -1215,7 +1215,7 @@ Possible extra rowspan handling
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version ee4d7efc3ed6155392d49e10a542e2351fd5792d" name="generator">
   <link href="https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html" rel="canonical">
-  <meta content="0bb234d152387981a7645e32d888d524259c6d9c" name="document-revision">
+  <meta content="396b26f525bec532b19193da247427f92b038944" name="document-revision">
 <style>/* style-md-lists */
 
 /* This is a weird hack for me not yet following the commonmark spec
@@ -1462,7 +1462,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Periodic Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-11-12">12 November 2019</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-11-13">13 November 2019</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1504,6 +1504,13 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
      </ol>
     <li><a href="#concepts"><span class="secno">2</span> <span class="content">Concepts</span></a>
     <li><a href="#constructs"><span class="secno">3</span> <span class="content">Constructs</span></a>
+    <li>
+     <a href="#privacy"><span class="secno">4</span> <span class="content">Privacy Considerations</span></a>
+     <ol class="toc">
+      <li><a href="#permission"><span class="secno">4.1</span> <span class="content">Permission</span></a>
+      <li><a href="#location-tracking"><span class="secno">4.2</span> <span class="content">Location Tracking</span></a>
+      <li><a href="#history-leaking"><span class="secno">4.3</span> <span class="content">History Leaking</span></a>
+     </ol>
     <li><a href="#conformance"><span class="secno"></span> <span class="content"> Conformance</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
@@ -1545,7 +1552,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
 </pre>
    <p>In the above example <code>fetchAndCacheLatestNews</code> is a developer-defined function is a developer-defined function that fetches the latest news articles from a server and stores them locally, for example using the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#cache" id="ref-for-cache">Cache</a></code> API, for offline consumption.</p>
    <h2 class="heading settled" data-level="2" id="concepts"><span class="secno">2. </span><span class="content">Concepts</span><a class="self-link" href="#concepts"></a></h2>
-   <p>The <code>periodicsync</code> event is considered to run <dfn data-dfn-type="dfn" data-noexport id="in-the-background">in the background<a class="self-link" href="#in-the-background"></a></dfn> if no <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client" id="ref-for-dfn-service-worker-client">service worker clients</a> whose <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client-frame-type" id="ref-for-dfn-service-worker-client-frame-type">frame type</a> is top-level or auxiliary exist for the origin of the corresponding service worker registration.</p>
+   <p>The <code>periodicsync</code> event is considered to run <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="in-the-background">in the background</dfn> if no <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client" id="ref-for-dfn-service-worker-client">service worker clients</a> whose <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client-frame-type" id="ref-for-dfn-service-worker-client-frame-type">frame type</a> is top-level or auxiliary exist for the origin of the corresponding service worker registration.</p>
    <p>The user agent is considered to be <a data-link-type="dfn" href="https://wicg.github.io/BackgroundSync/spec/#online" id="ref-for-online">online</a> if the user agent has established a network connection. A user agent MAY use a stricter definition of being <a data-link-type="dfn" href="https://wicg.github.io/BackgroundSync/spec/#online" id="ref-for-online①">online</a>. Such a stricter definition MAY take into account the particular <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker①">service worker</a> or origin a <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration">periodicsync registration</a> is associated with.</p>
    <p>#TODO: link to PeriodicSyncManager.register().
 A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodic-background-sync-opportunity">periodic Background Sync opportunity</dfn> allows periodic synchronization between the server and the web app, the exact interval of which is decided by the user agent.</p>
@@ -1556,6 +1563,13 @@ A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodic-backgr
    <p>The options are a dictionary containing <a data-link-type="dfn" href="#mininterval" id="ref-for-mininterval">minInterval</a>, a long long. <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="mininterval">minInterval</dfn> is used to specify the minimum interval, in milliseconds, at which the periodic synchronization should happen. <a data-link-type="dfn" href="#mininterval" id="ref-for-mininterval①">minInterval</a> is a suggestion to the user agent. The actual interval at which <code>periodicsync</code> events are fired MUST be greater than or equal to this.
 Enclosing options in a dictionary allows this spec to be extended with more options in the future without adversely affecting existing usage.</p>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="registration-state">registration state</dfn> is one of <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="pending">pending</dfn>, <dfn data-dfn-type="dfn" data-noexport id="waiting">waiting<a class="self-link" href="#waiting"></a></dfn>, <dfn data-dfn-type="dfn" data-noexport id="firing">firing<a class="self-link" href="#firing"></a></dfn>, or <dfn data-dfn-type="dfn" data-noexport id="reregisteredwhilefiring">reregisteredWhileFiring<a class="self-link" href="#reregisteredwhilefiring"></a></dfn>. It is initially set to <a data-link-type="dfn" href="#pending" id="ref-for-pending">pending</a>.</p>
+   <h2 class="heading settled" data-level="4" id="privacy"><span class="secno">4. </span><span class="content">Privacy Considerations</span><a class="self-link" href="#privacy"></a></h2>
+   <h3 class="heading settled" data-level="4.1" id="permission"><span class="secno">4.1. </span><span class="content">Permission</span><a class="self-link" href="#permission"></a></h3>
+    Periodic Background Sync is only available if the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#enumdef-permissionstate" id="ref-for-enumdef-permissionstate">PermissionState</a></code> for a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dictdef-permissiondescriptor" id="ref-for-dictdef-permissiondescriptor">PermissionDescriptor</a></code> with <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissiondescriptor-name" id="ref-for-dom-permissiondescriptor-name">name</a></code> <code>"periodic-background-sync"</code> is <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissionstate-granted" id="ref-for-dom-permissionstate-granted">granted</a></code>. In addition, user agents SHOULD offer a way for the user to disable periodic background sync. 
+   <h3 class="heading settled" data-level="4.2" id="location-tracking"><span class="secno">4.2. </span><span class="content">Location Tracking</span><a class="self-link" href="#location-tracking"></a></h3>
+    Fetch requests within the <code>periodicsync</code> event while <a data-link-type="dfn" href="#in-the-background" id="ref-for-in-the-background">in the background</a> may reveal the client’s IP address to the server after the user has left the page. The user agent SHOULD limit tracking by capping the number of retries and duration of <code>periodicsync</code> events, to reduce the amount of time the user’s location can be tracked by the website. Further, the user agent SHOULD limit persistent location tracking by capping the frequency of <code>periodicsync</code> events, both for an origin, and across origins. 
+   <h3 class="heading settled" data-level="4.3" id="history-leaking"><span class="secno">4.3. </span><span class="content">History Leaking</span><a class="self-link" href="#history-leaking"></a></h3>
+    Fetch requests within the <code>periodicsync</code> event while <a data-link-type="dfn" href="#in-the-background" id="ref-for-in-the-background①">in the background</a> may reveal something about the client’s navigation history to middleboxes on networks different from the one used to create the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration③">periodicsync registration</a>. For instance, the client might visit site https://example.com, which registers a <code>periodicsync</code> event, but based on the implementation, might not fire until after the user has navigated away from the page and changed networks. Middleboxes on the new network may see the fetch requests that the <code>periodicsync</code> event makes. The fetch requests are HTTPS so the request contents will not be leaked but the domain may be (via DNS lookups and IP address of the request). To prevent this leakage of browsing history, the user agent MAY choose to only fire <code>periodicsync</code> events on the network the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration④">periodicsync registration</a> was made on, with the understanding that it will reduce usability by not allowing synchronization opportunistically. 
   </main>
   <div data-fill-with="conformance">
    <h2 class="no-ref no-num heading settled" id="conformance"><span class="content"> Conformance</span><a class="self-link" href="#conformance"></a></h2>
@@ -1724,6 +1738,30 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
     <li><a href="#ref-for-browsing-context">1.1. Example</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-dom-permissionstate-granted">
+   <a href="https://w3c.github.io/permissions/#dom-permissionstate-granted">https://w3c.github.io/permissions/#dom-permissionstate-granted</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-permissionstate-granted">4.1. Permission</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-dictdef-permissiondescriptor">
+   <a href="https://w3c.github.io/permissions/#dictdef-permissiondescriptor">https://w3c.github.io/permissions/#dictdef-permissiondescriptor</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-permissiondescriptor">4.1. Permission</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-enumdef-permissionstate">
+   <a href="https://w3c.github.io/permissions/#enumdef-permissionstate">https://w3c.github.io/permissions/#enumdef-permissionstate</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-enumdef-permissionstate">4.1. Permission</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-dom-permissiondescriptor-name">
+   <a href="https://w3c.github.io/permissions/#dom-permissiondescriptor-name">https://w3c.github.io/permissions/#dom-permissiondescriptor-name</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-permissiondescriptor-name">4.1. Permission</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-secure-contexts">
    <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-contexts">https://w3c.github.io/webappsec-secure-contexts/#secure-contexts</a><b>Referenced in:</b>
    <ul>
@@ -1781,6 +1819,14 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
      <li><span class="dfn-paneled" id="term-for-browsing-context" style="color:initial">browsing context</span>
     </ul>
    <li>
+    <a data-link-type="biblio">[permissions]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="term-for-dom-permissionstate-granted" style="color:initial">"granted"</span>
+     <li><span class="dfn-paneled" id="term-for-dictdef-permissiondescriptor" style="color:initial">PermissionDescriptor</span>
+     <li><span class="dfn-paneled" id="term-for-enumdef-permissionstate" style="color:initial">PermissionState</span>
+     <li><span class="dfn-paneled" id="term-for-dom-permissiondescriptor-name" style="color:initial">name</span>
+    </ul>
+   <li>
     <a data-link-type="biblio">[secure-contexts]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="term-for-secure-contexts" style="color:initial">secure contexts</span>
@@ -1810,6 +1856,8 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
   <dl>
    <dt id="biblio-html">[HTML]
    <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dt id="biblio-permissions">[PERMISSIONS]
+   <dd>Mounir Lamouri; Marcos Caceres; Jeffrey Yasskin. <a href="https://www.w3.org/TR/permissions/">Permissions</a>. 25 September 2017. WD. URL: <a href="https://www.w3.org/TR/permissions/">https://www.w3.org/TR/permissions/</a>
    <dt id="biblio-rfc2119">[RFC2119]
    <dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119">https://tools.ietf.org/html/rfc2119</a>
    <dt id="biblio-secure-contexts">[SECURE-CONTEXTS]
@@ -1821,6 +1869,13 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
    <dt id="biblio-webidl">[WebIDL]
    <dd>Boris Zbarsky. <a href="https://heycam.github.io/webidl/">Web IDL</a>. 15 December 2016. ED. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
   </dl>
+  <aside class="dfn-panel" data-for="in-the-background">
+   <b><a href="#in-the-background">#in-the-background</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-in-the-background">4.2. Location Tracking</a>
+    <li><a href="#ref-for-in-the-background①">4.3. History Leaking</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="periodic-background-sync-opportunity">
    <b><a href="#periodic-background-sync-opportunity">#periodic-background-sync-opportunity</a></b><b>Referenced in:</b>
    <ul>
@@ -1838,6 +1893,7 @@ Enclosing options in a dictionary allows this spec to be extended with more opti
    <ul>
     <li><a href="#ref-for-periodicsync-registration">2. Concepts</a>
     <li><a href="#ref-for-periodicsync-registration①">3. Constructs</a> <a href="#ref-for-periodicsync-registration②">(2)</a>
+    <li><a href="#ref-for-periodicsync-registration③">4.3. History Leaking</a> <a href="#ref-for-periodicsync-registration④">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="tag">

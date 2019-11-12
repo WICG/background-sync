@@ -16,6 +16,7 @@ spec:service-workers; type:dfn; text:frame type
 spec:web-background-sync;
     type:dfn; text:online
     type:dfn; text:in the background
+spec:permissions-1; type:dict-member; text:name
 </pre>
 
 Introduction {#intro}
@@ -79,3 +80,15 @@ The options are a dictionary containing [=minInterval=], a long long. <dfn>minIn
 Enclosing options in a dictionary allows this spec to be extended with more options in the future without adversely affecting existing usage.
 
 The <dfn>registration state</dfn> is one of <dfn>pending</dfn>, <dfn>waiting</dfn>, <dfn>firing</dfn>, or <dfn>reregisteredWhileFiring</dfn>. It is initially set to [=pending=].
+
+Privacy Considerations {#privacy}
+==================================
+
+## Permission ## {#permission}
+Periodic Background Sync is only available if the {{PermissionState}} for a {{PermissionDescriptor}} with {{name}} <code>"periodic-background-sync"</code> is {{granted}}. In addition, user agents SHOULD offer a way for the user to disable periodic background sync.
+
+## Location Tracking ## {#location-tracking}
+Fetch requests within the <code>periodicsync</code> event while [=in the background=] may reveal the client's IP address to the server after the user has left the page. The user agent SHOULD limit tracking by capping the number of retries and duration of <code>periodicsync</code> events, to reduce the amount of time the user's location can be tracked by the website. Further, the user agent SHOULD limit persistent location tracking by capping the frequency of <code>periodicsync</code> events, both for an origin, and across origins.
+
+## History Leaking ## {#history-leaking}
+Fetch requests within the <code>periodicsync</code> event while [=in the background=] may reveal something about the client's navigation history to middleboxes on networks different from the one used to create the [=periodicsync registration=]. For instance, the client might visit site https://example.com, which registers a <code>periodicsync</code> event, but based on the implementation, might not fire until after the user has navigated away from the page and changed networks. Middleboxes on the new network may see the fetch requests that the <code>periodicsync</code> event makes. The fetch requests are HTTPS so the request contents will not be leaked but the domain may be (via DNS lookups and IP address of the request). To prevent this leakage of browsing history, the user agent MAY choose to only fire <code>periodicsync</code> events on the network the [=periodicsync registration=] was made on, with the understanding that it will reduce usability by not allowing synchronization opportunistically.
