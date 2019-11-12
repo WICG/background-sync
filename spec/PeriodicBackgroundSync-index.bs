@@ -1,0 +1,81 @@
+<pre class='metadata'>
+Title: Web Periodic Background Synchronization
+Status: CG-DRAFT
+ED: https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html
+Shortname: periodic-background-sync
+Level: 1
+Editor: Mugdha Lakhani, Google, nator@chromium.org
+Abstract: This specification describes a method that enables web applications to periodically synchronize data and content in the background.
+Group: wicg
+Repository: WICG/BackgroundSync
+</pre>
+
+<pre class=link-defaults>
+spec:html; type:dfn; for:/; text:browsing context
+spec:service-workers; type:dfn; text:frame type
+spec:web-background-sync;
+    type:dfn; text:online
+    type:dfn; text:in the background
+</pre>
+
+Introduction {#intro}
+=====================
+
+  <em>This section is non-normative.</em>
+
+  Web Applications often run in environments with unreliable networks (e.g., mobile phones) and unknown lifetimes (the browser might be killed or the user might navigate away).
+  This makes it difficult for web apps to keep their content and state in sync with servers.
+  
+  This API is intended to reduce the time between content creation and content synchronization between the servers and the web app. It does so by letting the web app register an intent to periodically synchronize state and data, with a minimum interval it wishes to do so at. Through a service worker event, the user agent then periodically lets the web app download network resources and update state.
+
+  As this API relies on service workers, functionality provided by this API is only available in a [=secure context=].
+
+  ## Example ## {#example}
+  Requesting a [=periodic Background Sync opportunity=] at a mininimum interval of one day from a [=browsing context=]:
+
+  <pre class="lang-js">
+    async function registerPeriodicNewsCheck() {
+      const registration = await navigator.serviceWorker.ready;
+      try {
+        await registration.periodicSync.register('fetch-news', {
+          minInterval: 24 * 60 * 60 * 1000,
+        });
+      } catch {
+        console.log('Periodic Sync could not be registered!');
+      }
+    }
+  </pre>
+
+  Reacting to a <code>periodicsync</code> event within a [=service worker=]:
+
+  <pre class="lang-js">
+    self.addEventListener('periodicsync', event => {
+      event.waitUntil(fetchAndCacheLatestNews());
+    });
+  </pre>
+
+  In the above example <code>fetchAndCacheLatestNews</code> is a developer-defined function is a developer-defined function that fetches the latest news articles from a server and stores them locally, for example using the {{Cache}} API, for offline consumption.
+
+Concepts {#concepts}
+========================
+
+The <code>periodicsync</code> event is considered to run <dfn>in the background</dfn> if no [=service worker clients=] whose [=frame type=] is top-level or auxiliary exist for the origin of the corresponding service worker registration.
+
+The user agent is considered to be [=online=] if the user agent has established a network connection. A user agent MAY use a stricter definition of being [=online=]. Such a stricter definition MAY take into account the particular [=service worker=] or origin a [=periodicsync registration=] is associated with.
+
+#TODO: link to PeriodicSyncManager.register().
+A <dfn>periodic Background Sync opportunity</dfn> allows periodic synchronization between the server and the web app, the exact interval of which is decided by the user agent.
+
+Constructs {#constructs}
+=========================
+
+A [=service worker registration=] has an associated <dfn>list of periodicsync registrations</dfn> whose element type is a [=periodicsync registration=].
+
+A <dfn>periodicsync registration</dfn> is a tuple consisting of a [=tag=], a dictionary of options, and a [=registration state=].
+
+The <dfn>tag</dfn> is a {{DOMString}}. Within one [=list of periodicsync registrations=] each [=periodicsync registration=] MUST have a unique [=tag=]. Periodic Background Sync doesn't share namespace with Background Sync, so an origin can have registrations of both types with the same tag.
+
+The options are a dictionary containing [=minInterval=], a long long. <dfn>minInterval</dfn> is used to specify the minimum interval, in milliseconds, at which the periodic synchronization should happen. [=minInterval=] is a suggestion to the user agent. The actual interval at which <code>periodicsync</code> events are fired MUST be greater than or equal to this.
+Enclosing options in a dictionary allows this spec to be extended with more options in the future without adversely affecting existing usage.
+
+The <dfn>registration state</dfn> is one of <dfn>pending</dfn>, <dfn>waiting</dfn>, <dfn>firing</dfn>, or <dfn>reregisteredWhileFiring</dfn>. It is initially set to [=pending=].
