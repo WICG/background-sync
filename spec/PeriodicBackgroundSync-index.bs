@@ -12,6 +12,7 @@ Repository: WICG/BackgroundSync
 
 <pre class=link-defaults>
 spec:html; type:dfn; for:/; text:browsing context
+spec:promises-guide-1; type:dfn; text:resolve
 spec:service-workers; type:dfn; text:frame type
 spec:web-background-sync;
     type:dfn; text:online
@@ -64,20 +65,21 @@ The <code>periodicsync</code> event is considered to run <dfn>in the background<
 
 The user agent is considered to be [=online=] if the user agent has established a network connection. A user agent MAY use a stricter definition of being [=online=]. Such a stricter definition MAY take into account the particular [=service worker=] or origin a [=periodicsync registration=] is associated with.
 
-#TODO: link to PeriodicSyncManager.register().
-A <dfn>periodic Background Sync opportunity</dfn> allows periodic synchronization between the server and the web app, the exact interval of which is decided by the user agent.
+A <dfn>periodic Background Sync opportunity</dfn> allows periodic synchronization between the server and the web app, the exact interval of which is decided by the user agent. This can be requested through {{PeriodicSyncManager}}.
 
 Constructs {#constructs}
 =========================
 
 A [=service worker registration=] has an associated <dfn>list of periodicsync registrations</dfn> whose element type is a [=periodicsync registration=].
 
-A <dfn>periodicsync registration</dfn> is a tuple consisting of a [=tag=], a dictionary of options, and a [=registration state=].
+A <dfn>periodicsync registration</dfn> is a tuple consisting of a [=tag=], a dictionary of options, a <dfn>time to fire</dfn> and a [=registration state=].
 
 The <dfn>tag</dfn> is a {{DOMString}}. Within one [=list of periodicsync registrations=] each [=periodicsync registration=] MUST have a unique [=tag=]. Periodic Background Sync doesn't share namespace with Background Sync, so an origin can have registrations of both types with the same tag.
 
 The options are a dictionary containing [=minInterval=], a long long. <dfn>minInterval</dfn> is used to specify the minimum interval, in milliseconds, at which the periodic synchronization should happen. [=minInterval=] is a suggestion to the user agent. The actual interval at which <code>periodicsync</code> events are fired MUST be greater than or equal to this.
 Enclosing options in a dictionary allows this spec to be extended with more options in the future without adversely affecting existing usage.
+
+The [=time to fire=] is the soonest time decided by the user agent at which it is appropriate to fire the next <periodicsync> event for the [=periodicsync registration=].
 
 The <dfn>registration state</dfn> is one of <dfn>pending</dfn>, <dfn>waiting</dfn>, <dfn>firing</dfn>, or <dfn>reregisteredWhileFiring</dfn>. It is initially set to [=pending=].
 
@@ -92,3 +94,64 @@ Fetch requests within the <code>periodicsync</code> event while [=in the backgro
 
 ## History Leaking ## {#history-leaking}
 Fetch requests within the <code>periodicsync</code> event while [=in the background=] may reveal something about the client's navigation history to middleboxes on networks different from the one used to create the [=periodicsync registration=]. For instance, the client might visit site https://example.com, which registers a <code>periodicsync</code> event, but based on the implementation, might not fire until after the user has navigated away from the page and changed networks. Middleboxes on the new network may see the fetch requests that the <code>periodicsync</code> event makes. The fetch requests are HTTPS so the request contents will not be leaked but the domain may be (via DNS lookups and IP address of the request). To prevent this leakage of browsing history, the user agent MAY choose to only fire <code>periodicsync</code> events on the network the [=periodicsync registration=] was made on, with the understanding that it will reduce usability by not allowing synchronization opportunistically.
+
+API Description {#api-description}
+===================================
+## Extensions to the {{ServiceWorkerGlobalScope}} interface ## {#serviceworkerglobalscope-extension}
+<script type="idl">
+partial interface ServiceWorkerGlobalScope {
+    attribute EventHandler onperiodicsync;
+};
+</script>
+
+## Extensions to the {{ServiceWorkerRegistration}} interface## {#service-worker-extensions}
+
+<script type="idl">
+[Exposed=(Window,Worker)]
+partial interface ServiceWorkerRegistration {
+  readonly attribute PeriodicSyncManager periodicSync;
+};
+</script>
+
+A {{ServiceWorkerRegistration}} has a <dfn>periodic sync manager</dfn> (a {{PeriodicSyncManager}}), initially a new {{PeriodicSyncManager}} whose [=service worker registration=] is the [=context object=]'s [=service worker registration=]. The <code>periodicSync</code> attribute's getter must return the [=context object=]'s [=periodic sync manager=].
+
+## {{PeriodicSyncManager}} interface ## {#periodicsyncmanager-interface}
+<script type="idl">
+[Exposed=(Window,Worker)]
+interface PeriodicSyncManager {
+    Promise<void> register(DOMString tag, optional BackgroundSyncOptions options);
+    Promise<sequence<DOMString>> getTags();
+    Promise<void> unregister(DOMString tag);
+};
+
+dictionary BackgroundSyncOptions {
+    [EnforceRange] unsigned long long minInterval = 0;
+};
+</script>
+
+The <code><dfn method for=PeriodicSyncManager title="register(tag, options)">register(<var>tag</var>, <var>options</var>)</dfn></code> method, when invoked, MUST return <a>a new promise</a> <var>promise</var> and run the following steps <a>in parallel</a>:
+
+1. Let <var>serviceWorkerRegistration</var> be the {{PeriodicSyncManager}}'s associated [=service worker registration=].
+1. If |serviceWorkerRegistration|’s [=active worker=] is null, [=reject=] |promise| with an {{InvalidStateError}} and abort these steps.
+1. if the {{PermissionState}} for a {{PermissionDescriptor}} with {{name}} <code>"periodic-background-sync"</code> is not {{granted}}, [=reject=] |promise| with a {{NotAllowedError}} and abort these steps.
+1. Let <var>isBackground</var> be true.
+1. For each <var>client</var> in the [=service worker clients=] for the |serviceWorkerRegistration|'s origin:
+1. If |client|'s [=frame type=] is top-level or auxiliary, set |isBackground| to false.
+1. If |isBackground| is true, [=reject=] |promise| with an {{InvalidAccessError}} and abort these steps.
+1. Let <var>currentRegistration</var> be the [=periodicsync registration=] in |serviceWorkerRegistration|'s [=list of periodicSync registrations=] whose [=tag=] equals <var>tag</var> if it exists, else null.
+1. If |currentRegistration| is null:
+    1. Let |newRegistration| be a new [=periodicSync registration=].
+    1. Set |newRegistration|'s associated [=tag=] to |tag|.
+    1. Set |newRegistration|'s associated [=options=] to |options|.
+    1. Set |newRegistration|'s associated [=service worker registration=] to |serviceWorkerRegistration|.
+    1. Add |newRegistration| to |serviceWorkerRegistration|'s [=list of periodicsync registrations=].
+    1. Calculate an appropriate <var>timeToFire</var> for |newRegistration| based on the [=minInterval=] value of |options|, and any other considerations the user agent has implemented per recommendations in [[#privacy]] and Resource Usage. The time interval between now and |timeToFire| MUST be greater than or equal to the [=minInterval=] specified in |options|. Set the |newRegistration|'s [=time to fire=] to |timeToFire|.
+    1. [=Resolve=] |promise|.
+1. Else:
+    1. If |serviceWorkerRegistration|'s [=registration state=] is [=waiting=], set <var>currentRegistration</var>'s [=registration state=] to [=pending=].
+    1. If |serviceWorkerRegistration|'s [=registration state=] is [=firing=],
+        1. Set |serviceWorkerRegistration|'s [=registration state=] to [=reregisteredWhileFiring=].
+        1. If the |currentRegistration|'s [=options=] are different from |options|:
+            1. Set |currentRegistration|'s associated [=options=] to |options|.
+            1. Calculate an appropriate <var>timeToFire</var> for |currentRegistration| based on the [=minInterval=] value of |options|, and any other considerations the user agent has implemented per recommendations in [[#privacy]] and Resource Usage. The time interval between now and |timeToFire| MUST be greater than or equal to the [=minInterval=] specified in |options|. Set the |currentRegistration|'s [=time to fire=] to |timeToFire|.
+    1. [=Resolve=] |promise|.
