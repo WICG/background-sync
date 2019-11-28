@@ -12,21 +12,22 @@ Repository: WICG/BackgroundSync
 
 <pre class="anchors">
 spec: background-fetch; urlPrefix: https://wicg.github.io/background-fetch/
-    type:interface; text: BackgroundFetchManager;
+    type:interface; text: BackgroundFetchManager
     type:dfn; text:background fetch
 </pre>
 
 <pre class=link-defaults>
 spec:html; type:dfn; for:/; text:browsing context
-spec:promises-guide-1; type:dfn; text:resolve
 spec:service-workers;
-    type:dfn; text:frame type;
-    type:dfn; text:origin;
-    type:dfn; text:terminate service worker;
+    type:dfn; text:frame type
+    type:dfn; text:origin
+    type:dfn; text:terminate service worker
+    type:dfn; for:/; text:service worker
 spec:web-background-sync;
     type:dfn; text:online
     type:dfn; text:in the background
 spec:permissions-1; type:dict-member; text:name
+spec:webidl; type:dfn; text:resolve
 </pre>
 
 Introduction {#intro}
@@ -215,6 +216,10 @@ The <code><dfn method for=PeriodicSyncManager title="register(tag, options)">reg
 1. If |serviceWorkerRegistration|’s [=active worker=] is null, [=reject=] |promise| with an {{InvalidStateError}} and abort these steps.
 1. Else, [=enqueue the following steps=] to the [=periodicsync processing queue=]:
     1. If the {{PermissionState}} for a {{PermissionDescriptor}} with {{PermissionDescriptor/name}} <code>"periodic-background-sync"</code> is not {{PermissionState/granted}}, [=reject=] |promise| with a {{NotAllowedError}} and abort these steps.
+    1. Let |isBackground|, a boolean, be true.
+    1. For each |client| in the [=service worker clients=] for the |serviceWorkerRegistration|'s [=origin=]:
+      1. If |client|'s [=frame type=] is top-level or auxillary, set |isBackground| to false.
+    1. If |isBackground| is true, [=reject=] |promise| with an {{InvalidAccessError}} and abort these steps.
     1. Let |currentRegistration| be the [=periodicsync registration=] in |serviceWorkerRegistration|'s [=list of periodicsync registrations=] whose [=periodicsync registration/tag=] equals |tag| if it exists, else null.
     1. If |currentRegistration| is null:
         1. Let |newRegistration| be a new [=periodicsync registration=].
