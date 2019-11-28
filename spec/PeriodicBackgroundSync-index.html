@@ -1029,7 +1029,7 @@ Possible extra rowspan handling
 		}
 	/* } */
 
-	@supports (display:grid) {
+	@supports (display:grid) and (display:contents) {
 		/* Use #toc over .toc to override non-@supports rules. */
 		#toc {
 			display: grid;
@@ -1213,9 +1213,9 @@ Possible extra rowspan handling
 	}
 </style>
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version ee4d7efc3ed6155392d49e10a542e2351fd5792d" name="generator">
+  <meta content="Bikeshed version 60a9f27730c0c9ae3e20485f824cef3713caf5fb" name="generator">
   <link href="https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html" rel="canonical">
-  <meta content="02d05f781151845ec398d371156d418a97f52f03" name="document-revision">
+  <meta content="38ad042d61de1d7d3b6e7692c0c0aa7111b7be49" name="document-revision">
 <style>/* style-md-lists */
 
 /* This is a weird hack for me not yet following the commonmark spec
@@ -1462,7 +1462,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Periodic Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-11-25">25 November 2019</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-12-02">2 December 2019</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1597,7 +1597,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
     <p>A <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-registration-state">registration state</dfn>, which is one of <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-pending">pending</dfn>, <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-firing">firing</dfn>, or <dfn class="dfn-paneled" data-dfn-for="periodicsync registration" data-dfn-type="dfn" data-noexport id="periodicsync-registration-reregisteredwhilefiring">reregisteredWhileFiring</dfn>. It is initially set to <a data-link-type="dfn" href="#periodicsync-registration-pending" id="ref-for-periodicsync-registration-pending">pending</a>.</p>
    </div>
    <h3 class="heading settled" data-level="3.2" id="constants"><span class="secno">3.2. </span><span class="content">Constants</span><a class="self-link" href="#constants"></a></h3>
-    As recommended in <a href="#privacy">§4 Privacy Considerations</a> and <a href="#resources">§5 Resource Usage</a>, the user agent SHOULD also define: 
+    As recommended in <a href="#privacy">§ 4 Privacy Considerations</a> and <a href="#resources">§ 5 Resource Usage</a>, the user agent SHOULD also define: 
    <ul>
     <li data-md>
      <p><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="minimum-interval-for-any-origin">minimum interval for any origin</dfn>, a long long, that represents the minimum gap between <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event⑤">periodicSync events</a> for any given origin, and,</p>
@@ -1711,17 +1711,25 @@ The user agent should cap the duration and frequency of these events to limit re
 };
 </pre>
    <p>A <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager⑤">PeriodicSyncManager</a></code> has a <dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="attribute" data-export id="dom-periodicsyncmanager-service-worker-registration"><code>service worker registration</code></dfn> (a <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration③">service worker registration</a>).</p>
-   <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export data-lt="register(tag, options)|register(tag)" id="dom-periodicsyncmanager-register" title="register(tag, options)"><code>register(<var>tag</var>, <var>options</var>)</code></dfn></code> method, when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise" id="ref-for-a-new-promise">a new promise</a> <var>promise</var> and run the following steps:</p>
+   <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export data-lt="register(tag, options)|register(tag)" id="dom-periodicsyncmanager-register" title="register(tag, options)"><code>register(<var>tag</var>, <var>options</var>)</code></dfn></code> method, when invoked, MUST return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#a-new-promise" id="ref-for-a-new-promise">a new promise</a> <var>promise</var> and run the following steps:</p>
    <ol>
     <li data-md>
      <p>Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager⑥">PeriodicSyncManager</a></code>'s associated <code class="idl"><a data-link-type="idl" href="#dom-periodicsyncmanager-service-worker-registration" id="ref-for-dom-periodicsyncmanager-service-worker-registration①">service worker registration</a></code>.</p>
     <li data-md>
-     <p>If <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-active-worker" id="ref-for-dfn-active-worker">active worker</a> is null, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise" id="ref-for-reject-promise">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror">InvalidStateError</a></code> and abort these steps.</p>
+     <p>If <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-active-worker" id="ref-for-dfn-active-worker">active worker</a> is null, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#reject" id="ref-for-reject">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror">InvalidStateError</a></code> and abort these steps.</p>
     <li data-md>
      <p>Else, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue">periodicsync processing queue</a>:</p>
      <ol>
       <li data-md>
-       <p>If the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#enumdef-permissionstate" id="ref-for-enumdef-permissionstate①">PermissionState</a></code> for a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dictdef-permissiondescriptor" id="ref-for-dictdef-permissiondescriptor①">PermissionDescriptor</a></code> with <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissiondescriptor-name" id="ref-for-dom-permissiondescriptor-name①">name</a></code> <code>"periodic-background-sync"</code> is not <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissionstate-granted" id="ref-for-dom-permissionstate-granted①">granted</a></code>, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise" id="ref-for-reject-promise①">reject</a> <var>promise</var> with a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#notallowederror" id="ref-for-notallowederror">NotAllowedError</a></code> and abort these steps.</p>
+       <p>If the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#enumdef-permissionstate" id="ref-for-enumdef-permissionstate①">PermissionState</a></code> for a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dictdef-permissiondescriptor" id="ref-for-dictdef-permissiondescriptor①">PermissionDescriptor</a></code> with <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissiondescriptor-name" id="ref-for-dom-permissiondescriptor-name①">name</a></code> <code>"periodic-background-sync"</code> is not <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/permissions/#dom-permissionstate-granted" id="ref-for-dom-permissionstate-granted①">granted</a></code>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#reject" id="ref-for-reject①">reject</a> <var>promise</var> with a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#notallowederror" id="ref-for-notallowederror">NotAllowedError</a></code> and abort these steps.</p>
+      <li data-md>
+       <p>Let <var>isBackground</var>, a boolean, be true.</p>
+      <li data-md>
+       <p>For each <var>client</var> in the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client" id="ref-for-dfn-service-worker-client①">service worker clients</a> for the <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#service-worker-client-origin" id="ref-for-service-worker-client-origin⑤">origin</a>:</p>
+      <li data-md>
+       <p>If <var>client</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client-frame-type" id="ref-for-dfn-service-worker-client-frame-type①">frame type</a> is top-level or auxillary, set <var>isBackground</var> to false.</p>
+      <li data-md>
+       <p>If <var>isBackground</var> is true, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#reject" id="ref-for-reject②">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidaccesserror" id="ref-for-invalidaccesserror">InvalidAccessError</a></code> and abort these steps.</p>
       <li data-md>
        <p>Let <var>currentRegistration</var> be the <a data-link-type="dfn" href="#periodicsync-registration" id="ref-for-periodicsync-registration①⓪">periodicsync registration</a> in <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-periodicsync-registrations" id="ref-for-list-of-periodicsync-registrations①">list of periodicsync registrations</a> whose <a data-link-type="dfn" href="#periodicsync-registration-tag" id="ref-for-periodicsync-registration-tag①">tag</a> equals <var>tag</var> if it exists, else null.</p>
       <li data-md>
@@ -1744,7 +1752,7 @@ The user agent should cap the duration and frequency of these events to limit re
         <li data-md>
          <p><a data-link-type="dfn" href="#schedule-processing" id="ref-for-schedule-processing①">Schedule processing</a> for <var>registration</var>.</p>
         <li data-md>
-         <p><a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise" id="ref-for-resolve-promise">Resolve</a> <var>promise</var>.</p>
+         <p><a data-link-type="dfn" href="https://heycam.github.io/webidl/#resolve" id="ref-for-resolve">Resolve</a> <var>promise</var>.</p>
        </ol>
       <li data-md>
        <p>Else:</p>
@@ -1762,11 +1770,11 @@ The user agent should cap the duration and frequency of these events to limit re
         <li data-md>
          <p>Else, if <var>currentRegistration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state③">registration state</a> is <a data-link-type="dfn" href="#periodicsync-registration-firing" id="ref-for-periodicsync-registration-firing">firing</a>, set <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-registration-state" id="ref-for-periodicsync-registration-registration-state④">registration state</a> to <a data-link-type="dfn" href="#periodicsync-registration-reregisteredwhilefiring" id="ref-for-periodicsync-registration-reregisteredwhilefiring">reregisteredWhileFiring</a>.</p>
         <li data-md>
-         <p><a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise" id="ref-for-resolve-promise①">Resolve</a> <var>promise</var>.</p>
+         <p><a data-link-type="dfn" href="https://heycam.github.io/webidl/#resolve" id="ref-for-resolve①">Resolve</a> <var>promise</var>.</p>
        </ol>
      </ol>
    </ol>
-   <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export id="dom-periodicsyncmanager-gettags" title="getTags()"><code>getTags()</code></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise" id="ref-for-a-new-promise①">a new promise</a> <var>promise</var> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps①">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue①">periodicsync processing queue</a>:</p>
+   <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export id="dom-periodicsyncmanager-gettags" title="getTags()"><code>getTags()</code></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#a-new-promise" id="ref-for-a-new-promise①">a new promise</a> <var>promise</var> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps①">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue①">periodicsync processing queue</a>:</p>
    <ol>
     <li data-md>
      <p>Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager⑦">PeriodicSyncManager</a></code>'s associated <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration④">service worker registration</a>.</p>
@@ -1775,14 +1783,14 @@ The user agent should cap the duration and frequency of these events to limit re
     <li data-md>
      <p>For each <var>registration</var> of <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="#list-of-periodicsync-registrations" id="ref-for-list-of-periodicsync-registrations③">list of periodicsync registrations</a>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append">append</a> <var>registration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-tag" id="ref-for-periodicsync-registration-tag③">tag</a> to <var>currentTags</var>.</p>
     <li data-md>
-     <p><a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise" id="ref-for-resolve-promise②">Resolve</a> <var>promise</var> with <var>currentTags</var>.</p>
+     <p><a data-link-type="dfn" href="https://heycam.github.io/webidl/#resolve" id="ref-for-resolve②">Resolve</a> <var>promise</var> with <var>currentTags</var>.</p>
    </ol>
-   <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export id="dom-periodicsyncmanager-unregister" title="unregister(tag)"><code>unregister(tag)</code></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise" id="ref-for-a-new-promise②">a new promise</a> <var>promise</var> and run the following steps:</p>
+   <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export id="dom-periodicsyncmanager-unregister" title="unregister(tag)"><code>unregister(tag)</code></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#a-new-promise" id="ref-for-a-new-promise②">a new promise</a> <var>promise</var> and run the following steps:</p>
    <ol>
     <li data-md>
      <p>Let <var>serviceWorkerRegistration</var> be the <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager⑧">PeriodicSyncManager</a></code>'s associated <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration⑤">service worker registration</a>.</p>
     <li data-md>
-     <p>If <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-active-worker" id="ref-for-dfn-active-worker①">active worker</a> is null, <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise" id="ref-for-reject-promise②">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror①">InvalidStateError</a></code> and abort these steps.</p>
+     <p>If <var>serviceWorkerRegistration</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-active-worker" id="ref-for-dfn-active-worker①">active worker</a> is null, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#reject" id="ref-for-reject③">reject</a> <var>promise</var> with an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror①">InvalidStateError</a></code> and abort these steps.</p>
     <li data-md>
      <p>Else, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps②">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue②">periodicsync processing queue</a>:</p>
      <ol>
@@ -1827,9 +1835,9 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
      <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel">In parallel</a>, <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#fire-functional-event" id="ref-for-fire-functional-event">fire functional event</a> "<code>periodicSync</code>" using <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent③">PeriodicSyncEvent</a></code> on <var>serviceWorkerRegistration</var> with <code class="idl"><a data-link-type="idl" href="#dom-periodicsyncevent-tag" id="ref-for-dom-periodicsyncevent-tag">tag</a></code> set to <var>registration</var>’s <a data-link-type="dfn" href="#periodicsync-registration-tag" id="ref-for-periodicsync-registration-tag⑤">tag</a>. Let <var>dispatchedEvent</var>, an <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent②">ExtendableEvent</a></code>, represent the dispatched <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event②⑤">periodicSync event</a>, and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps④">enqueue the following steps</a> on the <a data-link-type="dfn" href="#periodicsync-processing-queue" id="ref-for-periodicsync-processing-queue④">periodicsync processing queue</a>:</p>
      <ol>
       <li data-md>
-       <p>Let <var>waitUntilPromise</var> be the result of <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#waiting-for-all" id="ref-for-waiting-for-all">waiting for all</a> of <var>dispatchedEvent</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises">extend lifetime promises</a>.</p>
+       <p>Let <var>waitUntilPromise</var> be the result of <a data-link-type="dfn" href="https://heycam.github.io/webidl/#wait-for-all" id="ref-for-wait-for-all">waiting for all</a> of <var>dispatchedEvent</var>’s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises">extend lifetime promises</a>.</p>
       <li data-md>
-       <p><a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#upon-fulfillment" id="ref-for-upon-fulfillment">Upon fulfillment</a> or <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#upon-rejection" id="ref-for-upon-rejection">rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#terminate-service-worker" id="ref-for-terminate-service-worker">termination</a> of the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker②">service worker</a> of <var>waitUntilPromise</var>, run the following steps:</p>
+       <p><a data-link-type="dfn" href="https://heycam.github.io/webidl/#upon-fulfillment" id="ref-for-upon-fulfillment">Upon fulfillment</a> or <a data-link-type="dfn" href="https://heycam.github.io/webidl/#upon-rejection" id="ref-for-upon-rejection">rejection</a> of <var>waitUntilPromise</var>, or if the script has been aborted by the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#terminate-service-worker" id="ref-for-terminate-service-worker">termination</a> of the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker②">service worker</a> of <var>waitUntilPromise</var>, run the following steps:</p>
        <ol>
         <li data-md>
          <p>Set <var>registration</var>’s state to <a data-link-type="dfn" href="#periodicsync-registration-pending" id="ref-for-periodicsync-registration-pending⑥">pending</a>.</p>
@@ -2146,42 +2154,6 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
     <li><a href="#ref-for-dom-permissiondescriptor-name①">7.3. PeriodicSyncManager interface</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="term-for-a-new-promise">
-   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise">https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-a-new-promise">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-a-new-promise①">(2)</a> <a href="#ref-for-a-new-promise②">(3)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-reject-promise">
-   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise">https://www.w3.org/2001/tag/doc/promises-guide/#reject-promise</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-reject-promise">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-reject-promise①">(2)</a> <a href="#ref-for-reject-promise②">(3)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-resolve-promise">
-   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise">https://www.w3.org/2001/tag/doc/promises-guide/#resolve-promise</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-resolve-promise">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-resolve-promise①">(2)</a> <a href="#ref-for-resolve-promise②">(3)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-upon-fulfillment">
-   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#upon-fulfillment">https://www.w3.org/2001/tag/doc/promises-guide/#upon-fulfillment</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-upon-fulfillment">7.4.2. Fire a periodicSync event</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-upon-rejection">
-   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#upon-rejection">https://www.w3.org/2001/tag/doc/promises-guide/#upon-rejection</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-upon-rejection">7.4.2. Fire a periodicSync event</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-waiting-for-all">
-   <a href="https://www.w3.org/2001/tag/doc/promises-guide/#waiting-for-all">https://www.w3.org/2001/tag/doc/promises-guide/#waiting-for-all</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-waiting-for-all">7.4.2. Fire a periodicSync event</a>
-   </ul>
-  </aside>
   <aside class="dfn-panel" data-for="term-for-secure-contexts">
    <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-contexts">https://w3c.github.io/webappsec-secure-contexts/#secure-contexts</a><b>Referenced in:</b>
    <ul>
@@ -2241,6 +2213,7 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
    <a href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client-frame-type">https://w3c.github.io/ServiceWorker/#dfn-service-worker-client-frame-type</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-service-worker-client-frame-type">2. Concepts</a>
+    <li><a href="#ref-for-dfn-service-worker-client-frame-type①">7.3. PeriodicSyncManager interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-service-worker-client-origin">
@@ -2250,6 +2223,7 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
     <li><a href="#ref-for-service-worker-client-origin①">4.2. Location Tracking</a> <a href="#ref-for-service-worker-client-origin②">(2)</a>
     <li><a href="#ref-for-service-worker-client-origin③">5. Resource Usage</a>
     <li><a href="#ref-for-service-worker-client-origin④">6.1. Calculate a time to fire</a>
+    <li><a href="#ref-for-service-worker-client-origin⑤">7.3. PeriodicSyncManager interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dfn-service-worker">
@@ -2264,6 +2238,7 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
    <a href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-client">https://w3c.github.io/ServiceWorker/#dfn-service-worker-client</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-service-worker-client">2. Concepts</a>
+    <li><a href="#ref-for-dfn-service-worker-client①">7.3. PeriodicSyncManager interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dfn-service-worker-registration">
@@ -2310,6 +2285,12 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
     <li><a href="#ref-for-Exposed②">7.4. The periodicSync event</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-invalidaccesserror">
+   <a href="https://heycam.github.io/webidl/#invalidaccesserror">https://heycam.github.io/webidl/#invalidaccesserror</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-invalidaccesserror">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-invalidstateerror">
    <a href="https://heycam.github.io/webidl/#invalidstateerror">https://heycam.github.io/webidl/#invalidstateerror</a><b>Referenced in:</b>
    <ul>
@@ -2322,10 +2303,46 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
     <li><a href="#ref-for-notallowederror">7.3. PeriodicSyncManager interface</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-a-new-promise">
+   <a href="https://heycam.github.io/webidl/#a-new-promise">https://heycam.github.io/webidl/#a-new-promise</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-a-new-promise">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-a-new-promise①">(2)</a> <a href="#ref-for-a-new-promise②">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-reject">
+   <a href="https://heycam.github.io/webidl/#reject">https://heycam.github.io/webidl/#reject</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-reject">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-reject①">(2)</a> <a href="#ref-for-reject②">(3)</a> <a href="#ref-for-reject③">(4)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-resolve">
+   <a href="https://heycam.github.io/webidl/#resolve">https://heycam.github.io/webidl/#resolve</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-resolve">7.3. PeriodicSyncManager interface</a> <a href="#ref-for-resolve①">(2)</a> <a href="#ref-for-resolve②">(3)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-idl-unsigned-long-long">
    <a href="https://heycam.github.io/webidl/#idl-unsigned-long-long">https://heycam.github.io/webidl/#idl-unsigned-long-long</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-idl-unsigned-long-long">7.3. PeriodicSyncManager interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-upon-fulfillment">
+   <a href="https://heycam.github.io/webidl/#upon-fulfillment">https://heycam.github.io/webidl/#upon-fulfillment</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-upon-fulfillment">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-upon-rejection">
+   <a href="https://heycam.github.io/webidl/#upon-rejection">https://heycam.github.io/webidl/#upon-rejection</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-upon-rejection">7.4.2. Fire a periodicSync event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-wait-for-all">
+   <a href="https://heycam.github.io/webidl/#wait-for-all">https://heycam.github.io/webidl/#wait-for-all</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-wait-for-all">7.4.2. Fire a periodicSync event</a>
    </ul>
   </aside>
   <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
@@ -2367,16 +2384,6 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
      <li><span class="dfn-paneled" id="term-for-dom-permissiondescriptor-name" style="color:initial">name</span>
     </ul>
    <li>
-    <a data-link-type="biblio">[promises-guide]</a> defines the following terms:
-    <ul>
-     <li><span class="dfn-paneled" id="term-for-a-new-promise" style="color:initial">a new promise</span>
-     <li><span class="dfn-paneled" id="term-for-reject-promise" style="color:initial">reject</span>
-     <li><span class="dfn-paneled" id="term-for-resolve-promise" style="color:initial">resolve</span>
-     <li><span class="dfn-paneled" id="term-for-upon-fulfillment" style="color:initial">upon fulfillment</span>
-     <li><span class="dfn-paneled" id="term-for-upon-rejection" style="color:initial">upon rejection</span>
-     <li><span class="dfn-paneled" id="term-for-waiting-for-all" style="color:initial">waiting for all</span>
-    </ul>
-   <li>
     <a data-link-type="biblio">[secure-contexts]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="term-for-secure-contexts" style="color:initial">secure contexts</span>
@@ -2410,16 +2417,23 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
      <li><span class="dfn-paneled" id="term-for-idl-DOMString" style="color:initial">DOMString</span>
      <li><span class="dfn-paneled" id="term-for-EnforceRange" style="color:initial">EnforceRange</span>
      <li><span class="dfn-paneled" id="term-for-Exposed" style="color:initial">Exposed</span>
+     <li><span class="dfn-paneled" id="term-for-invalidaccesserror" style="color:initial">InvalidAccessError</span>
      <li><span class="dfn-paneled" id="term-for-invalidstateerror" style="color:initial">InvalidStateError</span>
      <li><span class="dfn-paneled" id="term-for-notallowederror" style="color:initial">NotAllowedError</span>
+     <li><span class="dfn-paneled" id="term-for-a-new-promise" style="color:initial">a new promise</span>
+     <li><span class="dfn-paneled" id="term-for-reject" style="color:initial">reject</span>
+     <li><span class="dfn-paneled" id="term-for-resolve" style="color:initial">resolve</span>
      <li><span class="dfn-paneled" id="term-for-idl-unsigned-long-long" style="color:initial">unsigned long long</span>
+     <li><span class="dfn-paneled" id="term-for-upon-fulfillment" style="color:initial">upon fulfillment</span>
+     <li><span class="dfn-paneled" id="term-for-upon-rejection" style="color:initial">upon rejection</span>
+     <li><span class="dfn-paneled" id="term-for-wait-for-all" style="color:initial">waiting for all</span>
     </ul>
   </ul>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-background-fetch">[BACKGROUND-FETCH]
-   <dd><a href="https://wicg.github.io/background-fetch/">Background Fetch</a>. Living Standard. URL: <a href="https://wicg.github.io/background-fetch/">https://wicg.github.io/background-fetch/</a>
+   <dd><a href="https://wicg.github.io/background-fetch/">Background Fetch</a>. cg-draft. URL: <a href="https://wicg.github.io/background-fetch/">https://wicg.github.io/background-fetch/</a>
    <dt id="biblio-dom">[DOM]
    <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/">DOM Standard</a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
    <dt id="biblio-html">[HTML]
@@ -2428,16 +2442,14 @@ If a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync
    <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/">Infra Standard</a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
    <dt id="biblio-permissions">[PERMISSIONS]
    <dd>Mounir Lamouri; Marcos Caceres; Jeffrey Yasskin. <a href="https://www.w3.org/TR/permissions/">Permissions</a>. 25 September 2017. WD. URL: <a href="https://www.w3.org/TR/permissions/">https://www.w3.org/TR/permissions/</a>
-   <dt id="biblio-promises-guide">[PROMISES-GUIDE]
-   <dd>Domenic Denicola. <a href="https://www.w3.org/2001/tag/doc/promises-guide">Writing Promise-Using Specifications</a>. 16 February 2016. TAG Finding. URL: <a href="https://www.w3.org/2001/tag/doc/promises-guide">https://www.w3.org/2001/tag/doc/promises-guide</a>
    <dt id="biblio-rfc2119">[RFC2119]
    <dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119">https://tools.ietf.org/html/rfc2119</a>
    <dt id="biblio-secure-contexts">[SECURE-CONTEXTS]
    <dd>Mike West. <a href="https://www.w3.org/TR/secure-contexts/">Secure Contexts</a>. 15 September 2016. CR. URL: <a href="https://www.w3.org/TR/secure-contexts/">https://www.w3.org/TR/secure-contexts/</a>
    <dt id="biblio-service-workers-1">[SERVICE-WORKERS-1]
-   <dd>Alex Russell; et al. <a href="https://www.w3.org/TR/service-workers-1/">Service Workers 1</a>. 2 November 2017. WD. URL: <a href="https://www.w3.org/TR/service-workers-1/">https://www.w3.org/TR/service-workers-1/</a>
+   <dd>Alex Russell; et al. <a href="https://www.w3.org/TR/service-workers-1/">Service Workers 1</a>. 19 November 2019. CR. URL: <a href="https://www.w3.org/TR/service-workers-1/">https://www.w3.org/TR/service-workers-1/</a>
    <dt id="biblio-web-background-sync">[WEB-BACKGROUND-SYNC]
-   <dd><a href="https://wicg.github.io/BackgroundSync/spec/">Web Background Synchronization</a>. Living Standard. URL: <a href="https://wicg.github.io/BackgroundSync/spec/">https://wicg.github.io/BackgroundSync/spec/</a>
+   <dd><a href="https://wicg.github.io/BackgroundSync/spec/">Web Background Synchronization</a>. cg-draft. URL: <a href="https://wicg.github.io/BackgroundSync/spec/">https://wicg.github.io/BackgroundSync/spec/</a>
    <dt id="biblio-webidl">[WebIDL]
    <dd>Boris Zbarsky. <a href="https://heycam.github.io/webidl/">Web IDL</a>. 15 December 2016. ED. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
   </dl>
