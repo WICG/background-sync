@@ -40,7 +40,7 @@ Introduction {#intro}
 
   Web Applications often run in environments with unreliable networks (e.g., mobile phones) and unknown lifetimes (the browser might be killed or the user might navigate away).
   This makes it difficult for web apps to keep their content and state in sync with servers.
-  
+
   This API is intended to reduce the time between content creation and content synchronization between the servers and the web app. It does so by letting the web app register an intent to periodically synchronize state and data, with a minimum interval it wishes to do so at. Through a service worker event, the user agent then periodically lets the web app download network resources and update state.
 
   As this API relies on service workers, functionality provided by this API is only available in a [=secure context=].
@@ -98,7 +98,7 @@ Note: Periodic Background Sync doesn't share namespace with Background Sync, so 
 
 Note: The actual interval at which [=periodicsync event|periodicsync events=] are fired MUST be greater than or equal to this.
 
-A <dfn>time to fire</dfn> (a timestamp), which is the soonest time [=calculate a time to fire| calculated=] by the user agent at which it is appropriate to fire the next [=periodicsync event=] for the [=periodic sync registration=].
+A <dfn>anchor time</dfn> (a timestamp), the previous time a [=periodicsync event=] fired for this [=periodic sync registration=], or the time of initial registration.
 
 A <dfn>state</dfn>, which is one of "`pending`", "`firing`", "`suspended`" or "`reregistered-while-firing`". It is initially set to "`pending`".
 </div>
@@ -110,8 +110,11 @@ In response to these triggers, the scheduler either schedules delayed processing
   <div dfn-for="periodic sync scheduler">
     The scheduler maintains:
     * The <dfn>time of last fire</dfn>, a [=map=], where each key is an [=origin=], and each item is a timestamp. The keys of this map are the [=origin|origins=] associated with the [=periodic sync registration/service worker registration|service worker registrations=] of [=active periodic sync registrations=]. This is initially an empty [=map=].
-    * <dfn>Effective minimum interval</dfn>, a [=map=], where each key is an [=origin=], and each item is a long long, representing a time interval. The keys of this map are the [=origin|origins=] associated with the [=periodic sync registration/service worker registration|service worker registrations=] of [=active periodic sync registrations=]. This is initially an empty [=map=].
   </div>
+
+The <dfn>effective minimum sync interval for origin</dfn> |origin| (an [=origin=]), is the [=minimum periodic sync interval for any origin=] + some user agent defined amount for the |origin|.
+
+Note: The user agent defined amount could be based off the amount of engagement the user has with the origin. This value can be different each time [=effective minimum sync interval for origin=] is called.
 
   The scheduler [=process periodic sync registrations|processes periodic sync registrations=].
 
@@ -156,42 +159,27 @@ In addition, the user agent should consider other factors such as user engagemen
 
 Algorithms {#algorithms}
 =========================
-  <div algorithm>
-    ## <dfn>Calculate a time to fire</dfn> ## {#caculate-time-to-fire}
-    This section describes how a user agent can calculate the [=periodic sync registration/time to fire=] for a [=periodic sync registration=], |registration|. [=periodic sync registration/time to fire=] value MUST be updated in response to various triggers such as registration, unregistration, change in [=online=] status, and completion of an attempt to fire a [=periodicsync event=].
-
-    Calculating the [=periodic sync registration/time to fire=] for |registration| involves running these steps:
-      1. Let |now|, a timestamp, represent the current time.
-      1. Let |origin| be the [=origin=] associated with |registration|'s [=periodic sync registration/service worker registration=].
-      1. Let |effectiveMinimumIntervalForOrigin| be the greater of [=minimum periodic sync interval for any origin=] and |registration|'s [=periodic sync registration/minimum interval=].
-      1. Increment |effectiveMinimumIntervalForOrigin| by some user agent defined amount.
-      
-         Note: User agents can use this to delay synchronization due to the user's engagement with |origin|.
-
-      1. Set [=periodic sync scheduler/effective minimum interval=] for |origin| to |effectiveMinimumIntervalForOrigin|.
-      1. Set [=periodic sync registration/time to fire=] to |now| + |effectiveMinimumIntervalForOrigin|.
-  </div>
 
   <div algorithm>
     ## <dfn>Process periodic sync registrations</dfn> ## {#process-periodic-sync-registrations-algorithm}
     When the user agent starts, run the following steps [=in parallel=]:
     1. While true:
-        1. Wait for [=minimum periodic sync interval across origins=].
-        1. Let |firedPeriodicSync| be false.
-        1. While |firedPeriodicSync| is false:
-          1. Wait for some user agent defined amount of time.
+      1. Wait for [=minimum periodic sync interval across origins=].
+      1. Let |firedPeriodicSync| be false.
+      1. While |firedPeriodicSync| is false:
+        1. Wait for some user agent defined amount of time.
 
-            Note: This can be used to group synchronization for different [=periodic sync registrations=] into a single device wake-up.
+          Note: This can be used to group synchronization for different [=periodic sync registrations=] into a single device wake-up.
 
-          1. Wait until [=online=].
-          1. For each [=/service worker registration=] |registration|, [=enqueue the following steps=] to its [=periodic sync processing queue=]:
-            1. Let |origin| be the [=origin=] associated with |periodicSyncRegistration|'s [=periodic sync registration/service worker registration=].
-            1. If [=periodic sync scheduler/time of last fire=] for |origin| + [=periodic sync scheduler/effective minimum interval=] for |origin| is greater than now, continue.
-            1. For each [=periodic sync registration=] |periodicSyncRegistration| in |registration|'s [=active periodic sync registrations=]:
-              1. If |periodicSyncRegistration|'s [=periodic sync registration/state=] is not "`pending`", continue.
-              1. If |periodicSyncRegistration|'s [=periodic sync registration/time to fire=] is in the future, continue.
-              1. Set |firedPeriodicSync| to true.
-              1. [=Fire a periodicsync event=] for |periodicSyncRegistration|.
+        1. Wait until [=online=].
+        1. For each [=/service worker registration=] |registration| that is not [=service worker registration/unregistered=], [=enqueue the following steps=] to |registration|'s [=periodic sync processing queue=]:
+          1. Let |origin| be the [=origin=] associated with |periodicSyncRegistration|'s [=periodic sync registration/service worker registration=].
+          1. If [=periodic sync scheduler/time of last fire=][|origin|] + the [=effective minimum sync interval for origin=] |origin| is greater than now, [=continue=].
+          1. For each [=periodic sync registration=] |periodicSyncRegistration| in |registration|'s [=active periodic sync registrations=]:
+            1. If |periodicSyncRegistration|'s [=periodic sync registration/state=] is not "`pending`", [=continue=].
+            1. If |periodicSyncRegistration|'s [=periodic sync registration/anchor time=] + |periodicSyncRegistration|'s [=periodic sync registration/minimum interval=] is greater than now, [=continue=].
+            1. Set |firedPeriodicSync| to true.
+            1. [=Fire a periodicsync event=] for |periodicSyncRegistration|.
   </div>
 
   <div algorithm>
@@ -255,19 +243,18 @@ A {{PeriodicSyncManager}} has a <dfn>service worker registration</dfn> (a [=/ser
     1. Let |currentRegistration| be the [=periodic sync registration=] in |serviceWorkerRegistration|'s [=active periodic sync registrations=] whose [=periodic sync registration/tag=] equals |tag| if it exists, else null.
     1. If |currentRegistration| is null:
         1. Let |newRegistration| be a new [=periodic sync registration=].
-        1. Set |newRegistration|'s associated [=periodic sync registration/tag=] to |tag|.
-        1. Set |newRegistration|'s associated [=periodic sync registration/minimum interval=] to |options|.|minInterval|.
-        1. Set |newRegistration|'s associated [=periodic sync registration/state=] to "`pending`".
-        1. Set |newRegistration|'s associated [=periodic sync registration/service worker registration=] to |serviceWorkerRegistration|.
+        1. Set |newRegistration|'s [=periodic sync registration/tag=] to |tag|.
+        1. Set |newRegistration|'s [=periodic sync registration/minimum interval=] to |options|' {{BackgroundSyncOptions/minInterval}} member.
+        1. Set |newRegistration|'s [=periodic sync registration/state=] to "`pending`".
+        1. Set |newRegistration|'s [=periodic sync registration/service worker registration=] to |serviceWorkerRegistration|.
+        1. Set |newRegistration|'s [=periodic sync registration/anchor time=] to a timestamp representing now.
         1. Add |newRegistration| to |serviceWorkerRegistration|'s [=active periodic sync registrations=].
-        1. [=Calculate a time to fire=] for |newRegistration|.
         1. [=Resolve=] |promise|.
     1. Else:
-        1. If |currentRegistration|'s [=periodic sync registration/minimum interval=] is different to |options|.|minInterval|:
-            1. Set |currentRegistration|'s [=periodic sync registration/minimum interval=] |options|.|minInterval|.
-            1. [=Calculate a time to fire=] for |newRegistration|.
-        1. Else, if |currentRegistration|'s [=periodic sync registration/state=] is "`firing`", set |serviceWorkerRegistration|'s [=periodic sync registration/state=] to "`reregistered-while-firing`".
-        1. [=Resolve=] |promise|.
+      1. If |currentRegistration|'s [=periodic sync registration/minimum interval=] is different to |options|' {{BackgroundSyncOptions/minInterval}} member:
+        1. Set |currentRegistration|'s [=periodic sync registration/minimum interval=] to |options|' {{BackgroundSyncOptions/minInterval}} member.
+      1. Else, if |currentRegistration|'s [=periodic sync registration/state=] is "`firing`", set |serviceWorkerRegistration|'s [=periodic sync registration/state=] to "`reregistered-while-firing`".
+      1. [=Resolve=] |promise|.
   </div>
 
   <div algorithm>
@@ -310,30 +297,31 @@ dictionary PeriodicSyncEventInit : ExtendableEventInit {
 ### [=Fire a periodicsync event=] ### {#firing-a-periodicsync-event}
 Note: A user agent MAY impose a time limit on the lifetime extension and execution time of a {{PeriodicSyncEvent}} which is stricter than the time limit imposed for {{ExtendableEvent}}s in general. In particular, any retries of the {{PeriodicSyncEvent}} MAY have a significantly shortened time limit.
 
-To <dfn>fire a periodicsync event</dfn> for a [=periodic sync registration=] |registration|, the user agent MUST run the following steps:
-1. Let |serviceWorkerRegistration| be |registration|'s [=periodic sync registration/service worker registration=].
-1. If |registration| is no longer part of |serviceWorkerRegistration|'s [=active periodic sync registrations=], abort these steps.
-1. [=Assert=]: |registration|'s [=periodic sync registration/state=] is "`pending`".
-1. [=Assert=]: |registration|'s [=periodic sync registration/time to fire=] is equal to the current time or in the past.
-1. Let retryCount be 0.
-1. Set |registration|'s [=periodic sync registration/state=] to "`firing`".
-1. While true:
-  1. Let |continue| be false.
-  1. Let |success| be false.
-  1. [=Fire functional event=] "`periodicsync`" using {{PeriodicSyncEvent}} on |serviceWorkerRegistration| with [=PeriodicSyncEvent/tag=] set to |registration|'s [=periodic sync registration/tag=]. Let |dispatchedEvent|, an {{ExtendableEvent}}, represent the dispatched [=periodicsync event=] and run the following steps with |dispatchedEvent|:
-  1. Let |waitUntilPromise| be the result of [=waiting for all=] of |dispatchedEvent|'s [=extend lifetime promises=].
-  1. React to the [=upon fulfillment|fulfillment=] of |waitUntilPromise| with the following steps:
-    1. Set |success| to true.
-    1. Set |continue| to true.
-  1. React to rejection [=upon rejection|rejection=] of |waitUntilPromise| with the following steps:
-    1. Set |continue| to true.
-  1. [=In parallel=]:
-    1. Wait for |continue| to be true.
-    1. Let |origin| be the [=origin=] associated with |registration|'s [=periodic sync registration/service worker registration=].
-    1. If |success| is true, set [=periodic sync scheduler/time of last fire=] for key |origin| to the current time.
-    1. If |success| is true or |retryCount| is greater than [=maximum number of retries=] or |registration|'s state is "`reregistered-while-firing`", then:
-      1. Set |registration|'s [=periodic sync registration/state=] to "<cod>pending`".
-      1. [=Calculate a time to fire=] for |registration|.
-      1. Abort these steps.
-  1. Increment |retryCount|.
-  1. Wait for a small back-off time based on |retryCount|.
+<div algorithm>
+  To <dfn>fire a periodicsync event</dfn> for a [=periodic sync registration=] |registration|, the user agent MUST run the following steps:
+  1. Let |serviceWorkerRegistration| be |registration|'s [=periodic sync registration/service worker registration=].
+  1. If |registration| is no longer part of |serviceWorkerRegistration|'s [=active periodic sync registrations=], abort these steps.
+  1. [=Assert=]: |registration|'s [=periodic sync registration/state=] is "`pending`".
+  1. Let retryCount be 0.
+  1. Set |registration|'s [=periodic sync registration/state=] to "`firing`".
+  1. While true:
+    1. Let |continue| be false.
+    1. Let |success| be false.
+    1. [=Fire functional event=] "`periodicsync`" using {{PeriodicSyncEvent}} on |serviceWorkerRegistration| with [=PeriodicSyncEvent/tag=] set to |registration|'s [=periodic sync registration/tag=]. Let |dispatchedEvent|, an {{ExtendableEvent}}, represent the dispatched [=periodicsync event=] and run the following steps with |dispatchedEvent|:
+    1. Let |waitUntilPromise| be the result of [=waiting for all=] of |dispatchedEvent|'s [=extend lifetime promises=].
+    1. React to the [=upon fulfillment|fulfillment=] of |waitUntilPromise| with the following steps:
+      1. Set |success| to true.
+      1. Set |continue| to true.
+    1. React to rejection [=upon rejection|rejection=] of |waitUntilPromise| with the following steps:
+      1. Set |continue| to true.
+    1. [=In parallel=]:
+      1. Wait for |continue| to be true.
+      1. Let |origin| be the [=origin=] associated with |registration|'s [=periodic sync registration/service worker registration=].
+      1. If |success| is true, set [=periodic sync scheduler/time of last fire=] for key |origin| to the current time.
+      1. If |success| is true or |retryCount| is greater than [=maximum number of retries=] or |registration|'s state is "`reregistered-while-firing`", then:
+        1. Set |registration|'s [=periodic sync registration/state=] to "`pending`".
+        1. Set |registration|'s [=periodic sync registration/anchor time=] to a timestamp representing now.
+        1. Abort these steps.
+    1. Increment |retryCount|.
+    1. Wait for a small back-off time based on |retryCount|.
+</div>
