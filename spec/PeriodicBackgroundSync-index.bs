@@ -98,7 +98,7 @@ Note: Periodic Background Sync doesn't share namespace with Background Sync, so 
 
 Note: The actual interval at which [=periodicsync event|periodicsync events=] are fired MUST be greater than or equal to this.
 
-A <dfn>anchor time</dfn> (a timestamp), the previous time a [=periodicsync event=] fired for this [=periodic sync registration=], or the time of initial registration.
+An <dfn>anchor time</dfn> (a timestamp), the previous time a [=periodicsync event=] fired for this [=periodic sync registration=], or the time of initial registration.
 
 A <dfn>state</dfn>, which is one of "`pending`", "`firing`", "`suspended`" or "`reregistered-while-firing`". It is initially set to "`pending`".
 </div>

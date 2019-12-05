@@ -1215,7 +1215,7 @@ Possible extra rowspan handling
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version e1a165f1c2fb1cc2aceb87e110984a42830c36fa" name="generator">
   <link href="https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html" rel="canonical">
-  <meta content="cfe60125fe5e7a911100466afc0f8e1bfddd3af2" name="document-revision">
+  <meta content="88d4f39f5a7b3c4e5a2524926b6a3aa80dc270b5" name="document-revision">
 <style>/* style-md-lists */
 
 /* This is a weird hack for me not yet following the commonmark spec
@@ -1609,7 +1609,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
     <p class="note" role="note"><span>Note:</span> Periodic Background Sync doesn’t share namespace with Background Sync, so an <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#service-worker-client-origin" id="ref-for-service-worker-client-origin①">origin</a> can have registrations of both types with the same tag.</p>
     <p><dfn class="dfn-paneled" data-dfn-for="periodic sync registration" data-dfn-type="dfn" data-noexport id="periodic-sync-registration-minimum-interval">minimum interval</dfn> (a long long), which is used to specify the minimum interval, in milliseconds, at which the periodic synchronization should happen. <a data-link-type="dfn" href="#periodic-sync-registration-minimum-interval" id="ref-for-periodic-sync-registration-minimum-interval">minimum interval</a> is a suggestion to the user agent.</p>
     <p class="note" role="note"><span>Note:</span> The actual interval at which <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event②">periodicsync events</a> are fired MUST be greater than or equal to this.</p>
-    <p>A <dfn class="dfn-paneled" data-dfn-for="periodic sync registration" data-dfn-type="dfn" data-noexport id="periodic-sync-registration-anchor-time">anchor time</dfn> (a timestamp), the previous time a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event③">periodicsync event</a> fired for this <a data-link-type="dfn" href="#periodic-sync-registration" id="ref-for-periodic-sync-registration②">periodic sync registration</a>, or the time of initial registration.</p>
+    <p>An <dfn class="dfn-paneled" data-dfn-for="periodic sync registration" data-dfn-type="dfn" data-noexport id="periodic-sync-registration-anchor-time">anchor time</dfn> (a timestamp), the previous time a <a data-link-type="dfn" href="#periodicsync-event" id="ref-for-periodicsync-event③">periodicsync event</a> fired for this <a data-link-type="dfn" href="#periodic-sync-registration" id="ref-for-periodic-sync-registration②">periodic sync registration</a>, or the time of initial registration.</p>
     <p>A <dfn class="dfn-paneled" data-dfn-for="periodic sync registration" data-dfn-type="dfn" data-noexport id="periodic-sync-registration-state">state</dfn>, which is one of "<code>pending</code>", "<code>firing</code>", "<code>suspended</code>" or "<code>reregistered-while-firing</code>". It is initially set to "<code>pending</code>".</p>
    </div>
    <h3 class="heading settled" data-level="4.2" id="periodic-sync-scheduler-construct"><span class="secno">4.2. </span><span class="content"><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodic-sync-scheduler">Periodic Sync Scheduler</dfn></span><a class="self-link" href="#periodic-sync-scheduler-construct"></a></h3>
