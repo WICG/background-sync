@@ -1213,9 +1213,9 @@ Possible extra rowspan handling
 	}
 </style>
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version e1a165f1c2fb1cc2aceb87e110984a42830c36fa" name="generator">
+  <meta content="Bikeshed version 60a9f27730c0c9ae3e20485f824cef3713caf5fb" name="generator">
   <link href="https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html" rel="canonical">
-  <meta content="88d4f39f5a7b3c4e5a2524926b6a3aa80dc270b5" name="document-revision">
+  <meta content="efa328e96cdee9e799ee3aff126297f434e31479" name="document-revision">
 <style>/* style-md-lists */
 
 /* This is a weird hack for me not yet following the commonmark spec
@@ -1473,7 +1473,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Periodic Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-12-05">5 December 2019</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-12-10">10 December 2019</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1837,7 +1837,7 @@ The user agent should cap the duration and frequency of these events to limit re
    <div> A <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent">PeriodicSyncEvent</a></code> has a <dfn class="dfn-paneled" data-dfn-for="PeriodicSyncEvent" data-dfn-type="dfn" data-noexport id="periodicsyncevent-tag">tag</dfn> (a <a data-link-type="dfn" href="#periodic-sync-registration-tag" id="ref-for-periodic-sync-registration-tag④">tag</a>).
   The <dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncEvent" data-dfn-type="attribute" data-export id="dom-periodicsyncevent-tag"><code>tag</code></dfn> attribute must return the value it was initialized to. </div>
    <h4 class="heading settled" data-level="8.4.1" id="firing-a-periodicsync-event"><span class="secno">8.4.1. </span><span class="content"><a data-link-type="dfn" href="#fire-a-periodicsync-event" id="ref-for-fire-a-periodicsync-event①">Fire a periodicsync event</a></span><a class="self-link" href="#firing-a-periodicsync-event"></a></h4>
-    Note: A user agent MAY impose a time limit on the lifetime extension and execution time of a <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent①">PeriodicSyncEvent</a></code> which is stricter than the time limit imposed for <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent①">ExtendableEvent</a></code>s in general. In particular, any retries of the <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent②">PeriodicSyncEvent</a></code> MAY have a significantly shortened time limit. 
+    Note: A user agent MAY impose a time limit on the lifetime extension and execution time of a <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent①">PeriodicSyncEvent</a></code> which is stricter than the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#extendableevent-timed-out-flag" id="ref-for-extendableevent-timed-out-flag">time limit</a> imposed for <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent①">ExtendableEvent</a></code>s in general. In particular, any retries of the <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent②">PeriodicSyncEvent</a></code> MAY have a significantly shortened time limit. 
    <div class="algorithm" data-algorithm="fire a periodicsync event">
      To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="fire-a-periodicsync-event">fire a periodicsync event</dfn> for a <a data-link-type="dfn" href="#periodic-sync-registration" id="ref-for-periodic-sync-registration①③">periodic sync registration</a> <var>registration</var>, the user agent MUST run the following steps: 
     <ol>
@@ -2309,6 +2309,12 @@ The user agent should cap the duration and frequency of these events to limit re
     <li><a href="#ref-for-dfn-service-worker-registration④">8.3. PeriodicSyncManager interface</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-extendableevent-timed-out-flag">
+   <a href="https://w3c.github.io/ServiceWorker/#extendableevent-timed-out-flag">https://w3c.github.io/ServiceWorker/#extendableevent-timed-out-flag</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-extendableevent-timed-out-flag">8.4.1. Fire a periodicsync event</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-dfn-service-worker-registration-unregistered">
    <a href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration-unregistered">https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration-unregistered</a><b>Referenced in:</b>
    <ul>
@@ -2464,6 +2470,7 @@ The user agent should cap the duration and frequency of these events to limit re
      <li><span class="dfn-paneled" id="term-for-dfn-service-worker" style="color:initial">service worker</span>
      <li><span class="dfn-paneled" id="term-for-dfn-service-worker-client" style="color:initial">service worker client</span>
      <li><span class="dfn-paneled" id="term-for-dfn-service-worker-registration" style="color:initial">service worker registration</span>
+     <li><span class="dfn-paneled" id="term-for-extendableevent-timed-out-flag" style="color:initial">timed out flag</span>
      <li><span class="dfn-paneled" id="term-for-dfn-service-worker-registration-unregistered" style="color:initial">unregistered</span>
     </ul>
    <li>
