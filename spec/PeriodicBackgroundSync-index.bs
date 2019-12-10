@@ -14,7 +14,7 @@ Indent: 2
 </pre>
 
 <pre class="anchors">
-spec: background-fetch; urlPrefix: https://wicg.github.io/background-fetch/
+spec:background-fetch; urlPrefix: https://wicg.github.io/background-fetch/
   type:interface; text: BackgroundFetchManager
   type:dfn; text:background fetch
 </pre>
@@ -96,7 +96,7 @@ Note: Periodic Background Sync doesn't share namespace with Background Sync, so 
 
 <dfn>minimum interval</dfn> (a long long), which is used to specify the minimum interval, in milliseconds, at which the periodic synchronization should happen. [=minimum interval=] is a suggestion to the user agent.
 
-Note: The actual interval at which [=periodicsync event|periodicsync events=] are fired MUST be greater than or equal to this.
+Note: The actual interval at which [=periodicsync events=] are fired MUST be greater than or equal to this.
 
 An <dfn>anchor time</dfn> (a timestamp), the previous time a [=periodicsync event=] fired for this [=periodic sync registration=], or the time of initial registration.
 
@@ -107,28 +107,31 @@ A <dfn>state</dfn>, which is one of "`pending`", "`firing`", "`suspended`" or "`
 The [=periodic sync scheduler=] is responsible for scheduling firing of [=periodicsync events=].
 In response to these triggers, the scheduler either schedules delayed processing to fire a [=periodicsync event=] at the appropriate time in the future, or cancels such scheduling.
 
-  <div dfn-for="periodic sync scheduler">
-    The scheduler maintains:
-    * The <dfn>time of last fire</dfn>, a [=map=], where each key is an [=origin=], and each item is a timestamp. The keys of this map are the [=origin|origins=] associated with the [=periodic sync registration/service worker registration|service worker registrations=] of [=active periodic sync registrations=]. This is initially an empty [=map=].
-  </div>
+<div dfn-for="periodic sync scheduler">
+  The [=periodic sync scheduler=] has a <dfn>time of last fire</dfn>, a [=map=], where each key is an [=origin=], and each item is a timestamp. The keys of this map are the [=origins=] associated with the [=periodic sync registration/service worker registrations=] of [=active periodic sync registrations=]. This is initially an empty [=map=].
+</div>
 
-The <dfn>effective minimum sync interval for origin</dfn> |origin| (an [=origin=]), is the [=minimum periodic sync interval for any origin=] + some user agent defined amount for the |origin|.
+The <dfn>effective minimum sync interval for origin</dfn> |origin| (an [=origin=]), is the [=minimum periodic sync interval for any origin=] + some user agent defined amount for the |origin| (which may be `Infinity`). The user agent defined amount MUST be used to mitigate the concerns raised in [[#privacy]], [[#security]] and [[#resources]].
 
-Note: The user agent defined amount could be based off the amount of engagement the user has with the origin. This value can be different each time [=effective minimum sync interval for origin=] is called.
+Note: The user agent defined amount can be based on the amount of engagement the user has with the origin. This value can be different each time [=effective minimum sync interval for origin=] is called. No [=periodicsync events=] will fire for a particular origin if the last value returned by [=effective minimum sync interval for origin=] is `Infinity`.
 
   The scheduler [=process periodic sync registrations|processes periodic sync registrations=].
 
   Note: Browsers may suspend this processing loop when there are no [=active periodic sync registrations=] to conserve resources.
 
 ## Constants ## {#constants}
-As recommended in [[#privacy]] and [[#resources]], the user agent SHOULD also define:
-* <dfn>minimum periodic sync interval for any origin</dfn>, a long long, that represents the minimum gap between [=periodicsync event|periodicsync events=] for any given origin, and,
-* <dfn>minimum periodic sync interval across origins</dfn>, a long long, that represents the minimum gap between [=periodicsync event|periodicsync events=] across all origins.
+The user agent defines:
+* <dfn>minimum periodic sync interval for any origin</dfn>, an unsigned long long, that represents the minimum gap between [=periodicsync events=] for any given [=origin=] in milliseconds, and,
+* <dfn>minimum periodic sync interval across origins</dfn>, an unsigned long long, that represents the minimum gap between [=periodicsync events=] across all [=origins=] in milliseconds.
+
+These constants are used to mitigate the concerns raised in [[#privacy]], [[#security]] and [[#resources]].
 
 [=minimum periodic sync interval across origins=] MUST be greater than or equal to [=minimum periodic sync interval for any origin=].
-If undefined, these are set to 43200000, which is twelve hours in milliseconds.
+[=minimum periodic sync interval across origins=] SHOULD be greater than or equal to 43200000, which is twelve hours in milliseconds.
 
-Note: Two caps on frequency are needed because conforming to the cap enforced by [=minimum periodic sync interval for any origin=] for each origin can still cause the browser to fire [=periodicsync events=] very frequently. This can happen, for instance, when there are many [=periodic sync registration|periodic sync registrations=] for different origins. [=minimum periodic sync interval across origins=] ensures there's a global cap on how often these events are fired.
+Note: A minimum value of 43200000 (which is twelve hours in milliseconds) for [=minimum periodic sync interval across origins=] is suggested to mitigate the concerns described in [[#privacy]] and [[#security]].
+
+Note: Two caps on frequency are needed because conforming to the cap enforced by [=minimum periodic sync interval for any origin=] for each [=origin=] can still cause the browser to fire [=periodicsync events=] very frequently. This can happen, for instance, when there are many [=periodic sync registrations=] for different [=origins=]. [=minimum periodic sync interval across origins=] ensures there's a global cap on how often these events are fired.
 
 The user agent MAY define a <dfn>maximum number of retries</dfn>, a number, allowed for each [=periodicsync event=]. In choosing this, the user agent SHOULD ensure that the time needed to attempt the [=maximum number of retries=] is an order of magnitude smaller than the [=minimum periodic sync interval for any origin=]. If undefined, this number is zero.
 
@@ -136,14 +139,41 @@ Privacy Considerations {#privacy}
 ==================================
 
 ## Permission ## {#permission}
-Periodic Background Sync is only available if the {{PermissionState}} for a {{PermissionDescriptor}} with {{PermissionDescriptor/name}} `"periodic-background-sync"` is {{PermissionState/granted}}. In addition, user agents SHOULD offer a way for the user to disable Periodic Background Sync.
-When Periodic Background Sync is disabled, [=periodicsync event|periodicsync events=] MUST NOT be dispatched for the [=periodic sync registration|periodic sync registrations=] affected by this permission. (See [[#responding-to-permission-revocation-algorithm]]).
+Periodic Background Sync is only available if the {{PermissionState}} for a {{PermissionDescriptor}} with {{PermissionDescriptor/name}} `"periodic-background-sync"` is {{PermissionState/granted}}. The user agent MAY show UI to the user to ask for this permission. In addition, user agents MUST offer a way for the user to disable Periodic Background Sync.
+When Periodic Background Sync is disabled, [=periodicsync events=] MUST NOT be dispatched for the [=periodic sync registrations=] affected by this permission. (See [[#responding-to-permission-revocation-algorithm]]).
 
 ## Location Tracking ## {#location-tracking}
-Fetch requests within the [=periodicsync event=] while [=periodicsync event/in the background=] may reveal the client's IP address to the server after the user has left the page. The user agent SHOULD limit tracking by capping the number of retries and duration of [=periodicsync event=]s, to reduce the amount of time the user's location can be tracked by the website. Further, the user agent SHOULD limit persistent location tracking by capping the frequency of [=periodicsync event=]s, both for an [=origin=], and across [=origin|origins=].
+Fetch requests within the [=periodicsync event=] while [=periodicsync event/in the background=] may reveal the client's IP address to the server after the user has left the page. The user agent SHOULD limit tracking by capping the number of retries and duration of [=periodicsync event=]s, to reduce the amount of time the user's location can be tracked by the website. Further, the user agent SHOULD limit persistent location tracking by capping the frequency of [=periodicsync event=]s, both for an [=origin=], and across [=origins=].
 
 ## History Leaking ## {#history-leaking}
-Fetch requests within the [=periodicsync event=] while [=periodicsync event/in the background=] may reveal something about the client's navigation history to middleboxes on networks different from the one used to create the [=periodic sync registration=]. For instance, the client might visit site https://example.com, which registers a [=periodicsync event=], but based on the implementation, might not fire until after the user has navigated away from the page and changed networks. Middleboxes on the new network may see the fetch requests that the [=periodicsync event=] makes. The fetch requests are HTTPS so the request contents will not be leaked but the destination of the fetch request and domain may be (via DNS lookups and IP address of the request). To prevent this leakage of browsing history, the user agent MAY choose to only fire [=periodicsync event|periodicsync events=] on the network the [=periodic sync registration=] was made on, with the understanding that it will reduce usability by not allowing synchronization opportunistically.
+Fetch requests within the [=periodicsync event=] while [=periodicsync event/in the background=] may reveal something about the client's navigation history to middleboxes on networks different from the one used to create the [=periodic sync registration=]. For instance, the client might visit site https://example.com, which registers a [=periodicsync event=], but based on the implementation, might not fire until after the user has navigated away from the page and changed networks. Middleboxes on the new network may see the fetch requests that the [=periodicsync event=] makes. The fetch requests are HTTPS so the request contents will not be leaked but the destination of the fetch request and domain may be (via DNS lookups and IP address of the request). To prevent this leakage of browsing history, the user agent MAY choose to only fire [=periodicsync events=] on the network the [=periodic sync registration=] was made on, with the understanding that it will reduce usability by not allowing synchronization opportunistically.
+
+Security Considerations {#security}
+====================================
+Since Periodic Background Sync is a [=service worker=] based API, [[service-workers#security-considerations]] apply.
+
+In addition, if the [=origin=] synchronizes more often than the user visits the site, the [=origin=] may be getting more power than the user is aware of or intends. This is because the [=origin=] is able to execute code more frequently than the user intends, from within the [=periodicsync event=] while [=periodicsync event/in the background=].
+Some of the attacks this opens up are:
+* Cryptocurrency mining: If the web app is able to execute code in the background at a high frequency, a malicious [=origin=] may use this CPU power for cryptocurrency mining.
+* Distributed Denial of Service: This is possible if a malicious origin uses [=periodicsync events=] on multiple devices to target a specific [=origin=] by repeatedly fetching resources from it.
+* A malicious [=origin=] can use [=periodicsync events=] to abuse the digital advertising ecosystem by fake-clicking on online ads, from a multitude of user devices.
+
+To mitigate the above, the user agent MUST:
+* Gate the capability on `"periodic-background-sync"` permission, as described in [[#permission]]. This allows the user to stop firing [periodicsync event|periodicsync events=] for any [=origin=] they've identified as malicious.
+* Impose a time limit on the lifetime extension and execution time of a {{PeriodicSyncEvent}} which is stricter than the [=ExtendableEvent/timed out flag|time limit=] imposed for {{ExtendableEvent}}s in general. In particular, any retries of the {{PeriodicSyncEvent}} MAY have a significantly shortened time limit.
+  Note: This time-limited execution of the [=periodicsync event=] makes sure this capability cannot be used for crypto mining on behalf of a malicious [=origin=].
+* Block registration from contexts where permission UI cannot be shown to the user. (See {{PeriodicSyncManager/register(tag, options)}}).
+
+The user agent MUST also impement at least one of the following:
+* Auto-deny the capability to an [=origin=] for which the user has not expressed a level of trust.
+
+  Note: This trust may be expressed by installing the website as a web app.
+
+* Cap the interval at which [=periodicsync events=] are fired, as described in [[#constants]].
+* Show an audit-style UI to explain to the user how frequently an [=origin=] synchronizes content through this API, with appropriate resource attribution.
+
+In addition, the user agent SHOULD:
+* Set [=effective minimum sync interval for origin=] in accordance with the user's engagement level with the [=origin=], as defined in [[#periodic-sync-scheduler-construct]]. In particular, this means the implementation stops firing [=periodicsync events=] for [=periodic sync registrations=] whose associated [=origin=] the user has stopped engaging with.
 
 Resource Usage {#resources}
 ============================
@@ -155,7 +185,7 @@ The user agent should cap the duration and frequency of these events to limit re
 
 Large resources should be downloaded by registering a [=background fetch=] via the {{BackgroundFetchManager}} interface.
 
-In addition, the user agent should consider other factors such as user engagement with the [=origin=], and any user indications to temporarily reduce data consumption, such as a Data Saving Mode, to adjust the frequency of [=periodicsync event|periodicsync events=].
+In addition, the user agent should consider other factors such as user engagement with the [=origin=], and any user indications to temporarily reduce data consumption, such as a Data Saving Mode, to adjust the frequency of [=periodicsync events=].
 
 Algorithms {#algorithms}
 =========================
@@ -165,11 +195,13 @@ Algorithms {#algorithms}
     When the user agent starts, run the following steps [=in parallel=]:
     1. While true:
       1. Wait for [=minimum periodic sync interval across origins=].
+        Note: This can be used to mitigate concerns raised in [[#security]].
+
       1. Let |firedPeriodicSync| be false.
       1. While |firedPeriodicSync| is false:
         1. Wait for some user agent defined amount of time.
 
-          Note: This can be used to group synchronization for different [=periodic sync registrations=] into a single device wake-up.
+          Note: This can be used to group synchronization for different [=periodic sync registrations=] into a single device wake-up. This can also be used to mitigate the concerns raised in [[#security]].
 
         1. Wait until [=online=].
         1. For each [=/service worker registration=] |registration| that is not [=service worker registration/unregistered=], [=enqueue the following steps=] to |registration|'s [=periodic sync processing queue=]:
@@ -235,6 +267,7 @@ A {{PeriodicSyncManager}} has a <dfn>service worker registration</dfn> (a [=/ser
     The <code><dfn method for=PeriodicSyncManager title="register(tag, options)">register(|tag|, |options|)</dfn></code> method, when invoked, MUST return [=a new promise=] |promise| and [=enqueue the following steps=] to the [=periodic sync processing queue=]:
     1. Let |serviceWorkerRegistration| be the [=PeriodicSyncManager/service worker registration=] associated with the [=context object=]'s {{PeriodicSyncManager}}.
     1. If |serviceWorkerRegistration|’s [=active worker=] is null, [=reject=] |promise| with an {{InvalidStateError}} and abort these steps.
+    1. The user agent MAY [=request permission to use=] {{PermissionName}} `"periodic-background-sync"`.
     1. If the {{PermissionState}} for a {{PermissionDescriptor}} with {{PermissionDescriptor/name}} `"periodic-background-sync"` is not {{PermissionState/granted}}, [=reject=] |promise| with a {{NotAllowedError}} and abort these steps.
     1. Let |isBackground|, a boolean, be true.
     1. For each |client| in the [=service worker clients=] for the |serviceWorkerRegistration|'s [=origin=]:
@@ -295,7 +328,6 @@ dictionary PeriodicSyncEventInit : ExtendableEventInit {
 </div>
 
 ### [=Fire a periodicsync event=] ### {#firing-a-periodicsync-event}
-Note: A user agent MAY impose a time limit on the lifetime extension and execution time of a {{PeriodicSyncEvent}} which is stricter than the time limit imposed for {{ExtendableEvent}}s in general. In particular, any retries of the {{PeriodicSyncEvent}} MAY have a significantly shortened time limit.
 
 <div algorithm>
   To <dfn>fire a periodicsync event</dfn> for a [=periodic sync registration=] |registration|, the user agent MUST run the following steps:
