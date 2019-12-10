@@ -295,7 +295,7 @@ dictionary PeriodicSyncEventInit : ExtendableEventInit {
 </div>
 
 ### [=Fire a periodicsync event=] ### {#firing-a-periodicsync-event}
-Note: A user agent MAY impose a time limit on the lifetime extension and execution time of a {{PeriodicSyncEvent}} which is stricter than the time limit imposed for {{ExtendableEvent}}s in general. In particular, any retries of the {{PeriodicSyncEvent}} MAY have a significantly shortened time limit.
+Note: A user agent MAY impose a time limit on the lifetime extension and execution time of a {{PeriodicSyncEvent}} which is stricter than the [=ExtendableEvent/timed out flag|time limit=] imposed for {{ExtendableEvent}}s in general. In particular, any retries of the {{PeriodicSyncEvent}} MAY have a significantly shortened time limit.
 
 <div algorithm>
   To <dfn>fire a periodicsync event</dfn> for a [=periodic sync registration=] |registration|, the user agent MUST run the following steps:
