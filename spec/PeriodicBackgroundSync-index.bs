@@ -1,14 +1,14 @@
 <pre class='metadata'>
 Title: Web Periodic Background Synchronization
 Status: CG-DRAFT
-ED: https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html
+ED: https://wicg.github.io/background-sync/spec/PeriodicBackgroundSync-index.html
 Shortname: periodic-background-sync
 Level: 1
 Editor: Mugdha Lakhani, Google, nator@chromium.org
 Editor: Jake Archibald, Google, jakearchibald@chromium.org
 Abstract: This specification describes a method that enables web applications to periodically synchronize data and content in the background.
 Group: wicg
-Repository: WICG/BackgroundSync
+Repository: WICG/background-sync
 Markup Shorthands: css no, markdown yes
 Indent: 2
 </pre>
@@ -311,15 +311,14 @@ A {{PeriodicSyncManager}} has a <dfn>service worker registration</dfn> (a [=/ser
 ## The <dfn>periodicsync event</dfn> ## {#periodicsync-event-interface}
 <script type="idl">
 dictionary PeriodicSyncEventInit : ExtendableEventInit {
-    required DOMString tag;
+  required DOMString tag;
 };
 
-[
-    Constructor(DOMString type, PeriodicSyncEventInit init),
-    Exposed=ServiceWorker
-] interface PeriodicSyncEvent : ExtendableEvent {
-    readonly attribute DOMString tag;
-  };
+[Exposed=ServiceWorker]
+interface PeriodicSyncEvent : ExtendableEvent {
+  constructor(DOMString type, PeriodicSyncEventInit init);
+  readonly attribute DOMString tag;
+};
 </script>
 
 <div dfn-for="PeriodicSyncEvent">

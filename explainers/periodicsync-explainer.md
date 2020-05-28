@@ -4,16 +4,16 @@
 **Updated**: 2019-09-30
 
 Periodic Background Sync is a method that enables web applications to periodically synchronize data
-in the background, building on the [Background Sync](https://wicg.github.io/BackgroundSync/spec/)
+in the background, building on the [Background Sync](https://wicg.github.io/background-sync/spec/)
 specification that defines a method for one-off synchronization.
 
-The [original explainer](https://github.com/WICG/BackgroundSync/blob/master/explainers/sync-explainer.md#periodic-synchronization-in-design)
+The [original explainer](https://github.com/WICG/background-sync/blob/master/explainers/sync-explainer.md#periodic-synchronization-in-design)
 included a thorough exploration of this capability, but it neither got specified, nor ever shipped
 in a browsing engine. This was caused by a combination of low interest from both developers and
 other browser engines, and high complexity due to an unclear permission model. We believe the
 situation has changed since.
 
-If this proposal stands, we plan to extend the [Background Sync](https://wicg.github.io/BackgroundSync/spec/)
+If this proposal stands, we plan to extend the [Background Sync](https://wicg.github.io/background-sync/spec/)
 specification to describe this ability as well, and move the document to the standardization track.
 
 ## Use cases
@@ -46,7 +46,7 @@ Push protocol, and maintaining a backend. Periodic Background Sync offers a simp
 accessible solution.
 
 ## Why do we care?
-  * Native apps currently have the ability to offer fresh content to users, even when they're 
+  * Native apps currently have the ability to offer fresh content to users, even when they're
   offline. This API will enable web apps to do so too.
   * Websites can already push notifications to update content, but the timing of those notifications
   is decided by the developer. This API enables the browser to decide on the timing, so it can be
@@ -104,7 +104,7 @@ navigator.serviceWorker.ready.then(registration => {
   registration.periodicSync.getTags().then(tags => {
     if (tags.includes('get-latest-news'))
       skipDownloadingLatestNewsOnPageLoad();
-  });  
+  });
 });
 ```
 
@@ -125,7 +125,7 @@ potentially run at regular periods, for a few minutes at a time. Here are some p
 
 * There might be no notification to the user, depending on the implementation.
 * A periodic sync can be enabled while the user is connected to one network, and the sync event
-can be fired later when they're connected to another network. This can cause inadvertent leakage 
+can be fired later when they're connected to another network. This can cause inadvertent leakage
 of browsing history on an unintended network. This concern applies to other background tasks such as
 one-shot Background Sync and Background Fetch as well.
 * Location tracking: The user’s IP address can be revealed to the website every time the periodic
@@ -188,7 +188,7 @@ the system and is more resource intensive.
 
 # References and acknowledgements
 
-  * [Background Sync](https://wicg.github.io/BackgroundSync/spec/)
+  * [Background Sync](https://wicg.github.io/background-sync/spec/)
   * [Push API](https://w3c.github.io/push-api/)
 
 Author: @mugdhalakhani

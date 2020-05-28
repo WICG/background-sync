@@ -1,4 +1,4 @@
-# BackgroundSync use-cases
+# Background Sync use-cases
 
 ## One-off sync
 
