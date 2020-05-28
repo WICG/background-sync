@@ -1,3 +1,7 @@
 # Background Synchronization
 
-A [spec for ServiceWorker-based background synchronization](https://wicg.github.io/background-sync/spec/) and [explainer documents](https://github.com/WICG/background-sync/blob/master/explainers/) to describe the motivation and usage for this feature.
+Specifications for [one-time](https://wicg.github.io/background-sync/spec/) and
+[periodic](https://wicg.github.io/background-sync/spec/PeriodicBackgroundSync-index.html)
+ServiceWorker-based background synchronization and [explainer
+documents](https://github.com/WICG/background-sync/blob/master/explainers/) to
+describe the motivation and usage for this feature.
