@@ -1,6 +1,6 @@
 self.addEventListener('sync', function(sync_event) {
   var responseData;
-  fetch(new Request("/BackgroundSync/demo/sample.json", {cache: "no-store"}))
+  fetch(new Request("/background-sync/demo/sample.json", {cache: "no-store"}))
   .then(response => {
     if (response.status == 200) {
       return response.text();

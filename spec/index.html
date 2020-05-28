@@ -1029,7 +1029,7 @@ Possible extra rowspan handling
 		}
 	/* } */
 
-	@supports (display:grid) {
+	@supports (display:grid) and (display:contents) {
 		/* Use #toc over .toc to override non-@supports rules. */
 		#toc {
 			display: grid;
@@ -1167,6 +1167,18 @@ Possible extra rowspan handling
 		margin-left: auto;
 		margin-right: auto;
 	}
+	.overlarge {
+		/* Magic to create good table positioning:
+		   "content column" is 50ems wide at max; less on smaller screens.
+		   Extra space (after ToC + content) is empty on the right.
+
+		   1. When table < content column, centers table in column.
+		   2. When content < table < available, left-aligns.
+		   3. When table > available, fills available + scroll bar.
+		*/ 
+		display: grid;
+		grid-template-columns: minmax(0, 50em);
+	}
 	.overlarge > table {
 		/* limit preferred width of table */
 		max-width: 50em;
@@ -1176,7 +1188,6 @@ Possible extra rowspan handling
 
 	@media (min-width: 55em) {
 		.overlarge {
-			margin-left: calc(13px + 26.5rem - 50vw);
 			margin-right: calc(13px + 26.5rem - 50vw);
 			max-width: none;
 		}
@@ -1184,14 +1195,12 @@ Possible extra rowspan handling
 	@media screen and (min-width: 78em) {
 		body:not(.toc-inline) .overlarge {
 			/* 30.5em body padding 50em content area */
-			margin-left: calc(40em - 50vw) !important;
 			margin-right: calc(40em - 50vw) !important;
 		}
 	}
 	@media screen and (min-width: 90em) {
 		body:not(.toc-inline) .overlarge {
 			/* 4em html margin 30.5em body padding 50em content area */
-			margin-left: 0 !important;
 			margin-right: calc(84.5em - 100vw) !important;
 		}
 	}
@@ -1212,94 +1221,9 @@ Possible extra rowspan handling
 		}
 	}
 </style>
-  <meta content="Bikeshed version 30dbdcf66519991ec52011cac10c49a7b5b449c5" name="generator">
-  <link href="https://wicg.github.io/BackgroundSync/spec/" rel="canonical">
-  <meta content="edee56599d6f1130759457a5d51aefd433a639c1" name="document-revision">
-<style>/* style-md-lists */
-
-/* This is a weird hack for me not yet following the commonmark spec
-   regarding paragraph and lists. */
-[data-md] > :first-child {
-    margin-top: 0;
-}
-[data-md] > :last-child {
-    margin-bottom: 0;
-}</style>
-<style>/* style-selflinks */
-
-.heading, .issue, .note, .example, li, dt {
-    position: relative;
-}
-a.self-link {
-    position: absolute;
-    top: 0;
-    left: calc(-1 * (3.5rem - 26px));
-    width: calc(3.5rem - 26px);
-    height: 2em;
-    text-align: center;
-    border: none;
-    transition: opacity .2s;
-    opacity: .5;
-}
-a.self-link:hover {
-    opacity: 1;
-}
-.heading > a.self-link {
-    font-size: 83%;
-}
-li > a.self-link {
-    left: calc(-1 * (3.5rem - 26px) - 2em);
-}
-dfn > a.self-link {
-    top: auto;
-    left: auto;
-    opacity: 0;
-    width: 1.5em;
-    height: 1.5em;
-    background: gray;
-    color: white;
-    font-style: normal;
-    transition: opacity .2s, background-color .2s, color .2s;
-}
-dfn:hover > a.self-link {
-    opacity: 1;
-}
-dfn > a.self-link:hover {
-    color: black;
-}
-
-a.self-link::before            { content: "¶"; }
-.heading > a.self-link::before { content: "§"; }
-dfn > a.self-link::before      { content: "#"; }</style>
-<style>/* style-counters */
-
-body {
-    counter-reset: example figure issue;
-}
-.issue {
-    counter-increment: issue;
-}
-.issue:not(.no-marker)::before {
-    content: "Issue " counter(issue);
-}
-
-.example {
-    counter-increment: example;
-}
-.example:not(.no-marker)::before {
-    content: "Example " counter(example);
-}
-.invalid.example:not(.no-marker)::before,
-.illegal.example:not(.no-marker)::before {
-    content: "Invalid Example" counter(example);
-}
-
-figcaption {
-    counter-increment: figure;
-}
-figcaption:not(.no-marker)::before {
-    content: "Figure " counter(figure) " ";
-}</style>
+  <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
+  <meta content="Bikeshed version 78f8c09c, updated Tue May 19 10:51:23 2020 -0700" name="generator">
+  <link href="https://wicg.github.io/background-sync/spec/" rel="canonical">
 <style>/* style-autolinks */
 
 .css.css, .property.property, .descriptor.descriptor {
@@ -1362,6 +1286,35 @@ pre .property::before, pre .property::after {
 [data-link-type=biblio] {
     white-space: pre;
 }</style>
+<style>/* style-counters */
+
+body {
+    counter-reset: example figure issue;
+}
+.issue {
+    counter-increment: issue;
+}
+.issue:not(.no-marker)::before {
+    content: "Issue " counter(issue);
+}
+
+.example {
+    counter-increment: example;
+}
+.example:not(.no-marker)::before {
+    content: "Example " counter(example);
+}
+.invalid.example:not(.no-marker)::before,
+.illegal.example:not(.no-marker)::before {
+    content: "Invalid Example" counter(example);
+}
+
+figcaption {
+    counter-increment: figure;
+}
+figcaption:not(.no-marker)::before {
+    content: "Figure " counter(figure) " ";
+}</style>
 <style>/* style-dfn-panel */
 
 .dfn-panel {
@@ -1399,6 +1352,62 @@ pre .property::before, pre .property::after {
 
 .dfn-paneled { cursor: pointer; }
 </style>
+<style>/* style-md-lists */
+
+/* This is a weird hack for me not yet following the commonmark spec
+   regarding paragraph and lists. */
+[data-md] > :first-child {
+    margin-top: 0;
+}
+[data-md] > :last-child {
+    margin-bottom: 0;
+}</style>
+<style>/* style-selflinks */
+
+.heading, .issue, .note, .example, li, dt {
+    position: relative;
+}
+a.self-link {
+    position: absolute;
+    top: 0;
+    left: calc(-1 * (3.5rem - 26px));
+    width: calc(3.5rem - 26px);
+    height: 2em;
+    text-align: center;
+    border: none;
+    transition: opacity .2s;
+    opacity: .5;
+}
+a.self-link:hover {
+    opacity: 1;
+}
+.heading > a.self-link {
+    font-size: 83%;
+}
+li > a.self-link {
+    left: calc(-1 * (3.5rem - 26px) - 2em);
+}
+dfn > a.self-link {
+    top: auto;
+    left: auto;
+    opacity: 0;
+    width: 1.5em;
+    height: 1.5em;
+    background: gray;
+    color: white;
+    font-style: normal;
+    transition: opacity .2s, background-color .2s, color .2s;
+}
+dfn:hover > a.self-link {
+    opacity: 1;
+}
+dfn > a.self-link:hover {
+    color: black;
+}
+
+a.self-link::before            { content: "¶"; }
+.heading > a.self-link::before { content: "§"; }
+dfn > a.self-link::before      { content: "#"; }</style>
 <style>/* style-syntax-highlighting */
 pre.idl.highlight { color: #708090; }
 .highlight:not(.idl) { background: hsl(24, 20%, 95%); }
@@ -1461,20 +1470,20 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2018-11-07">7 November 2018</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-05-28">28 May 2020</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
-     <dd><a class="u-url" href="https://wicg.github.io/BackgroundSync/spec/">https://wicg.github.io/BackgroundSync/spec/</a>
+     <dd><a class="u-url" href="https://wicg.github.io/background-sync/spec/">https://wicg.github.io/background-sync/spec/</a>
      <dt>Issue Tracking:
-     <dd><a href="https://github.com/WICG/BackgroundSync/issues/">GitHub</a>
+     <dd><a href="https://github.com/WICG/background-sync/issues/">GitHub</a>
      <dt class="editor">Editors:
      <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:jkarlin@chromium.org">Josh Karlin</a> (<span class="p-org org">Google</span>)
      <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:mek@chromium.org">Marijn Kruisselbrink</a> (<span class="p-org org">Google</span>)
     </dl>
    </div>
    <div data-fill-with="warning"></div>
-   <p class="copyright" data-fill-with="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2018 the Contributors to the Web Background Synchronization Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
+   <p class="copyright" data-fill-with="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2020 the Contributors to the Web Background Synchronization Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
 A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/">summary</a> is available. </p>
    <hr title="Separator for header">
   </div>
@@ -1673,8 +1682,9 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
   <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler"><c- n>EventHandler</c-></a> <dfn class="idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="attribute" data-export data-type="EventHandler" id="dom-serviceworkerglobalscope-onsync"><code><c- g>onsync</c-></code><a class="self-link" href="#dom-serviceworkerglobalscope-onsync"></a></dfn>;
 };
 
-[<dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="constructor" data-export data-lt="SyncEvent(type, init)" id="dom-syncevent-syncevent"><code><c- g>Constructor</c-></code><a class="self-link" href="#dom-syncevent-syncevent"></a></dfn>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export id="dom-syncevent-syncevent-type-init-type"><code><c- g>type</c-></code><a class="self-link" href="#dom-syncevent-syncevent-type-init-type"></a></dfn>, <a class="n" data-link-type="idl-name" href="#dictdef-synceventinit" id="ref-for-dictdef-synceventinit"><c- n>SyncEventInit</c-></a> <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init)" data-dfn-type="argument" data-export id="dom-syncevent-syncevent-type-init-init"><code><c- g>init</c-></code><a class="self-link" href="#dom-syncevent-syncevent-type-init-init"></a></dfn>), <a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->]
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="syncevent"><code><c- g>SyncEvent</c-></code></dfn> : <a class="n" data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface" id="ref-for-extendable-event-interface"><c- n>ExtendableEvent</c-></a> {
+  <dfn class="idl-code" data-dfn-for="SyncEvent" data-dfn-type="constructor" data-export data-lt="SyncEvent(type, init)|constructor(type, init)" id="dom-syncevent-syncevent"><code><c- g>constructor</c-></code><a class="self-link" href="#dom-syncevent-syncevent"></a></dfn>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init), SyncEvent/constructor(type, init)" data-dfn-type="argument" data-export id="dom-syncevent-syncevent-type-init-type"><code><c- g>type</c-></code><a class="self-link" href="#dom-syncevent-syncevent-type-init-type"></a></dfn>, <a class="n" data-link-type="idl-name" href="#dictdef-synceventinit" id="ref-for-dictdef-synceventinit"><c- n>SyncEventInit</c-></a> <dfn class="idl-code" data-dfn-for="SyncEvent/SyncEvent(type, init), SyncEvent/constructor(type, init)" data-dfn-type="argument" data-export id="dom-syncevent-syncevent-type-init-init"><code><c- g>init</c-></code><a class="self-link" href="#dom-syncevent-syncevent-type-init-init"></a></dfn>);
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString③"><c- b>DOMString</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export data-readonly data-type="DOMString" id="dom-syncevent-tag"><code><c- g>tag</c-></code></dfn>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean"><c- b>boolean</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="SyncEvent" data-dfn-type="attribute" data-export data-readonly data-type="boolean" id="dom-syncevent-lastchance"><code><c- g>lastChance</c-></code></dfn>;
 };
@@ -1910,6 +1920,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
+   <li><a href="#dom-syncevent-syncevent">constructor(type, init)</a><span>, in §5.3</span>
    <li><a href="#fire-a-sync-event">fire a sync event</a><span>, in §5.3</span>
    <li><a href="#firing">firing</a><span>, in §3</span>
    <li><a href="#dom-syncmanager-gettags">getTags()</a><span>, in §5.2</span>
@@ -2199,7 +2210,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-ecmascript">[ECMASCRIPT]
-   <dd><a href="https://tc39.github.io/ecma262/">ECMAScript Language Specification</a>. URL: <a href="https://tc39.github.io/ecma262/">https://tc39.github.io/ecma262/</a>
+   <dd><a href="https://tc39.es/ecma262/">ECMAScript Language Specification</a>. URL: <a href="https://tc39.es/ecma262/">https://tc39.es/ecma262/</a>
    <dt id="biblio-html">[HTML]
    <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-promises-guide">[PROMISES-GUIDE]
@@ -2209,34 +2220,35 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <dt id="biblio-secure-contexts">[SECURE-CONTEXTS]
    <dd>Mike West. <a href="https://www.w3.org/TR/secure-contexts/">Secure Contexts</a>. 15 September 2016. CR. URL: <a href="https://www.w3.org/TR/secure-contexts/">https://www.w3.org/TR/secure-contexts/</a>
    <dt id="biblio-service-workers-1">[SERVICE-WORKERS-1]
-   <dd>Alex Russell; et al. <a href="https://www.w3.org/TR/service-workers-1/">Service Workers 1</a>. 2 November 2017. WD. URL: <a href="https://www.w3.org/TR/service-workers-1/">https://www.w3.org/TR/service-workers-1/</a>
+   <dd>Alex Russell; et al. <a href="https://www.w3.org/TR/service-workers-1/">Service Workers 1</a>. 19 November 2019. CR. URL: <a href="https://www.w3.org/TR/service-workers-1/">https://www.w3.org/TR/service-workers-1/</a>
    <dt id="biblio-webidl">[WebIDL]
-   <dd>Cameron McCormack; Boris Zbarsky; Tobie Langel. <a href="https://heycam.github.io/webidl/">Web IDL</a>. 15 December 2016. ED. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
+   <dd>Boris Zbarsky. <a href="https://heycam.github.io/webidl/">Web IDL</a>. 15 December 2016. ED. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
   </dl>
   <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
-<pre class="idl highlight def"><c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-interface" id="ref-for-service-worker-registration-interface①①"><c- g>ServiceWorkerRegistration</c-></a> {
-  <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#syncmanager" id="ref-for-syncmanager⑤"><c- n>SyncManager</c-></a> <a data-readonly data-type="SyncManager" href="#dom-serviceworkerregistration-sync"><code><c- g>sync</c-></code></a>;
+<pre class="idl highlight def"><c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-interface"><c- g>ServiceWorkerRegistration</c-></a> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#syncmanager"><c- n>SyncManager</c-></a> <a data-readonly data-type="SyncManager" href="#dom-serviceworkerregistration-sync"><code><c- g>sync</c-></code></a>;
 };
 
-[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <a href="#syncmanager"><code><c- g>SyncManager</c-></code></a> {
-  <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-register" id="ref-for-dom-syncmanager-register①"><c- g>register</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑤"><c- b>DOMString</c-></a> <a href="#dom-syncmanager-register-tag-tag"><code><c- g>tag</c-></code></a>);
-  <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①①"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-gettags" id="ref-for-dom-syncmanager-gettags①"><c- g>getTags</c-></a>();
+  <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-register"><c- g>register</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a href="#dom-syncmanager-register-tag-tag"><code><c- g>tag</c-></code></a>);
+  <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-syncmanager-gettags"><c- g>getTags</c-></a>();
 };
 
-<c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-global-scope-interface" id="ref-for-service-worker-global-scope-interface①"><c- g>ServiceWorkerGlobalScope</c-></a> {
-  <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler①"><c- n>EventHandler</c-></a> <a data-type="EventHandler" href="#dom-serviceworkerglobalscope-onsync"><code><c- g>onsync</c-></code></a>;
+<c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-global-scope-interface"><c- g>ServiceWorkerGlobalScope</c-></a> {
+  <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a data-type="EventHandler" href="#dom-serviceworkerglobalscope-onsync"><code><c- g>onsync</c-></code></a>;
 };
 
-[<a href="#dom-syncevent-syncevent"><code><c- g>Constructor</c-></code></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②①"><c- b>DOMString</c-></a> <a href="#dom-syncevent-syncevent-type-init-type"><code><c- g>type</c-></code></a>, <a class="n" data-link-type="idl-name" href="#dictdef-synceventinit" id="ref-for-dictdef-synceventinit①"><c- n>SyncEventInit</c-></a> <a href="#dom-syncevent-syncevent-type-init-init"><code><c- g>init</c-></code></a>), <a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①①"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->]
-<c- b>interface</c-> <a href="#syncevent"><code><c- g>SyncEvent</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface" id="ref-for-extendable-event-interface②"><c- n>ExtendableEvent</c-></a> {
-  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString③①"><c- b>DOMString</c-></a> <a data-readonly data-type="DOMString" href="#dom-syncevent-tag"><code><c- g>tag</c-></code></a>;
-  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean②"><c- b>boolean</c-></a> <a data-readonly data-type="boolean" href="#dom-syncevent-lastchance"><code><c- g>lastChance</c-></code></a>;
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->]
+<c- b>interface</c-> <a href="#syncevent"><code><c- g>SyncEvent</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-interface"><c- n>ExtendableEvent</c-></a> {
+  <a href="#dom-syncevent-syncevent"><code><c- g>constructor</c-></code></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a href="#dom-syncevent-syncevent-type-init-type"><code><c- g>type</c-></code></a>, <a class="n" data-link-type="idl-name" href="#dictdef-synceventinit"><c- n>SyncEventInit</c-></a> <a href="#dom-syncevent-syncevent-type-init-init"><code><c- g>init</c-></code></a>);
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a data-readonly data-type="DOMString" href="#dom-syncevent-tag"><code><c- g>tag</c-></code></a>;
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean"><c- b>boolean</c-></a> <a data-readonly data-type="boolean" href="#dom-syncevent-lastchance"><code><c- g>lastChance</c-></code></a>;
 };
 
-<c- b>dictionary</c-> <a href="#dictdef-synceventinit"><code><c- g>SyncEventInit</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary" id="ref-for-extendable-event-init-dictionary①"><c- n>ExtendableEventInit</c-></a> {
-  <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString④①"><c- b>DOMString</c-></a> <a data-type="DOMString " href="#dom-synceventinit-tag"><code><c- g>tag</c-></code></a>;
-  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean①①"><c- b>boolean</c-></a> <a data-default="false" data-type="boolean " href="#dom-synceventinit-lastchance"><code><c- g>lastChance</c-></code></a> = <c- b>false</c->;
+<c- b>dictionary</c-> <a href="#dictdef-synceventinit"><code><c- g>SyncEventInit</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#extendable-event-init-dictionary"><c- n>ExtendableEventInit</c-></a> {
+  <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a data-type="DOMString " href="#dom-synceventinit-tag"><code><c- g>tag</c-></code></a>;
+  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean"><c- b>boolean</c-></a> <a data-default="false" data-type="boolean " href="#dom-synceventinit-lastchance"><code><c- g>lastChance</c-></code></a> = <c- b>false</c->;
 };
 
 </pre>

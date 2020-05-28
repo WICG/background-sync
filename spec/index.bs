@@ -1,14 +1,14 @@
 <pre class='metadata'>
 Title: Web Background Synchronization
 Status: CG-DRAFT
-ED: https://wicg.github.io/BackgroundSync/spec/
+ED: https://wicg.github.io/background-sync/spec/
 Shortname: background-sync
 Level: 1
 Editor: Josh Karlin, Google, jkarlin@chromium.org
 Editor: Marijn Kruisselbrink, Google, mek@chromium.org
 Abstract: This specification describes a method that enables web applications to synchronize data in the background.
 Group: wicg
-Repository: WICG/BackgroundSync
+Repository: WICG/background-sync
 Link Defaults: html (dfn) allowed to show a popup/event handler idl attribute/global object/in parallel/incumbent settings object/perform a microtask checkpoint/queue a task/script execution environment
 </pre>
 

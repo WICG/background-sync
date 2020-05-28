@@ -1167,6 +1167,18 @@ Possible extra rowspan handling
 		margin-left: auto;
 		margin-right: auto;
 	}
+	.overlarge {
+		/* Magic to create good table positioning:
+		   "content column" is 50ems wide at max; less on smaller screens.
+		   Extra space (after ToC + content) is empty on the right.
+
+		   1. When table < content column, centers table in column.
+		   2. When content < table < available, left-aligns.
+		   3. When table > available, fills available + scroll bar.
+		*/ 
+		display: grid;
+		grid-template-columns: minmax(0, 50em);
+	}
 	.overlarge > table {
 		/* limit preferred width of table */
 		max-width: 50em;
@@ -1176,7 +1188,6 @@ Possible extra rowspan handling
 
 	@media (min-width: 55em) {
 		.overlarge {
-			margin-left: calc(13px + 26.5rem - 50vw);
 			margin-right: calc(13px + 26.5rem - 50vw);
 			max-width: none;
 		}
@@ -1184,14 +1195,12 @@ Possible extra rowspan handling
 	@media screen and (min-width: 78em) {
 		body:not(.toc-inline) .overlarge {
 			/* 30.5em body padding 50em content area */
-			margin-left: calc(40em - 50vw) !important;
 			margin-right: calc(40em - 50vw) !important;
 		}
 	}
 	@media screen and (min-width: 90em) {
 		body:not(.toc-inline) .overlarge {
 			/* 4em html margin 30.5em body padding 50em content area */
-			margin-left: 0 !important;
 			margin-right: calc(84.5em - 100vw) !important;
 		}
 	}
@@ -1213,105 +1222,8 @@ Possible extra rowspan handling
 	}
 </style>
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 60a9f27730c0c9ae3e20485f824cef3713caf5fb" name="generator">
-  <link href="https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html" rel="canonical">
-  <meta content="3e4519e405d9c7cfb1408662abff11338d938790" name="document-revision">
-<style>/* style-md-lists */
-
-/* This is a weird hack for me not yet following the commonmark spec
-   regarding paragraph and lists. */
-[data-md] > :first-child {
-    margin-top: 0;
-}
-[data-md] > :last-child {
-    margin-bottom: 0;
-}</style>
-<style>/* style-selflinks */
-
-.heading, .issue, .note, .example, li, dt {
-    position: relative;
-}
-a.self-link {
-    position: absolute;
-    top: 0;
-    left: calc(-1 * (3.5rem - 26px));
-    width: calc(3.5rem - 26px);
-    height: 2em;
-    text-align: center;
-    border: none;
-    transition: opacity .2s;
-    opacity: .5;
-}
-a.self-link:hover {
-    opacity: 1;
-}
-.heading > a.self-link {
-    font-size: 83%;
-}
-li > a.self-link {
-    left: calc(-1 * (3.5rem - 26px) - 2em);
-}
-dfn > a.self-link {
-    top: auto;
-    left: auto;
-    opacity: 0;
-    width: 1.5em;
-    height: 1.5em;
-    background: gray;
-    color: white;
-    font-style: normal;
-    transition: opacity .2s, background-color .2s, color .2s;
-}
-dfn:hover > a.self-link {
-    opacity: 1;
-}
-dfn > a.self-link:hover {
-    color: black;
-}
-
-a.self-link::before            { content: "¶"; }
-.heading > a.self-link::before { content: "§"; }
-dfn > a.self-link::before      { content: "#"; }</style>
-<style>/* style-counters */
-
-body {
-    counter-reset: example figure issue;
-}
-.issue {
-    counter-increment: issue;
-}
-.issue:not(.no-marker)::before {
-    content: "Issue " counter(issue);
-}
-
-.example {
-    counter-increment: example;
-}
-.example:not(.no-marker)::before {
-    content: "Example " counter(example);
-}
-.invalid.example:not(.no-marker)::before,
-.illegal.example:not(.no-marker)::before {
-    content: "Invalid Example" counter(example);
-}
-
-figcaption {
-    counter-increment: figure;
-}
-figcaption:not(.no-marker)::before {
-    content: "Figure " counter(figure) " ";
-}</style>
-<style>/* style-var-click-highlighting */
-
-    var { cursor: pointer; }
-    var.selected0 { background-color: #F4D200; box-shadow: 0 0 0 2px #F4D200; }
-    var.selected1 { background-color: #FF87A2; box-shadow: 0 0 0 2px #FF87A2; }
-    var.selected2 { background-color: #96E885; box-shadow: 0 0 0 2px #96E885; }
-    var.selected3 { background-color: #3EEED2; box-shadow: 0 0 0 2px #3EEED2; }
-    var.selected4 { background-color: #EACFB6; box-shadow: 0 0 0 2px #EACFB6; }
-    var.selected5 { background-color: #82DDFF; box-shadow: 0 0 0 2px #82DDFF; }
-    var.selected6 { background-color: #FFBCF2; box-shadow: 0 0 0 2px #FFBCF2; }
-    </style>
+  <meta content="Bikeshed version 78f8c09c, updated Tue May 19 10:51:23 2020 -0700" name="generator">
+  <link href="https://wicg.github.io/background-sync/spec/PeriodicBackgroundSync-index.html" rel="canonical">
 <style>/* style-autolinks */
 
 .css.css, .property.property, .descriptor.descriptor {
@@ -1374,6 +1286,35 @@ pre .property::before, pre .property::after {
 [data-link-type=biblio] {
     white-space: pre;
 }</style>
+<style>/* style-counters */
+
+body {
+    counter-reset: example figure issue;
+}
+.issue {
+    counter-increment: issue;
+}
+.issue:not(.no-marker)::before {
+    content: "Issue " counter(issue);
+}
+
+.example {
+    counter-increment: example;
+}
+.example:not(.no-marker)::before {
+    content: "Example " counter(example);
+}
+.invalid.example:not(.no-marker)::before,
+.illegal.example:not(.no-marker)::before {
+    content: "Invalid Example" counter(example);
+}
+
+figcaption {
+    counter-increment: figure;
+}
+figcaption:not(.no-marker)::before {
+    content: "Figure " counter(figure) " ";
+}</style>
 <style>/* style-dfn-panel */
 
 .dfn-panel {
@@ -1411,6 +1352,62 @@ pre .property::before, pre .property::after {
 
 .dfn-paneled { cursor: pointer; }
 </style>
+<style>/* style-md-lists */
+
+/* This is a weird hack for me not yet following the commonmark spec
+   regarding paragraph and lists. */
+[data-md] > :first-child {
+    margin-top: 0;
+}
+[data-md] > :last-child {
+    margin-bottom: 0;
+}</style>
+<style>/* style-selflinks */
+
+.heading, .issue, .note, .example, li, dt {
+    position: relative;
+}
+a.self-link {
+    position: absolute;
+    top: 0;
+    left: calc(-1 * (3.5rem - 26px));
+    width: calc(3.5rem - 26px);
+    height: 2em;
+    text-align: center;
+    border: none;
+    transition: opacity .2s;
+    opacity: .5;
+}
+a.self-link:hover {
+    opacity: 1;
+}
+.heading > a.self-link {
+    font-size: 83%;
+}
+li > a.self-link {
+    left: calc(-1 * (3.5rem - 26px) - 2em);
+}
+dfn > a.self-link {
+    top: auto;
+    left: auto;
+    opacity: 0;
+    width: 1.5em;
+    height: 1.5em;
+    background: gray;
+    color: white;
+    font-style: normal;
+    transition: opacity .2s, background-color .2s, color .2s;
+}
+dfn:hover > a.self-link {
+    opacity: 1;
+}
+dfn > a.self-link:hover {
+    color: black;
+}
+
+a.self-link::before            { content: "¶"; }
+.heading > a.self-link::before { content: "§"; }
+dfn > a.self-link::before      { content: "#"; }</style>
 <style>/* style-syntax-highlighting */
 pre.idl.highlight { color: #708090; }
 .highlight:not(.idl) { background: hsl(24, 20%, 95%); }
@@ -1469,24 +1466,35 @@ c-[vg] { color: #0077aa } /* Name.Variable.Global */
 c-[vi] { color: #0077aa } /* Name.Variable.Instance */
 c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
 </style>
+<style>/* style-var-click-highlighting */
+
+    var { cursor: pointer; }
+    var.selected0 { background-color: #F4D200; box-shadow: 0 0 0 2px #F4D200; }
+    var.selected1 { background-color: #FF87A2; box-shadow: 0 0 0 2px #FF87A2; }
+    var.selected2 { background-color: #96E885; box-shadow: 0 0 0 2px #96E885; }
+    var.selected3 { background-color: #3EEED2; box-shadow: 0 0 0 2px #3EEED2; }
+    var.selected4 { background-color: #EACFB6; box-shadow: 0 0 0 2px #EACFB6; }
+    var.selected5 { background-color: #82DDFF; box-shadow: 0 0 0 2px #82DDFF; }
+    var.selected6 { background-color: #FFBCF2; box-shadow: 0 0 0 2px #FFBCF2; }
+    </style>
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Web Periodic Background Synchronization</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-12-17">17 December 2019</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-05-28">28 May 2020</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
-     <dd><a class="u-url" href="https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html">https://wicg.github.io/BackgroundSync/spec/PeriodicBackgroundSync-index.html</a>
+     <dd><a class="u-url" href="https://wicg.github.io/background-sync/spec/PeriodicBackgroundSync-index.html">https://wicg.github.io/background-sync/spec/PeriodicBackgroundSync-index.html</a>
      <dt>Issue Tracking:
-     <dd><a href="https://github.com/WICG/BackgroundSync/issues/">GitHub</a>
+     <dd><a href="https://github.com/WICG/background-sync/issues/">GitHub</a>
      <dt class="editor">Editors:
      <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:nator@chromium.org">Mugdha Lakhani</a> (<span class="p-org org">Google</span>)
      <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:jakearchibald@chromium.org">Jake Archibald</a> (<span class="p-org org">Google</span>)
     </dl>
    </div>
    <div data-fill-with="warning"></div>
-   <p class="copyright" data-fill-with="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2019 the Contributors to the Web Periodic Background Synchronization Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
+   <p class="copyright" data-fill-with="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2020 the Contributors to the Web Periodic Background Synchronization Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
 A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/">summary</a> is available. </p>
    <hr title="Separator for header">
   </div>
@@ -1771,7 +1779,7 @@ Note: This can be used to mitigate concerns raised in <a href="#security">§ 6
 };
 </pre>
    <div> A <code class="idl"><a data-link-type="idl" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager④">PeriodicSyncManager</a></code> has a <dfn class="dfn-paneled" data-dfn-for="PeriodicSyncManager" data-dfn-type="dfn" data-noexport id="periodicsyncmanager-service-worker-registration">service worker registration</dfn> (a <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration④">service worker registration</a>). </div>
-   <div class="algorithm" data-algorithm="register(tag, options)">
+   <div class="algorithm" data-algorithm="register(tag, options)" data-algorithm-for="PeriodicSyncManager">
      The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export data-lt="register(tag, options)|register(tag)" id="dom-periodicsyncmanager-register" title="register(tag, options)"><code>register(<var>tag</var>, <var>options</var>)</code></dfn></code> method, when invoked, MUST return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#a-new-promise" id="ref-for-a-new-promise">a new promise</a> <var>promise</var> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps②">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodic-sync-processing-queue" id="ref-for-periodic-sync-processing-queue②">periodic sync processing queue</a>: 
     <ol>
      <li data-md>
@@ -1830,7 +1838,7 @@ Note: This can be used to mitigate concerns raised in <a href="#security">§ 6
       </ol>
     </ol>
    </div>
-   <div class="algorithm" data-algorithm="getTags()">
+   <div class="algorithm" data-algorithm="getTags()" data-algorithm-for="PeriodicSyncManager">
      The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export id="dom-periodicsyncmanager-gettags" title="getTags()"><code>getTags()</code></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#a-new-promise" id="ref-for-a-new-promise①">a new promise</a> <var>promise</var> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps③">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodic-sync-processing-queue" id="ref-for-periodic-sync-processing-queue③">periodic sync processing queue</a>: 
     <ol>
      <li data-md>
@@ -1843,7 +1851,7 @@ Note: This can be used to mitigate concerns raised in <a href="#security">§ 6
       <p><a data-link-type="dfn" href="https://heycam.github.io/webidl/#resolve" id="ref-for-resolve②">Resolve</a> <var>promise</var> with <var>currentTags</var>.</p>
     </ol>
    </div>
-   <div class="algorithm" data-algorithm="unregister(tag)">
+   <div class="algorithm" data-algorithm="unregister(tag)" data-algorithm-for="PeriodicSyncManager">
      The <code><dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncManager" data-dfn-type="method" data-export id="dom-periodicsyncmanager-unregister" title="unregister(tag)"><code>unregister(<var>tag</var>)</code></dfn></code> method when invoked, MUST return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#a-new-promise" id="ref-for-a-new-promise②">a new promise</a> <var>promise</var> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#enqueue-the-following-steps" id="ref-for-enqueue-the-following-steps④">enqueue the following steps</a> to the <a data-link-type="dfn" href="#periodic-sync-processing-queue" id="ref-for-periodic-sync-processing-queue④">periodic sync processing queue</a>: 
     <ol>
      <li data-md>
@@ -1860,15 +1868,14 @@ Note: This can be used to mitigate concerns raised in <a href="#security">§ 6
    </div>
    <h3 class="heading settled" data-level="9.4" id="periodicsync-event-interface"><span class="secno">9.4. </span><span class="content">The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="periodicsync-event">periodicsync event</dfn></span><a class="self-link" href="#periodicsync-event-interface"></a></h3>
 <pre class="idl highlight def"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-periodicsynceventinit"><code><c- g>PeriodicSyncEventInit</c-></code></dfn> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#dictdef-extendableeventinit" id="ref-for-dictdef-extendableeventinit"><c- n>ExtendableEventInit</c-></a> {
-    <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑤"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncEventInit" data-dfn-type="dict-member" data-export data-type="DOMString " id="dom-periodicsynceventinit-tag"><code><c- g>tag</c-></code><a class="self-link" href="#dom-periodicsynceventinit-tag"></a></dfn>;
+  <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑤"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncEventInit" data-dfn-type="dict-member" data-export data-type="DOMString " id="dom-periodicsynceventinit-tag"><code><c- g>tag</c-></code><a class="self-link" href="#dom-periodicsynceventinit-tag"></a></dfn>;
 };
 
-[
-    <dfn class="idl-code" data-dfn-for="PeriodicSyncEvent" data-dfn-type="constructor" data-export data-lt="PeriodicSyncEvent(type, init)" id="dom-periodicsyncevent-periodicsyncevent"><code><c- g>Constructor</c-></code><a class="self-link" href="#dom-periodicsyncevent-periodicsyncevent"></a></dfn>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑥"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncEvent/PeriodicSyncEvent(type, init)" data-dfn-type="argument" data-export id="dom-periodicsyncevent-periodicsyncevent-type-init-type"><code><c- g>type</c-></code><a class="self-link" href="#dom-periodicsyncevent-periodicsyncevent-type-init-type"></a></dfn>, <a class="n" data-link-type="idl-name" href="#dictdef-periodicsynceventinit" id="ref-for-dictdef-periodicsynceventinit"><c- n>PeriodicSyncEventInit</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncEvent/PeriodicSyncEvent(type, init)" data-dfn-type="argument" data-export id="dom-periodicsyncevent-periodicsyncevent-type-init-init"><code><c- g>init</c-></code><a class="self-link" href="#dom-periodicsyncevent-periodicsyncevent-type-init-init"></a></dfn>),
-    <a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->
-] <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="periodicsyncevent"><code><c- g>PeriodicSyncEvent</c-></code></dfn> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent①"><c- n>ExtendableEvent</c-></a> {
-    <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑦"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMString" href="#dom-periodicsyncevent-tag" id="ref-for-dom-periodicsyncevent-tag"><c- g>tag</c-></a>;
-  };
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->]
+<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="periodicsyncevent"><code><c- g>PeriodicSyncEvent</c-></code></dfn> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent①"><c- n>ExtendableEvent</c-></a> {
+  <dfn class="idl-code" data-dfn-for="PeriodicSyncEvent" data-dfn-type="constructor" data-export data-lt="PeriodicSyncEvent(type, init)|constructor(type, init)" id="dom-periodicsyncevent-periodicsyncevent"><code><c- g>constructor</c-></code><a class="self-link" href="#dom-periodicsyncevent-periodicsyncevent"></a></dfn>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑥"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncEvent/PeriodicSyncEvent(type, init), PeriodicSyncEvent/constructor(type, init)" data-dfn-type="argument" data-export id="dom-periodicsyncevent-periodicsyncevent-type-init-type"><code><c- g>type</c-></code><a class="self-link" href="#dom-periodicsyncevent-periodicsyncevent-type-init-type"></a></dfn>, <a class="n" data-link-type="idl-name" href="#dictdef-periodicsynceventinit" id="ref-for-dictdef-periodicsynceventinit"><c- n>PeriodicSyncEventInit</c-></a> <dfn class="idl-code" data-dfn-for="PeriodicSyncEvent/PeriodicSyncEvent(type, init), PeriodicSyncEvent/constructor(type, init)" data-dfn-type="argument" data-export id="dom-periodicsyncevent-periodicsyncevent-type-init-init"><code><c- g>init</c-></code><a class="self-link" href="#dom-periodicsyncevent-periodicsyncevent-type-init-init"></a></dfn>);
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑦"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMString" href="#dom-periodicsyncevent-tag" id="ref-for-dom-periodicsyncevent-tag"><c- g>tag</c-></a>;
+};
 </pre>
    <div> A <code class="idl"><a data-link-type="idl" href="#periodicsyncevent" id="ref-for-periodicsyncevent②">PeriodicSyncEvent</a></code> has a <dfn class="dfn-paneled" data-dfn-for="PeriodicSyncEvent" data-dfn-type="dfn" data-noexport id="periodicsyncevent-tag">tag</dfn> (a <a data-link-type="dfn" href="#periodic-sync-registration-tag" id="ref-for-periodic-sync-registration-tag④">tag</a>).
   The <dfn class="dfn-paneled idl-code" data-dfn-for="PeriodicSyncEvent" data-dfn-type="attribute" data-export id="dom-periodicsyncevent-tag"><code>tag</code></dfn> attribute must return the value it was initialized to. </div>
@@ -2091,6 +2098,7 @@ Note: This can be used to mitigate concerns raised in <a href="#security">§ 6
    <li><a href="#active-periodic-sync-registrations">Active periodic sync registrations</a><span>, in §3</span>
    <li><a href="#periodic-sync-registration-anchor-time">anchor time</a><span>, in §4.1</span>
    <li><a href="#dictdef-backgroundsyncoptions">BackgroundSyncOptions</a><span>, in §9.3</span>
+   <li><a href="#dom-periodicsyncevent-periodicsyncevent">constructor(type, init)</a><span>, in §9.4</span>
    <li><a href="#effective-minimum-sync-interval-for-origin">effective minimum sync interval for origin</a><span>, in §4.2</span>
    <li><a href="#fire-a-periodicsync-event">fire a periodicsync event</a><span>, in §9.4.1</span>
    <li><a href="#dom-periodicsyncmanager-gettags">getTags()</a><span>, in §9.3</span>
@@ -2106,8 +2114,8 @@ Note: This can be used to mitigate concerns raised in <a href="#security">§ 6
    <li><a href="#periodicsyncevent">PeriodicSyncEvent</a><span>, in §9.4</span>
    <li><a href="#dictdef-periodicsynceventinit">PeriodicSyncEventInit</a><span>, in §9.4</span>
    <li><a href="#dom-periodicsyncevent-periodicsyncevent">PeriodicSyncEvent(type, init)</a><span>, in §9.4</span>
-   <li><a href="#periodicsyncmanager">PeriodicSyncManager</a><span>, in §9.3</span>
    <li><a href="#serviceworkerregistration-periodic-sync-manager">periodic sync manager</a><span>, in §9.2</span>
+   <li><a href="#periodicsyncmanager">PeriodicSyncManager</a><span>, in §9.3</span>
    <li><a href="#periodic-sync-processing-queue">Periodic sync processing queue</a><span>, in §3</span>
    <li><a href="#periodic-sync-registration">periodic sync registration</a><span>, in §4.1</span>
    <li><a href="#periodic-sync-scheduler">Periodic Sync Scheduler</a><span>, in §4.2</span>
@@ -2574,36 +2582,35 @@ Note: This can be used to mitigate concerns raised in <a href="#security">§ 6
    <dd>Boris Zbarsky. <a href="https://heycam.github.io/webidl/">Web IDL</a>. 15 December 2016. ED. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
   </dl>
   <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
-<pre class="idl highlight def"><c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://w3c.github.io/ServiceWorker/#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope①①"><c- g>ServiceWorkerGlobalScope</c-></a> {
-    <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler①"><c- n>EventHandler</c-></a> <a data-type="EventHandler" href="#dom-serviceworkerglobalscope-onperiodicsync"><code><c- g>onperiodicsync</c-></code></a>;
+<pre class="idl highlight def"><c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://w3c.github.io/ServiceWorker/#serviceworkerglobalscope"><c- g>ServiceWorkerGlobalScope</c-></a> {
+    <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a data-type="EventHandler" href="#dom-serviceworkerglobalscope-onperiodicsync"><code><c- g>onperiodicsync</c-></code></a>;
 };
 
-[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed③"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
-<c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://w3c.github.io/ServiceWorker/#serviceworkerregistration" id="ref-for-serviceworkerregistration①①"><c- g>ServiceWorkerRegistration</c-></a> {
-  <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#periodicsyncmanager" id="ref-for-periodicsyncmanager⑧"><c- n>PeriodicSyncManager</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="PeriodicSyncManager" href="#dom-serviceworkerregistration-periodicsync" id="ref-for-dom-serviceworkerregistration-periodicsync①"><c- g>periodicSync</c-></a>;
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+<c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="https://w3c.github.io/ServiceWorker/#serviceworkerregistration"><c- g>ServiceWorkerRegistration</c-></a> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#periodicsyncmanager"><c- n>PeriodicSyncManager</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="PeriodicSyncManager" href="#dom-serviceworkerregistration-periodicsync"><c- g>periodicSync</c-></a>;
 };
 
-[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <a href="#periodicsyncmanager"><code><c- g>PeriodicSyncManager</c-></code></a> {
-    <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-register" id="ref-for-dom-periodicsyncmanager-register①①"><c- g>register</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②①"><c- b>DOMString</c-></a> <a href="#dom-periodicsyncmanager-register-tag-options-tag"><code><c- g>tag</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-backgroundsyncoptions" id="ref-for-dictdef-backgroundsyncoptions①"><c- n>BackgroundSyncOptions</c-></a> <a href="#dom-periodicsyncmanager-register-tag-options-options"><code><c- g>options</c-></code></a>);
-    <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString③①"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-gettags" id="ref-for-dom-periodicsyncmanager-gettags①"><c- g>getTags</c-></a>();
-    <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-unregister" id="ref-for-dom-periodicsyncmanager-unregister①"><c- g>unregister</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString④①"><c- b>DOMString</c-></a> <a href="#dom-periodicsyncmanager-unregister-tag-tag"><code><c- g>tag</c-></code></a>);
+    <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-register"><c- g>register</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a href="#dom-periodicsyncmanager-register-tag-options-tag"><code><c- g>tag</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-backgroundsyncoptions"><c- n>BackgroundSyncOptions</c-></a> <a href="#dom-periodicsyncmanager-register-tag-options-options"><code><c- g>options</c-></code></a>);
+    <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-gettags"><c- g>getTags</c-></a>();
+    <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-periodicsyncmanager-unregister"><c- g>unregister</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a href="#dom-periodicsyncmanager-unregister-tag-tag"><code><c- g>tag</c-></code></a>);
 };
 
 <c- b>dictionary</c-> <a href="#dictdef-backgroundsyncoptions"><code><c- g>BackgroundSyncOptions</c-></code></a> {
-    [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#EnforceRange" id="ref-for-EnforceRange①"><c- g>EnforceRange</c-></a>] <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-unsigned-long-long" id="ref-for-idl-unsigned-long-long①"><c- b>unsigned</c-> <c- b>long</c-> <c- b>long</c-></a> <a data-default="0" data-type="unsigned long long " href="#dom-backgroundsyncoptions-mininterval"><code><c- g>minInterval</c-></code></a> = 0;
+    [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#EnforceRange"><c- g>EnforceRange</c-></a>] <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-unsigned-long-long"><c- b>unsigned</c-> <c- b>long</c-> <c- b>long</c-></a> <a data-default="0" data-type="unsigned long long " href="#dom-backgroundsyncoptions-mininterval"><code><c- g>minInterval</c-></code></a> = 0;
 };
 
-<c- b>dictionary</c-> <a href="#dictdef-periodicsynceventinit"><code><c- g>PeriodicSyncEventInit</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#dictdef-extendableeventinit" id="ref-for-dictdef-extendableeventinit①"><c- n>ExtendableEventInit</c-></a> {
-    <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑤①"><c- b>DOMString</c-></a> <a data-type="DOMString " href="#dom-periodicsynceventinit-tag"><code><c- g>tag</c-></code></a>;
+<c- b>dictionary</c-> <a href="#dictdef-periodicsynceventinit"><code><c- g>PeriodicSyncEventInit</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#dictdef-extendableeventinit"><c- n>ExtendableEventInit</c-></a> {
+  <c- b>required</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a data-type="DOMString " href="#dom-periodicsynceventinit-tag"><code><c- g>tag</c-></code></a>;
 };
 
-[
-    <a href="#dom-periodicsyncevent-periodicsyncevent"><code><c- g>Constructor</c-></code></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑥①"><c- b>DOMString</c-></a> <a href="#dom-periodicsyncevent-periodicsyncevent-type-init-type"><code><c- g>type</c-></code></a>, <a class="n" data-link-type="idl-name" href="#dictdef-periodicsynceventinit" id="ref-for-dictdef-periodicsynceventinit①"><c- n>PeriodicSyncEventInit</c-></a> <a href="#dom-periodicsyncevent-periodicsyncevent-type-init-init"><code><c- g>init</c-></code></a>),
-    <a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②①"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->
-] <c- b>interface</c-> <a href="#periodicsyncevent"><code><c- g>PeriodicSyncEvent</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#extendableevent" id="ref-for-extendableevent①①"><c- n>ExtendableEvent</c-></a> {
-    <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑦①"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMString" href="#dom-periodicsyncevent-tag" id="ref-for-dom-periodicsyncevent-tag①"><c- g>tag</c-></a>;
-  };
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->]
+<c- b>interface</c-> <a href="#periodicsyncevent"><code><c- g>PeriodicSyncEvent</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://w3c.github.io/ServiceWorker/#extendableevent"><c- n>ExtendableEvent</c-></a> {
+  <a href="#dom-periodicsyncevent-periodicsyncevent"><code><c- g>constructor</c-></code></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a href="#dom-periodicsyncevent-periodicsyncevent-type-init-type"><code><c- g>type</c-></code></a>, <a class="n" data-link-type="idl-name" href="#dictdef-periodicsynceventinit"><c- n>PeriodicSyncEventInit</c-></a> <a href="#dom-periodicsyncevent-periodicsyncevent-type-init-init"><code><c- g>init</c-></code></a>);
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMString" href="#dom-periodicsyncevent-tag"><c- g>tag</c-></a>;
+};
 
 </pre>
   <aside class="dfn-panel" data-for="periodicsync-event-in-the-background">
@@ -2851,6 +2858,62 @@ Note: This can be used to mitigate concerns raised in <a href="#security">§ 6
     <li><a href="#ref-for-fire-a-periodicsync-event①">9.4.1. Fire a periodicsync event</a>
    </ul>
   </aside>
+<script>/* script-dfn-panel */
+
+document.body.addEventListener("click", function(e) {
+    var queryAll = function(sel) { return [].slice.call(document.querySelectorAll(sel)); }
+    // Find the dfn element or panel, if any, that was clicked on.
+    var el = e.target;
+    var target;
+    var hitALink = false;
+    while(el.parentElement) {
+        if(el.tagName == "A") {
+            // Clicking on a link in a <dfn> shouldn't summon the panel
+            hitALink = true;
+        }
+        if(el.classList.contains("dfn-paneled")) {
+            target = "dfn";
+            break;
+        }
+        if(el.classList.contains("dfn-panel")) {
+            target = "dfn-panel";
+            break;
+        }
+        el = el.parentElement;
+    }
+    if(target != "dfn-panel") {
+        // Turn off any currently "on" or "activated" panels.
+        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(function(el){
+            el.classList.remove("on");
+            el.classList.remove("activated");
+        });
+    }
+    if(target == "dfn" && !hitALink) {
+        // open the panel
+        var dfnPanel = document.querySelector(".dfn-panel[data-for='" + el.id + "']");
+        if(dfnPanel) {
+            dfnPanel.classList.add("on");
+            var rect = el.getBoundingClientRect();
+            dfnPanel.style.left = window.scrollX + rect.right + 5 + "px";
+            dfnPanel.style.top = window.scrollY + rect.top + "px";
+            var panelRect = dfnPanel.getBoundingClientRect();
+            var panelWidth = panelRect.right - panelRect.left;
+            if(panelRect.right > document.body.scrollWidth && (rect.left - (panelWidth + 5)) > 0) {
+                // Reposition, because the panel is overflowing
+                dfnPanel.style.left = window.scrollX + rect.left - (panelWidth + 5) + "px";
+            }
+        } else {
+            console.log("Couldn't find .dfn-panel[data-for='" + el.id + "']");
+        }
+    } else if(target == "dfn-panel") {
+        // Switch it to "activated" state, which pins it.
+        el.classList.add("activated");
+        el.style.left = null;
+        el.style.top = null;
+    }
+
+});
+</script>
 <script>/* script-var-click-highlighting */
 
     document.addEventListener("click", e=>{
@@ -2935,59 +2998,3 @@ Note: This can be used to mitigate concerns raised in <a href="#security">§ 6
         }
     }
     </script>
-<script>/* script-dfn-panel */
-
-document.body.addEventListener("click", function(e) {
-    var queryAll = function(sel) { return [].slice.call(document.querySelectorAll(sel)); }
-    // Find the dfn element or panel, if any, that was clicked on.
-    var el = e.target;
-    var target;
-    var hitALink = false;
-    while(el.parentElement) {
-        if(el.tagName == "A") {
-            // Clicking on a link in a <dfn> shouldn't summon the panel
-            hitALink = true;
-        }
-        if(el.classList.contains("dfn-paneled")) {
-            target = "dfn";
-            break;
-        }
-        if(el.classList.contains("dfn-panel")) {
-            target = "dfn-panel";
-            break;
-        }
-        el = el.parentElement;
-    }
-    if(target != "dfn-panel") {
-        // Turn off any currently "on" or "activated" panels.
-        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(function(el){
-            el.classList.remove("on");
-            el.classList.remove("activated");
-        });
-    }
-    if(target == "dfn" && !hitALink) {
-        // open the panel
-        var dfnPanel = document.querySelector(".dfn-panel[data-for='" + el.id + "']");
-        if(dfnPanel) {
-            dfnPanel.classList.add("on");
-            var rect = el.getBoundingClientRect();
-            dfnPanel.style.left = window.scrollX + rect.right + 5 + "px";
-            dfnPanel.style.top = window.scrollY + rect.top + "px";
-            var panelRect = dfnPanel.getBoundingClientRect();
-            var panelWidth = panelRect.right - panelRect.left;
-            if(panelRect.right > document.body.scrollWidth && (rect.left - (panelWidth + 5)) > 0) {
-                // Reposition, because the panel is overflowing
-                dfnPanel.style.left = window.scrollX + rect.left - (panelWidth + 5) + "px";
-            }
-        } else {
-            console.log("Couldn't find .dfn-panel[data-for='" + el.id + "']");
-        }
-    } else if(target == "dfn-panel") {
-        // Switch it to "activated" state, which pins it.
-        el.classList.add("activated");
-        el.style.left = null;
-        el.style.top = null;
-    }
-
-});
-</script>
