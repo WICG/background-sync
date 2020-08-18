@@ -207,7 +207,7 @@ spec: WebIDL; urlPrefix: https://heycam.github.io/webidl/#
     <pre class="idl">
       [Exposed=(Window,Worker)]
       interface SyncManager {
-        Promise&lt;void&gt; register(DOMString tag);
+        Promise&lt;undefined&gt; register(DOMString tag);
         Promise&lt;sequence&lt;DOMString&gt;&gt; getTags();
       };
     </pre>
